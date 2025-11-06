@@ -428,8 +428,8 @@ namespace cba.Util
         public override GotoCmd VisitGotoCmd(GotoCmd node)
         {
             var gc = (GotoCmd)node.Clone();
-            gc.labelNames = new List<System.String>();
-            gc.labelNames.AddRange(node.labelNames);
+            gc.LabelNames = new List<System.String>();
+            gc.LabelNames.AddRange(node.LabelNames);
             return gc;
         }
 

@@ -2183,14 +2183,14 @@ namespace cba
 
             public override GotoCmd VisitGotoCmd(GotoCmd node)
             {
-                var ss = node.labelNames;
-                node.labelNames = new List<String>();
+                var ss = node.LabelNames;
+                node.LabelNames = new List<String>();
                 ss.OfType<string>().ForEach(s =>
                     {
                         if (s.StartsWith("inline$"))
-                            node.labelNames.Add("itt$" + s);
+                            node.LabelNames.Add("itt$" + s);
                         else
-                            node.labelNames.Add(s);
+                            node.LabelNames.Add(s);
                     });
                 return base.VisitGotoCmd(node);
             }

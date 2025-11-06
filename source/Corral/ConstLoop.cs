@@ -276,7 +276,7 @@ namespace cba
             potentialBlocks.Add(impl.Blocks[0].Label);
             var gc = impl.Blocks[0].TransferCmd as GotoCmd;
             if(gc != null ) 
-                gc.labelNames.OfType<string>().ForEach(s => potentialBlocks.Add(s));
+                gc.LabelNames.OfType<string>().ForEach(s => potentialBlocks.Add(s));
 
             var label2Block = BoogieUtil.labelBlockMapping(impl);
             foreach (var b in potentialBlocks)
@@ -718,9 +718,9 @@ namespace cba
             var renameLabels = new Action<GotoCmd>(gc =>
                 {
                     var nSeq = new List<String>();
-                    gc.labelNames.OfType<string>()
+                    gc.LabelNames.OfType<string>()
                         .ForEach(s => nSeq.Add(s + suffix));
-                    gc.labelNames = nSeq;
+                    gc.LabelNames = nSeq;
                     gc.LabelTargets = new List<Block>();
                 });
 
@@ -878,18 +878,18 @@ namespace cba
             // check entry, exit blocks
             var g1 = impl.Blocks[0].TransferCmd as GotoCmd;
             if (g1 == null) return false;
-            if (g1.labelNames.Count != 2) return false;
-            if (g1.labelNames[0] == impl.Blocks[0].Label || g1.labelNames[1] == impl.Blocks[0].Label) return false;
-            if (!IsExitBlock(g1.labelNames[0], impl) && !IsExitBlock(g1.labelNames[1], impl)) return false;
-            if (IsExitBlock(g1.labelNames[0], impl))
+            if (g1.LabelNames.Count != 2) return false;
+            if (g1.LabelNames[0] == impl.Blocks[0].Label || g1.LabelNames[1] == impl.Blocks[0].Label) return false;
+            if (!IsExitBlock(g1.LabelNames[0], impl) && !IsExitBlock(g1.LabelNames[1], impl)) return false;
+            if (IsExitBlock(g1.LabelNames[0], impl))
             {
-                exitBlock.Add(impl.Name, g1.labelNames[0]);
-                loopBodyStartBlock.Add(impl.Name, g1.labelNames[1]);
+                exitBlock.Add(impl.Name, g1.LabelNames[0]);
+                loopBodyStartBlock.Add(impl.Name, g1.LabelNames[1]);
             }
-            if (IsExitBlock(g1.labelNames[1], impl))
+            if (IsExitBlock(g1.LabelNames[1], impl))
             {
-                loopBodyStartBlock.Add(impl.Name, g1.labelNames[0]);
-                exitBlock.Add(impl.Name, g1.labelNames[1]);
+                loopBodyStartBlock.Add(impl.Name, g1.LabelNames[0]);
+                exitBlock.Add(impl.Name, g1.LabelNames[1]);
             }
 
             Log.WriteLine(Log.Debug, "CL:    Loop body start block identified: {0}", loopBodyStartBlock[impl.Name]);
@@ -1066,8 +1066,8 @@ namespace cba
             if (impl.Blocks.Count != 3) return false;
             var g1 = impl.Blocks[0].TransferCmd as GotoCmd;
             if (g1 == null) return false;
-            if (g1.labelNames.Count != 2) return false;
-            if (g1.labelNames[0] == impl.Blocks[0].Label || g1.labelNames[1] == impl.Blocks[0].Label) return false;
+            if (g1.LabelNames.Count != 2) return false;
+            if (g1.LabelNames[0] == impl.Blocks[0].Label || g1.LabelNames[1] == impl.Blocks[0].Label) return false;
             if (impl.Blocks[1].Cmds.Count != 0 && impl.Blocks[2].Cmds.Count != 0) return false;
             if (!(impl.Blocks[1].TransferCmd is ReturnCmd) || !(impl.Blocks[2].TransferCmd is ReturnCmd)) return false;
             if (impl.Blocks[2].Cmds.Count != 0) return false;

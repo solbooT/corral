@@ -1307,7 +1307,7 @@ namespace cba.Util
         }
         public static GotoCmd CloneGotoCmd(GotoCmd cmd)
         {
-            return new GotoCmd(CloneToken(cmd.tok), CloneStringSeq(cmd.labelNames));
+            return new GotoCmd(CloneToken(cmd.tok), CloneStringSeq(cmd.LabelNames));
         }
         public static ReturnCmd CloneReturnCmd(ReturnCmd cmd)
         {
@@ -1676,7 +1676,7 @@ namespace cba.Util
             foreach (var blk in impl.Blocks.Where(blk => blk.TransferCmd is GotoCmd))
             {
                 var gc = blk.TransferCmd as GotoCmd;
-                gc.labelNames.OfType<string>().ForEach(s => graph.AddEdge(blk, labelToBlock[s]));
+                gc.LabelNames.OfType<string>().ForEach(s => graph.AddEdge(blk, labelToBlock[s]));
             }
             graph.AddSource(impl.Blocks[0]);
 

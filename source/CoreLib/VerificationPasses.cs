@@ -2524,7 +2524,7 @@ namespace cba
                 {
                     var tc = b.TransferCmd as GotoCmd;
                     if (tc == null) continue;
-                    tc.LabelTargets = new List<Block>(tc.labelNames.Select(s => l2b[s]));
+                    tc.LabelTargets = new List<Block>(tc.LabelNames.Select(s => l2b[s]));
                 }
 
                 mainCopy.Blocks = LoopUnroll.UnrollLoops(mainCopy.Blocks[0], CommandLineOptions.Clo.RecursionBound, false);
@@ -2538,7 +2538,7 @@ namespace cba
                     var succ = new List<Block>();
                     var gc = b.TransferCmd as GotoCmd;
                     if (gc == null) return succ;
-                    gc.labelNames.ForEach(s => succ.Add(l2b[s]));
+                    gc.LabelNames.ForEach(s => succ.Add(l2b[s]));
                     return succ;
                 });
                 var parentTree = new Dictionary<Block, Block>();
@@ -2725,8 +2725,8 @@ namespace cba
                 if (blk.TransferCmd is GotoCmd)
                 {
                     var gc = blk.TransferCmd as GotoCmd;
-                    gc.labelNames = new List<string>(
-                        gc.labelNames.Select(lab => impl.Name + "_" + lab));
+                    gc.LabelNames = new List<string>(
+                        gc.LabelNames.Select(lab => impl.Name + "_" + lab));
                 }
 
                 if (blk.TransferCmd is ReturnCmd)
@@ -3072,7 +3072,7 @@ namespace cba
             }
             var gcAll = new GotoCmd(Token.NoToken, new List<string>(threadEntryBlocks.Where(kvp => kvp.Key != main.Name)
                     .Select(kvp => kvp.Value.Label))) as TransferCmd;
-            if ((gcAll as GotoCmd).labelNames.Count == 0)
+            if ((gcAll as GotoCmd).LabelNames.Count == 0)
                 gcAll = new ReturnCmd(Token.NoToken);
 
             var sb3 = new Block(Token.NoToken, GetNewLabel(), new List<Cmd>(),
@@ -3163,7 +3163,7 @@ namespace cba
                 var succ = new List<Block>();
                 var gc = b.TransferCmd as GotoCmd;
                 if (gc == null) return succ;
-                gc.labelNames.ForEach(s => succ.Add(l2b[s]));
+                gc.LabelNames.ForEach(s => succ.Add(l2b[s]));
                 return succ;
             });
             var parentTree = new Dictionary<Block, Block>();
@@ -3371,8 +3371,8 @@ namespace cba
                 if (blk.TransferCmd is GotoCmd)
                 {
                     var gc = blk.TransferCmd as GotoCmd;
-                    gc.labelNames = new List<string>(
-                        gc.labelNames.Select(lab => impl.Name + "_" + lab));
+                    gc.LabelNames = new List<string>(
+                        gc.LabelNames.Select(lab => impl.Name + "_" + lab));
                 }
 
                 if (blk.TransferCmd is ReturnCmd)

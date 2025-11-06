@@ -889,9 +889,9 @@ namespace cba
                 return null;
 
             var gcmd = tcmd as GotoCmd;
-            if (gcmd.labelNames.Count != 1)
+            if (gcmd.LabelNames.Count != 1)
                 return null;
-            return gcmd.labelNames[0];
+            return gcmd.LabelNames[0];
         }
 
         private class WorkItemR
@@ -1005,7 +1005,7 @@ namespace cba
 
                     if (tc is GotoCmd)
                     {
-                        List<String> targets = (tc as GotoCmd).labelNames;
+                        List<String> targets = (tc as GotoCmd).LabelNames;
                         string target = matchInlinedLabelNames(targets, traceLabels[ecount]);
                         curr = new WorkItemR(curr.impl, target);
                         ret.addBlock(new ErrorTraceBlock(curr.label));

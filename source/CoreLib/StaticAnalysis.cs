@@ -245,7 +245,7 @@ namespace StaticAnalysis
 
                 var src = idToNode[block.Label + "::out"];
 
-                var edges = gc.labelNames
+                var edges = gc.LabelNames
                     .OfType<string>()
                     .Select(s => idToNode[s + "::in"])
                     .Select(tgt => new Edge(src, tgt, new Cmd[] { }));

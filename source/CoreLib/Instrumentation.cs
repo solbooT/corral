@@ -774,7 +774,7 @@ namespace cba
                 var src = blk.Label;
                 var gc = blk.TransferCmd as GotoCmd;
                 if (gc == null) continue;
-                foreach (string tgt in gc.labelNames)
+                foreach (string tgt in gc.LabelNames)
                 {
                     if (!preds.ContainsKey(tgt)) preds.Add(tgt, new HashSet<string>());
                     preds[tgt].Add(src);
@@ -806,10 +806,10 @@ namespace cba
                 var gc = unique_pred.TransferCmd as GotoCmd;
                 Debug.Assert(gc != null);
 
-                if (gc.labelNames.Count != 2) continue;
+                if (gc.LabelNames.Count != 2) continue;
 
-                var lab2 = gc.labelNames[0];
-                if (lab2 == blk.Label) lab2 = gc.labelNames[1];
+                var lab2 = gc.LabelNames[0];
+                if (lab2 == blk.Label) lab2 = gc.LabelNames[1];
                 Debug.Assert(lab2 != blk.Label);
 
                 var block2 = nameBlockMap[lab2];
@@ -1551,7 +1551,7 @@ namespace cba
             {
                 var gc = blk.TransferCmd as GotoCmd;
                 if (gc == null) continue;
-                foreach (string tgt in gc.labelNames) preds[tgt].Add(blk.Label);
+                foreach (string tgt in gc.LabelNames) preds[tgt].Add(blk.Label);
             }
 
             var ret = new HashSet<string>();

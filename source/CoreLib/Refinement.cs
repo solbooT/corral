@@ -854,12 +854,12 @@ namespace cba
                 var gc = blk.TransferCmd as GotoCmd;
                 var ss = new List<String>();
 
-                gc.labelNames
+                gc.LabelNames
                     .OfType<string>()
                     .Where(l => !toPrune.Contains(l))
                     .ForEach(l => ss.Add(l));
 
-                gc.labelNames = ss;
+                gc.LabelNames = ss;
             }
 
 

@@ -167,7 +167,7 @@ namespace cba
                 }
                 else if (curr.TransferCmd is GotoCmd)
                 {
-                    List<String> targets = (curr.TransferCmd as GotoCmd).labelNames;
+                    List<String> targets = (curr.TransferCmd as GotoCmd).LabelNames;
                     // one of these targets should be the next label
                     if (i != n - 1)
                     {
@@ -371,7 +371,7 @@ namespace cba
                 if (node.TransferCmd is GotoCmd)
                 {
                     var gc = node.TransferCmd as GotoCmd;
-                    foreach (string s in gc.labelNames)
+                    foreach (string s in gc.LabelNames)
                     {
                         stack.Add(labelBlockMap[s]);
                     }

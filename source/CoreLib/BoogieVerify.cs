@@ -372,8 +372,8 @@ namespace cba.Util
                 if (blk.TransferCmd is GotoCmd)
                 {
                     var gc = blk.TransferCmd as GotoCmd;
-                    gc.labelNames = new List<string>(
-                        gc.labelNames.Select(lab => impl.Name + "_" + lab));
+                    gc.LabelNames = new List<string>(
+                        gc.LabelNames.Select(lab => impl.Name + "_" + lab));
                 }
 
                 if (blk.TransferCmd is ReturnCmd)
@@ -975,7 +975,7 @@ namespace cba.Util
                 GotoCmd gcmd = b.TransferCmd as GotoCmd;
                 if (gcmd != null)
                 {
-                    prev_labels = gcmd.labelNames;
+                    prev_labels = gcmd.LabelNames;
                 }
                 else
                 {

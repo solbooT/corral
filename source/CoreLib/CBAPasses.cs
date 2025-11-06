@@ -1224,7 +1224,7 @@ namespace cba
                 var gc = blk.TransferCmd as GotoCmd;
                 if (gc == null) continue;
                 var ss = new List<String>();
-                foreach (var t in gc.labelNames)
+                foreach (var t in gc.LabelNames)
                 {
                     if (afBlocks.Contains(t)) continue;
                     ss.Add(t);

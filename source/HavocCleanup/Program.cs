@@ -164,8 +164,8 @@ namespace HavocCleanup
                             if (!done)
                             {
                                 var gc = currBlk.TransferCmd as GotoCmd;
-                                if (gc == null || gc.labelNames.Count != 1) throw new InternalError("Incorrect hwsw level usage");
-                                currBlk = labelBlockMap[gc.labelNames[0]];
+                                if (gc == null || gc.LabelNames.Count != 1) throw new InternalError("Incorrect hwsw level usage");
+                                currBlk = labelBlockMap[gc.LabelNames[0]];
                                 currCmd = 0;
                             }
                         }
@@ -194,8 +194,8 @@ namespace HavocCleanup
                             if (!done)
                             {
                                 var gc = currBlk.TransferCmd as GotoCmd;
-                                if (gc == null || gc.labelNames.Count != 1) throw new InternalError("Incorrect hwsw cpu usage");
-                                currBlk = labelBlockMap[gc.labelNames[0]];
+                                if (gc == null || gc.LabelNames.Count != 1) throw new InternalError("Incorrect hwsw cpu usage");
+                                currBlk = labelBlockMap[gc.LabelNames[0]];
                                 currCmd = 0;
                             }
                         }

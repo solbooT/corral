@@ -71,7 +71,7 @@ namespace cba
                 if (b.TransferCmd is GotoCmd)
                 {
                     var gt = b.TransferCmd as GotoCmd;
-                    foreach (string lab in gt.labelNames)
+                    foreach (string lab in gt.LabelNames)
                     {
                         addEdges(b.Label, lab);
                     }
