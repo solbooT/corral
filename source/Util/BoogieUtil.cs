@@ -27,30 +27,6 @@ namespace cba.Util
 
     public class BoogieUtil
     {
-        public static bool InitializeBoogie(string clo)
-        {
-            var quotes = (" " + clo + " ").Split(new char[] { '\"' }, StringSplitOptions.RemoveEmptyEntries);
-            var args = new List<string>();
-            // for every odd i, quotes[i] appears inside quotes
-            for (int i = 0; i < quotes.Length; i++)
-            {
-                if (i % 2 == 0)
-                    args.AddRange(quotes[i].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
-                else
-                    args.Add(quotes[i]);
-            }
-
-            if (!CommandLineOptions.Parse(args.ToArray()))
-                return true;
-
-            return false;
-        }
-
-        public static void DoModSetAnalysis(Program p)
-        {
-            (new ModSetCollector(null)).DoModSetAnalysis(p);
-        }
-
         public static void PrintProgram(Program p, string filename)
         {
             var outFile = new TokenTextWriter(filename, null);
@@ -1577,50 +1553,6 @@ namespace cba.Util
             this.typesToInstrument = typesToInstrument;
             if (encoding == PhiFunctionEncoding.Passifiable)
                 throw new NotImplementedException();
-        }
-
-
-        /*
-         * We go to every implementation, and look at assert (expr != NULL) and assume (expr != NULL)
-         * Now, we introduce a temporary variable and assignment cseTmp{i} := expr;
-         * Now, as long as this temporary variable is available, we replace expr by cseTmp{i}
-         * When the same expr is available from multiple vars from different predecessors, we introduce a new cseTmp{i} var := expr
-         * We now perform SSA, and then do the alias analysis
-         * This improves the precision of alias analysis, since these cseTmp vars are always non null, and hence, NULL cannot flow through these vars
-         */
-        
-
-        public static Program Compute(Program program, PhiFunctionEncoding encoding, HashSet<string> typesToInstrument)
-        {
-            var irreducible = new HashSet<string>();
-
-            // Extract loops, we don't want cycles in the CFG            
-            program.ExtractLoops(out irreducible);
-            RemoveVarsFromAttributes.Prune(program);
-
-            if (GVN.doGVN)
-            {
-                // Non null instrumentation
-                program = NonnullInstrumentation.Do(program);
-
-                // Global Value Numbering
-                Stats.resume("gvn");
-                program = GVN.Do(program);
-                Stats.stop("gvn");
-
-                // Writing and reading back
-                Stats.resume("read.write");
-                program = BoogieUtil.ReResolve(program, false);
-                Stats.stop("read.write");
-            }
-
-            // Static Single Assignment
-            Stats.resume("ssa");
-            var ssa = new SSA(program,encoding, typesToInstrument);
-            ssa.Compute(irreducible);
-            Stats.stop("ssa");
-
-            return program;
         }
 
         private bool instrumentType(Microsoft.Boogie.Type type)
