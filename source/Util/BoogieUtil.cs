@@ -1902,7 +1902,7 @@ namespace cba.Util
                     {
                         if (!(cmd is CallCmd)) return false;
                         var ccmd = cmd as CallCmd;
-                        if (QKeyValue.FindBoolAttribute(ccmd.Attributes, "phi"))
+                        if (QKeyValueExtensions.FindBoolAttribute(ccmd.Attributes, "phi"))
                             return true;
                         return false;
                     });
