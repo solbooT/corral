@@ -55,7 +55,7 @@ namespace ExplainError
                 {
                     var gotoCmd = blk.TransferCmd as GotoCmd;
                     if (gotoCmd == null) continue;
-                    if (gotoCmd.labelTargets.Count < 2) continue; //not a branch node
+                    if (gotoCmd.LabelTargets.Count < 2) continue; //not a branch node
                     if (blk.Cmds.Count == 0) continue; //no command and hence no modification
                     var b = new Block(Token.NoToken, "__split__xxx_" + blk.Label, new List<Cmd>(), blk.TransferCmd);
                     blk.TransferCmd = new GotoCmd(Token.NoToken, new List<Block>() { b });
@@ -161,7 +161,7 @@ namespace ExplainError
                     {
                         successorBlocks[b] = new HashSet<Block>();
                         if (b.TransferCmd is GotoCmd)
-                            ((GotoCmd)b.TransferCmd).labelTargets.ForEach(c => successorBlocks[b].Add(c));
+                            ((GotoCmd)b.TransferCmd).LabelTargets.ForEach(c => successorBlocks[b].Add(c));
                     }
                     );
                 //initialize the WL
@@ -205,7 +205,7 @@ namespace ExplainError
                     var branchNode = map.Key;
                     Debug.Assert(branchNode.TransferCmd is GotoCmd,
                         "(Internal error) Expecting a branch node in the domain of ImmdiateDominatorMap from Boogie");
-                    if (((GotoCmd)branchNode.TransferCmd).labelTargets.Count <= 1) continue; //not really a branch
+                    if (((GotoCmd)branchNode.TransferCmd).LabelTargets.Count <= 1) continue; //not really a branch
                     HashSet<Block> joinNodes = new HashSet<Block>(); //by default return/null is the join node
                     foreach (var node in map.Value)
                     {
@@ -258,7 +258,7 @@ namespace ExplainError
             {
                 return b.Predecessors.Count == 1 &&
                     (b.TransferCmd is GotoCmd) &&
-                    ((GotoCmd)b.TransferCmd).labelTargets.Count == 1;
+                    ((GotoCmd)b.TransferCmd).LabelTargets.Count == 1;
             }
 
             /// <summary>
@@ -272,7 +272,7 @@ namespace ExplainError
                     if (b.TransferCmd is ReturnCmd) continue; 
                     if (chainBlocks.Contains(b)) continue; //ignore them
                     mergeJoinSuccessors[b] = new HashSet<Block>(); 
-                    foreach(var b1 in (b.TransferCmd as GotoCmd).labelTargets)
+                    foreach(var b1 in (b.TransferCmd as GotoCmd).LabelTargets)
                     {
                         var b2 = b1;
                         var mods = new HashSet<Variable>();

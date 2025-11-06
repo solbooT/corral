@@ -49,8 +49,8 @@ public class CbaLiveVariableAnalysis
             GotoCmd gtc = b.TransferCmd as GotoCmd;
             if (gtc != null)
             {
-                Contract.Assume(gtc.labelTargets != null);
-                foreach (Block/*!*/ dest in gtc.labelTargets)
+                Contract.Assume(gtc.LabelTargets != null);
+                foreach (Block/*!*/ dest in gtc.LabelTargets)
                 {
                     Contract.Assert(dest != null);
                     dag.AddEdge(dest, b);
@@ -111,9 +111,9 @@ public class CbaLiveVariableAnalysis
         if (block.TransferCmd is GotoCmd)
         {
             GotoCmd gotoCmd = (GotoCmd)block.TransferCmd;
-            if (gotoCmd.labelTargets != null)
+            if (gotoCmd.LabelTargets != null)
             {
-                foreach (Block/*!*/ succ in gotoCmd.labelTargets)
+                foreach (Block/*!*/ succ in gotoCmd.LabelTargets)
                 {
                     Contract.Assert(succ != null);
                     Contract.Assert(succ.liveVarsBefore != null);

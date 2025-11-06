@@ -486,8 +486,8 @@ namespace cba
             rBlocks.ForEach(blk =>
             {
                 var gc = BoogieAstFactory.MkGotoCmd(nb.Label);
-                gc.labelTargets = new List<Block>();
-                gc.labelTargets.Add(nb);
+                gc.LabelTargets = new List<Block>();
+                gc.LabelTargets.Add(nb);
                 blk.TransferCmd = gc;
             });
             impl.Blocks.Add(nb);

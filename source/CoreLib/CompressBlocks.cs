@@ -13,7 +13,7 @@ namespace cba
     // is b2 and the only predecessor of b2 is b1, then merge the blocks into a single
     // block.
     // Note: one needs to re-resolve a program after this transformation. The
-    // reason is that Block.labelTargets needs to be recomputed
+    // reason is that Block.LabelTargets needs to be recomputed
     public class CompressBlocks
     {
         Dictionary<string, Block> locationBlockMap;

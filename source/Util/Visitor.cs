@@ -615,7 +615,7 @@ namespace cba.Util
         {
             // No need to visit target blocks. Traversing the CFG should be done some other
             // way.
-            //node.labelTargets = this.VisitBlockSeq((!)node.labelTargets);
+            //node.LabelTargets = this.VisitBlockSeq((!)node.LabelTargets);
             return node;
         }
 

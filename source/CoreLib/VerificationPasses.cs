@@ -2524,7 +2524,7 @@ namespace cba
                 {
                     var tc = b.TransferCmd as GotoCmd;
                     if (tc == null) continue;
-                    tc.labelTargets = new List<Block>(tc.labelNames.Select(s => l2b[s]));
+                    tc.LabelTargets = new List<Block>(tc.labelNames.Select(s => l2b[s]));
                 }
 
                 mainCopy.Blocks = LoopUnroll.UnrollLoops(mainCopy.Blocks[0], CommandLineOptions.Clo.RecursionBound, false);

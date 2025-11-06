@@ -721,7 +721,7 @@ namespace cba
                     gc.labelNames.OfType<string>()
                         .ForEach(s => nSeq.Add(s + suffix));
                     gc.labelNames = nSeq;
-                    gc.labelTargets = new List<Block>();
+                    gc.LabelTargets = new List<Block>();
                 });
 
             // rename goto labels

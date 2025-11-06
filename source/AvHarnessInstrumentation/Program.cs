@@ -299,7 +299,7 @@ namespace AvHarnessInstrumentation
                     if (blk.TransferCmd is GotoCmd && changedBlocks[blk.Label])
                     {
                         var gtc = blk.TransferCmd as GotoCmd;
-                        foreach (Block succ in gtc.labelTargets)
+                        foreach (Block succ in gtc.LabelTargets)
                         {
                             blockList.Push(succ);
                         }

@@ -285,12 +285,12 @@ namespace cba.Util
                 if (g != null)
                 {
                     List<Block> targets = new List<Block>();
-                    foreach (Block t in g.labelTargets)
+                    foreach (Block t in g.LabelTargets)
                     {
                         Block nt = subst[t];
                         targets.Add(nt);
                     }
-                    g.labelTargets = targets;
+                    g.LabelTargets = targets;
                 }
             }
             return clone;
@@ -509,7 +509,7 @@ namespace cba.Util
         }
         public override GotoCmd VisitGotoCmd(GotoCmd node)
         {
-            node.labelTargets = null;
+            node.LabelTargets = null;
             return node;
         }
     }

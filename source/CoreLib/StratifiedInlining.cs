@@ -4196,7 +4196,7 @@ namespace CoreLib
                 var gc = block.TransferCmd as GotoCmd;
                 if (gc == null) break;
                 Block next = null;
-                foreach (var succ in gc.labelTargets)
+                foreach (var succ in gc.LabelTargets)
                 {
                     var succtaken = (bool)svc.info.vcgen.prover.Evaluate(svc.blockToControlVar[succ]);
                     if (succtaken)
