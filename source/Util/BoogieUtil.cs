@@ -1596,9 +1596,6 @@ namespace cba.Util
         {
             var irreducible = new HashSet<string>();
 
-            var op = CommandLineOptions.ExtractLoopsUnrollIrreducible;
-            CommandLineOptions.ExtractLoopsUnrollIrreducible = false;
-
             // Extract loops, we don't want cycles in the CFG            
             program.ExtractLoops(out irreducible);
             RemoveVarsFromAttributes.Prune(program);
@@ -1624,8 +1621,6 @@ namespace cba.Util
             var ssa = new SSA(program,encoding, typesToInstrument);
             ssa.Compute(irreducible);
             Stats.stop("ssa");
-
-            CommandLineOptions.ExtractLoopsUnrollIrreducible = op;
 
             return program;
         }

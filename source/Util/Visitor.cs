@@ -886,7 +886,7 @@ namespace cba.Util
         public override BinderExpr VisitBinderExpr(BinderExpr node)
         {
             add(node);
-            return base.VisitBinderExpr(node);
+            return base.VisitBinderExpr(node) as BinderExpr;
         }
 
         public override Block VisitBlock(Block node)
@@ -1030,7 +1030,7 @@ namespace cba.Util
         public override MapType VisitMapType(MapType node)
         {
             add(node);
-            return base.VisitMapType(node);
+            return base.VisitMapType(node) as MapType;
         }
 
         public override Expr VisitNAryExpr(NAryExpr node)
