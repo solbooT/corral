@@ -43,7 +43,7 @@ public class CbaLiveVariableAnalysis
         Contract.Requires(impl != null);
         //Microsoft.Boogie.Helpers.ExtraTraceInformation("Starting live variable analysis");
         Graph<Block> dag = new Graph<Block>();
-        dag.AddSource(cce.NonNull(impl.Blocks[0])); // there is always at least one node in the graph
+        dag.AddSource(Cce.NonNull(impl.Blocks[0])); // there is always at least one node in the graph
         foreach (Block b in impl.Blocks)
         {
             GotoCmd gtc = b.TransferCmd as GotoCmd;
@@ -142,10 +142,10 @@ public class CbaLiveVariableAnalysis
     public static void Propagate(Cmd cmd, HashSet<Variable/*!*/>/*!*/ liveSet, bool allGlobalsAreLive)
     {
         Contract.Requires(cmd != null);
-        Contract.Requires(cce.NonNullElements(liveSet));
+        Contract.Requires(Cce.NonNullElements(liveSet));
         if (cmd is AssignCmd)
         {
-            AssignCmd/*!*/ assignCmd = (AssignCmd)cce.NonNull(cmd);
+            AssignCmd/*!*/ assignCmd = (AssignCmd)Cce.NonNull(cmd);
             // I must first iterate over all the targets and remove the live ones.
             // After the removals are done, I must add the variables referred on 
             // the right side of the removed targets
@@ -201,7 +201,7 @@ public class CbaLiveVariableAnalysis
         else if (cmd is PredicateCmd)
         {
             Contract.Assert((cmd is AssertCmd || cmd is AssumeCmd));
-            PredicateCmd/*!*/ predicateCmd = (PredicateCmd)cce.NonNull(cmd);
+            PredicateCmd/*!*/ predicateCmd = (PredicateCmd)Cce.NonNull(cmd);
             if (predicateCmd.Expr is LiteralExpr)
             {
                 LiteralExpr le = (LiteralExpr)predicateCmd.Expr;
@@ -230,13 +230,13 @@ public class CbaLiveVariableAnalysis
         }
         else if (cmd is SugaredCmd)
         {
-            SugaredCmd/*!*/ sugCmd = (SugaredCmd)cce.NonNull(cmd);
+            SugaredCmd/*!*/ sugCmd = (SugaredCmd)Cce.NonNull(cmd);
             Propagate(sugCmd.Desugaring, liveSet, allGlobalsAreLive);
         }
         else if (cmd is StateCmd)
         {
-            StateCmd/*!*/ stCmd = (StateCmd)cce.NonNull(cmd);
-            List<Cmd>/*!*/ cmds = cce.NonNull(stCmd.Cmds);
+            StateCmd/*!*/ stCmd = (StateCmd)Cce.NonNull(cmd);
+            List<Cmd>/*!*/ cmds = Cce.NonNull(stCmd.Cmds);
             int len = cmds.Count;
             for (int i = len - 1; i >= 0; i--)
             {
@@ -252,7 +252,7 @@ public class CbaLiveVariableAnalysis
         {
             {
                 Contract.Assert(false);
-                throw new cce.UnreachableException();
+                throw new Cce.UnreachableException();
             }
         }
     }
