@@ -1283,12 +1283,13 @@ namespace cba.Util
          */
         public static Block CloneBlock(Block blk)
         {
-            Block result = new Block();
-            result.tok = CloneToken(blk.tok);
-            result.Label = blk.Label.Clone() as String;
-            result.TransferCmd = CloneTransferCmd(blk.TransferCmd);
-            result.Cmds = CloneCmdSeq(blk.Cmds);
-            return result;
+            return new Block(
+                CloneToken(blk.tok), 
+                blk.Label.Clone() as String,
+                CloneCmdSeq(blk.Cmds),
+                CloneTransferCmd(blk.TransferCmd)
+            );
+            
         }
 
         public static List<Cmd> CloneCmdSeq(List<Cmd> cmdseq)
