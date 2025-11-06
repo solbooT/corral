@@ -48,7 +48,7 @@ namespace cba.Util
 
         public static void DoModSetAnalysis(Program p)
         {
-            (new ModSetCollector()).DoModSetAnalysis(p);
+            (new ModSetCollector(null)).DoModSetAnalysis(p);
         }
 
         public static void PrintProgram(Program p, string filename)
@@ -60,7 +60,7 @@ namespace cba.Util
 
         public static bool ResolveProgram(Program p, string filename)
         {
-            int errorCount = p.Resolve();
+            int errorCount = p.Resolve(null);
             if (errorCount != 0)
                 Console.WriteLine(errorCount + " name resolution errors in " + filename);
             return errorCount != 0;
@@ -68,7 +68,7 @@ namespace cba.Util
 
         public static bool TypecheckProgram(Program p, string filename)
         {
-            int errorCount = p.Typecheck();
+            int errorCount = p.Typecheck(null);
             if (errorCount != 0)
             {
                 PrintProgram(p, "error.bpl");
