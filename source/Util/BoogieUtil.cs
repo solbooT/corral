@@ -29,8 +29,6 @@ namespace cba.Util
     {
         public static bool InitializeBoogie(string clo)
         {
-            CommandLineOptions.RunningBoogieFromCommandLine = true;
-
             var quotes = (" " + clo + " ").Split(new char[] { '\"' }, StringSplitOptions.RemoveEmptyEntries);
             var args = new List<string>();
             // for every odd i, quotes[i] appears inside quotes
