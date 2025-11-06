@@ -21,8 +21,8 @@ namespace BctMemInst
             }
 
             CommandLineOptions.Install(new CommandLineOptions());
-            CommandLineOptions.Clo.PrintInstrumented = true;
-            CommandLineOptions.Clo.DoModSetAnalysis = true;
+            CommandLineOptions.PrintInstrumented = true;
+            CommandLineOptions.DoModSetAnalysis = true;
 
             var input = BoogieUtil.ReadAndResolve(args[0]);
 

@@ -436,11 +436,11 @@ namespace cba
             BoogieVerify.options = options;
 
             // set strong array theory
-            var ua_old = CommandLineOptions.Clo.UseArrayTheory;
-            CommandLineOptions.Clo.UseArrayTheory = true;
+            var ua_old = CommandLineOptions.UseArrayTheory;
+            CommandLineOptions.UseArrayTheory = true;
 
-            var to = CommandLineOptions.Clo.TimeLimit;
-            CommandLineOptions.Clo.TimeLimit = 5;
+            var to = CommandLineOptions.TimeLimit;
+            CommandLineOptions.TimeLimit = 5;
 
             // verify
             BoogieVerify.Verify(outProg, true, out allErrors, out timeOuts);
@@ -473,9 +473,9 @@ namespace cba
             }
 
             // Reset options
-            CommandLineOptions.Clo.UseArrayTheory = ua_old;
+            CommandLineOptions.UseArrayTheory = ua_old;
 
-            CommandLineOptions.Clo.TimeLimit = to;
+            CommandLineOptions.TimeLimit = to;
 
             return ret;
         }

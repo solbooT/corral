@@ -46,7 +46,7 @@ namespace cba
             }
 
             StaticInliningAndUnrollingPass cp3 = null;
-            if (GlobalConfig.staticInlining > 0) cp3 = new StaticInliningAndUnrollingPass(new StaticSettings(CommandLineOptions.Clo.RecursionBound, CommandLineOptions.Clo.RecursionBound));
+            if (GlobalConfig.staticInlining > 0) cp3 = new StaticInliningAndUnrollingPass(new StaticSettings(CommandLineOptions.RecursionBound, CommandLineOptions.RecursionBound));
 
             ContractInfer ciPass = null;
 
@@ -375,8 +375,8 @@ namespace cba
             
             if (GlobalConfig.explainQuantifiers != null)
             {
-                old_logfile = CommandLineOptions.Clo.ProverLogFilePath;
-                CommandLineOptions.Clo.ProverLogFilePath = GlobalConfig.explainQuantifiers;
+                old_logfile = CommandLineOptions.ProverLogFilePath;
+                CommandLineOptions.ProverLogFilePath = GlobalConfig.explainQuantifiers;
             }
 
             startTime = DateTime.Now;
@@ -389,11 +389,11 @@ namespace cba
 
             GlobalConfig.InferPass = ci;
             BoogieVerify.recordTempTime = false;
-            //CommandLineOptions.Clo.ModelViewFile = null;
+            //CommandLineOptions.ModelViewFile = null;
 
             if (GlobalConfig.explainQuantifiers != null)
             {
-                CommandLineOptions.Clo.ProverLogFilePath = old_logfile;
+                CommandLineOptions.ProverLogFilePath = old_logfile;
             }
 
             Stats.pathVerificationTime += (DateTime.Now - startTime);
@@ -412,7 +412,7 @@ namespace cba
             BoogieVerify.options = progVerifyOptions;
 
             // AL: adding logging
-            //CommandLineOptions.Clo.ProverLogFilePath = "logProg";
+            //CommandLineOptions.ProverLogFilePath = "logProg";
             startTime = DateTime.Now;
         }
 
@@ -430,7 +430,7 @@ namespace cba
             refinement = true;
 
             // AL: adding logging
-            //CommandLineOptions.Clo.ProverLogFilePath = "logRefine";
+            //CommandLineOptions.ProverLogFilePath = "logRefine";
 
         }
 

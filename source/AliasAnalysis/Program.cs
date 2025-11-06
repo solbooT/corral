@@ -52,7 +52,7 @@ namespace AliasAnalysis
                 .ForEach(s => AliasConstraintSolver.environmentPointersUnroll = Int32.Parse(s.Split(':')[1]));
 
             CommandLineOptions.Install(new CommandLineOptions());
-            CommandLineOptions.Clo.PrintInstrumented = true;
+            CommandLineOptions.PrintInstrumented = true;
 
             var program = BoogieUtil.ParseProgram(args[0]);
             Program origProgram = null;
@@ -290,10 +290,10 @@ namespace AliasAnalysis
                 block.Cmds = ncmds;
             }
 
-            var tt = CommandLineOptions.Clo.PruneInfeasibleEdges;
-            CommandLineOptions.Clo.PruneInfeasibleEdges = true;
+            var tt = CommandLineOptions.PruneInfeasibleEdges;
+            CommandLineOptions.PruneInfeasibleEdges = true;
             impl.PruneUnreachableBlocks();
-            CommandLineOptions.Clo.PruneInfeasibleEdges = tt;
+            CommandLineOptions.PruneInfeasibleEdges = tt;
         }
     }
 
@@ -1339,9 +1339,9 @@ namespace AliasAnalysis
 
             InitializeGlobals();
 
-            CommandLineOptions.Clo.DoModSetAnalysis = true;
+            CommandLineOptions.DoModSetAnalysis = true;
             BoogieUtil.ReResolve(constraintProg);
-            CommandLineOptions.Clo.DoModSetAnalysis = false;
+            CommandLineOptions.DoModSetAnalysis = false;
             BoogieUtil.PrintProgram(constraintProg, "constraint_prog.bpl");
 
             return constraintProg;

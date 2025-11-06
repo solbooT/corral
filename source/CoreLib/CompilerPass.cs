@@ -178,8 +178,8 @@ namespace cba
             BoogieVerify.PrintImplsBeingVerified = true;
 
             // Set rec. bound
-            var oldBound = CommandLineOptions.Clo.RecursionBound;
-            CommandLineOptions.Clo.RecursionBound = maxBound;
+            var oldBound = CommandLineOptions.RecursionBound;
+            CommandLineOptions.RecursionBound = maxBound;
 
             // Query
             var allErrors = new List<BoogieErrorTrace>();
@@ -193,7 +193,7 @@ namespace cba
                 Console.WriteLine("LB: Loop {0} requires minimum {1} iterations", loopName, bound);
             }
 
-            CommandLineOptions.Clo.RecursionBound = oldBound;
+            CommandLineOptions.RecursionBound = oldBound;
             BoogieVerify.PrintImplsBeingVerified = false;
             timeTaken = (DateTime.Now - start);
 
@@ -731,13 +731,13 @@ namespace cba
         }
 
         // This inlines a program to the given inline depth.
-        // Note: Set the flag CommandLineOptions.Clo.ProcedureInlining to get the
+        // Note: Set the flag CommandLineOptions.ProcedureInlining to get the
         // desired effect on leaf-level procedure calls
         public static void InlineToDepth(Program program)
         {
             var impls = program.TopLevelDeclarations.OfType<Implementation>();
 
-            if (CommandLineOptions.Clo.InlineDepth < 0)
+            if (CommandLineOptions.InlineDepth < 0)
                 return;
             /*
              * TODO: FIX!

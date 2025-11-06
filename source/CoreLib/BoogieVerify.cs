@@ -42,10 +42,10 @@ namespace cba.Util
 
         public static void setTimeOut(uint TO)
         {
-            CommandLineOptions.Clo.TimeLimit = 0;
+            CommandLineOptions.TimeLimit = 0;
             if (TO > 0)
             {
-                CommandLineOptions.Clo.TimeLimit = TO;
+                CommandLineOptions.TimeLimit = TO;
             }
         }
 
@@ -111,15 +111,15 @@ namespace cba.Util
             options.Set();
 
             // save RB
-            var rb = CommandLineOptions.Clo.RecursionBound;
+            var rb = CommandLineOptions.RecursionBound;
             if (BoogieVerify.irreducibleLoopUnroll >= 0)
-                CommandLineOptions.Clo.RecursionBound = BoogieVerify.irreducibleLoopUnroll;
+                CommandLineOptions.RecursionBound = BoogieVerify.irreducibleLoopUnroll;
 
             // Do loop extraction
             var extractionInfo = program.ExtractLoops();
 
             // restore RB
-            CommandLineOptions.Clo.RecursionBound = rb;
+            CommandLineOptions.RecursionBound = rb;
 
             // set bounds
             if (options.extraRecBound != null)
@@ -163,8 +163,8 @@ namespace cba.Util
             VC.VCGen vcgen = null;
             try
             {
-                Debug.Assert(CommandLineOptions.Clo.StratifiedInlining > 0);
-                vcgen = new CoreLib.StratifiedInlining(program, CommandLineOptions.Clo.ProverLogFilePath, CommandLineOptions.Clo.ProverLogFileAppend, null);
+                Debug.Assert(CommandLineOptions.StratifiedInlining > 0);
+                vcgen = new CoreLib.StratifiedInlining(program, CommandLineOptions.ProverLogFilePath, CommandLineOptions.ProverLogFileAppend, null);
             }
             catch (ProverException e)
             {
@@ -245,7 +245,7 @@ namespace cba.Util
                 if (errors != null) ret = ReturnStatus.NOK;
 
                 // Print model
-                if (errors != null && errors.Count > 0 && errors[0].Model != null && CommandLineOptions.Clo.ModelViewFile != null)
+                if (errors != null && errors.Count > 0 && errors[0].Model != null && CommandLineOptions.ModelViewFile != null)
                 {
                     var model = errors[0].Model;
                     var cnt = 0;
@@ -257,7 +257,7 @@ namespace cba.Util
                         }
                     });
 
-                    using (var wr = new StreamWriter(CommandLineOptions.Clo.ModelViewFile, false))
+                    using (var wr = new StreamWriter(CommandLineOptions.ModelViewFile, false))
                     {
                         model.Write(wr);
                     }
@@ -302,7 +302,7 @@ namespace cba.Util
             }
 
             vcgen.Close();
-            CommandLineOptions.Clo.TheProverFactory.Close();
+            CommandLineOptions.TheProverFactory.Close();
 
             return ret;
         }
@@ -481,12 +481,12 @@ namespace cba.Util
             }
 
             //// ---------- Verify ----------------------------------------------------------------
-            Debug.Assert(CommandLineOptions.Clo.StratifiedInlining > 0);
+            Debug.Assert(CommandLineOptions.StratifiedInlining > 0);
 
             VC.StratifiedVCGenBase vcgen = null;
             try
             {
-                vcgen = new CoreLib.StratifiedInlining(program, CommandLineOptions.Clo.ProverLogFilePath, CommandLineOptions.Clo.ProverLogFileAppend, null);
+                vcgen = new CoreLib.StratifiedInlining(program, CommandLineOptions.ProverLogFilePath, CommandLineOptions.ProverLogFileAppend, null);
             }
             catch (ProverException)
             {
@@ -557,7 +557,7 @@ namespace cba.Util
             Debug.Assert(outcome == VC.VCGen.Outcome.Correct);
 
             vcgen.Close();
-            CommandLineOptions.Clo.TheProverFactory.Close();
+            CommandLineOptions.TheProverFactory.Close();
             return boolVars;
         }
 
@@ -846,11 +846,11 @@ namespace cba.Util
         // overwrite all options set by a previous call to Set
         public void Set()
         {
-            CommandLineOptions.Clo.StratifiedInlining = StratifiedInlining;
-            CommandLineOptions.Clo.StratifiedInliningWithoutModels = StratifiedInliningWithoutModels;
-            CommandLineOptions.Clo.UseProverEvaluate = UseProverEvaluate;
+            CommandLineOptions.StratifiedInlining = StratifiedInlining;
+            CommandLineOptions.StratifiedInliningWithoutModels = StratifiedInliningWithoutModels;
+            CommandLineOptions.UseProverEvaluate = UseProverEvaluate;
             if (!StratifiedInliningWithoutModels && ModelViewFile != null)
-                CommandLineOptions.Clo.ModelViewFile = ModelViewFile;
+                CommandLineOptions.ModelViewFile = ModelViewFile;
         }
     }
 

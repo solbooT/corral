@@ -49,7 +49,7 @@ namespace PropInst
 
             // initialize Boogie
             CommandLineOptions.Install(new CommandLineOptions());
-            CommandLineOptions.Clo.PrintInstrumented = true;
+            CommandLineOptions.PrintInstrumented = true;
 
             // read the boogie program that is to be instrumented
             var boogieProgram = BoogieUtil.ReadAndResolve(args[1], false);

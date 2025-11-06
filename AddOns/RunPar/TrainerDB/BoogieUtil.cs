@@ -524,7 +524,7 @@ namespace Trainer
 
         public override void OnModel(IList<string> labels, Model model, ProverInterface.Outcome proverOutcome)
         {
-            if (CommandLineOptions.Clo.PrintErrorModel >= 1 && model != null) model.Write(Console.Out);
+            if (CommandLineOptions.PrintErrorModel >= 1 && model != null) model.Write(Console.Out);
             this.model = model;
         }
     }

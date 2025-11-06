@@ -19,7 +19,7 @@ namespace pminbench
         {
             // Initialize
             CommandLineOptions.Install(new CommandLineOptions());
-            CommandLineOptions.Clo.PrintInstrumented = true;
+            CommandLineOptions.PrintInstrumented = true;
 
             // Find necessary files
             if (!LocateFiles())

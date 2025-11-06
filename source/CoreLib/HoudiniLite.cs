@@ -78,7 +78,7 @@ namespace CoreLib
         {
             HoudiniStats.Reset();
             HoudiniInlining.RobustAgainstEvaluate = DualHoudini? false : RobustAgainstEvaluate;
-            if (DualHoudini && CommandLineOptions.Clo.InlineDepth > 0)
+            if (DualHoudini && CommandLineOptions.InlineDepth > 0)
                 throw new DualHoudiniFail("InlineDepth not supported");
 
             // Gather existential constants
@@ -150,7 +150,7 @@ namespace CoreLib
             HoudiniStats.Start("VCGen");
 
             // VC Gen
-            var hi = new HoudiniInlining(program, CommandLineOptions.Clo.ProverLogFilePath, CommandLineOptions.Clo.ProverLogFileAppend, RewriteAssumedToAssertedAction);
+            var hi = new HoudiniInlining(program, CommandLineOptions.ProverLogFilePath, CommandLineOptions.ProverLogFileAppend, RewriteAssumedToAssertedAction);
 
             HoudiniStats.Stop("VCGen");
 
@@ -189,7 +189,7 @@ namespace CoreLib
 
                 var provedTrue = new HashSet<string>();
                 var provedFalse = new HashSet<string>();
-                var idepth = Math.Max(0, CommandLineOptions.Clo.InlineDepth);
+                var idepth = Math.Max(0, CommandLineOptions.InlineDepth);
 
                 // iterate over idepth
                 while (true)
@@ -197,7 +197,7 @@ namespace CoreLib
                     // Part 1: over-approximate
                     var proved = ProveCandidates(prover, hvc.constantToAssertedExpr, hvc.constantToAssumedExpr, candidates.Difference(provedTrue.Union(provedFalse)));
                     provedTrue.UnionWith(proved);
-                    if(dbg) Console.WriteLine("Proved {0} candiates at depth {1}", proved.Count, CommandLineOptions.Clo.InlineDepth - idepth);
+                    if(dbg) Console.WriteLine("Proved {0} candiates at depth {1}", proved.Count, CommandLineOptions.InlineDepth - idepth);
 
                     if (idepth == 0 || openCallSites.Count == 0) break;
 
@@ -209,7 +209,7 @@ namespace CoreLib
                     var remaining = candidates.Difference(provedTrue.Union(provedFalse));
                     proved = ProveCandidates(prover, hvc.constantToAssertedExpr, hvc.constantToAssumedExpr, remaining);
                     provedFalse.UnionWith(remaining.Difference(proved));
-                    if(dbg) Console.WriteLine("Disproved {0} candiates at depth {1}", remaining.Difference(proved).Count, CommandLineOptions.Clo.InlineDepth - idepth);
+                    if(dbg) Console.WriteLine("Disproved {0} candiates at depth {1}", remaining.Difference(proved).Count, CommandLineOptions.InlineDepth - idepth);
 
                     prover.Pop();
 

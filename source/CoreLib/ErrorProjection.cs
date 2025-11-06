@@ -116,7 +116,7 @@ namespace cba
             // instrument() sets labelProcMap
             var newProg = instrument(program, candidates);
 
-            CommandLineOptions.Clo.ErrorLimit = 5;
+            CommandLineOptions.ErrorLimit = 5;
             var verifier = getVerifier();
             verifier.run(newProg);
 

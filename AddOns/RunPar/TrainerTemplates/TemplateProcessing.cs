@@ -297,7 +297,7 @@ namespace Microsoft.Boogie
 
             freshProgram.Emit(new TokenTextWriter("CombinedBPL.bpl"));
 
-            prover = ProverInterface.CreateProver(freshProgram, "log2.txt", true, CommandLineOptions.Clo.ProverKillTime);
+            prover = ProverInterface.CreateProver(freshProgram, "log2.txt", true, CommandLineOptions.ProverKillTime);
 
             prover.AssertAxioms();
 
@@ -486,7 +486,7 @@ namespace Microsoft.Boogie
             summariesProgram.Typecheck();
             summariesProgram.Resolve();
             */
-            //prover = ProverInterface.CreateProver(summariesProgram, "log.txt", true, CommandLineOptions.Clo.ProverKillTime);
+            //prover = ProverInterface.CreateProver(summariesProgram, "log.txt", true, CommandLineOptions.ProverKillTime);
 
             List<Procedure> procList = new List<Procedure>();
             freshProgram.TopLevelDeclarations.ForEach<Declaration>(n => { if (n is Procedure) procList.Add(n as Procedure); });
@@ -572,7 +572,7 @@ namespace Microsoft.Boogie
 
         public void EmitBplWithSummaries(InsertedSummaryType insertedSummaryType, string outFileName)
         {
-            Program newfreshProgram = ExecutionEngine.ParseBoogieProgram(CommandLineOptions.Clo.Files, false); // we will change this program, so read a fresh one from disk
+            Program newfreshProgram = ExecutionEngine.ParseBoogieProgram(CommandLineOptions.Files, false); // we will change this program, so read a fresh one from disk
 
             if (insertedSummaryType == InsertedSummaryType.AllSummaries)
             {
@@ -1511,21 +1511,21 @@ namespace Microsoft.Boogie
 
             // Run Abs Houdini
 
-            CommandLineOptions.Clo.InlineDepth = InlineDepth;
-            var old = CommandLineOptions.Clo.ProcedureInlining;
-            CommandLineOptions.Clo.ProcedureInlining = CommandLineOptions.Inlining.Spec;
-            var si = CommandLineOptions.Clo.StratifiedInlining;
-            CommandLineOptions.Clo.StratifiedInlining = 0;
-            var cc = CommandLineOptions.Clo.ProverCCLimit;
-            CommandLineOptions.Clo.ContractInfer = true;
-            var oldTimeout = CommandLineOptions.Clo.ProverKillTime;
+            CommandLineOptions.InlineDepth = InlineDepth;
+            var old = CommandLineOptions.ProcedureInlining;
+            CommandLineOptions.ProcedureInlining = CommandLineOptions.Inlining.Spec;
+            var si = CommandLineOptions.StratifiedInlining;
+            CommandLineOptions.StratifiedInlining = 0;
+            var cc = CommandLineOptions.ProverCCLimit;
+            CommandLineOptions.ContractInfer = true;
+            var oldTimeout = CommandLineOptions.ProverKillTime;
 
-            CommandLineOptions.Clo.ProverKillTime = 20000; // AbsHoudini interprets this as milliseconds
-            CommandLineOptions.Clo.ProverCCLimit = 1;
-            CommandLineOptions.Clo.AbstractHoudini = runAbsHoudiniConfig;
-            CommandLineOptions.Clo.PrintErrorModel = 1;     // this is required
-            string oldmodelfile = CommandLineOptions.Clo.PrintErrorModelFile;
-            CommandLineOptions.Clo.PrintErrorModelFile = "model2.txt"; // else it is printed on STDOUT
+            CommandLineOptions.ProverKillTime = 20000; // AbsHoudini interprets this as milliseconds
+            CommandLineOptions.ProverCCLimit = 1;
+            CommandLineOptions.AbstractHoudini = runAbsHoudiniConfig;
+            CommandLineOptions.PrintErrorModel = 1;     // this is required
+            string oldmodelfile = CommandLineOptions.PrintErrorModelFile;
+            CommandLineOptions.PrintErrorModelFile = "model2.txt"; // else it is printed on STDOUT
             AbstractHoudini.WitnessFile = null;
 
             Dictionary<string, List<Expr>> houdiniSummaryOut = new Dictionary<string, List<Expr>>();
@@ -1561,7 +1561,7 @@ namespace Microsoft.Boogie
                 AbstractDomainFactory.Initialize(houdiniProgram);
                 var domain = AbstractDomainFactory.GetInstance("PredicateAbs");
                 AbsHoudini abs = new AbsHoudini(houdiniProgram, domain);
-                CommandLineOptions.Clo.PrintAssignment = true;
+                CommandLineOptions.PrintAssignment = true;
                 var absout = abs.ComputeSummaries();
 
                 var summaries = abs.GetAssignment();
@@ -1620,22 +1620,22 @@ namespace Microsoft.Boogie
                 absHoudini = new AbstractHoudini(program);
                 absHoudini.computeSummaries(new PredicateAbs(program.TopLevelDeclarations.OfType<Implementation>().First().Name));
                 // Abstract houdini sets a prover option for the time limit. Get rid of that now
-                CommandLineOptions.Clo.ProverOptions.RemoveAll(str => str.StartsWith("TIME_LIMIT"));
+                CommandLineOptions.ProverOptions.RemoveAll(str => str.StartsWith("TIME_LIMIT"));
 
                 // Record new summaries
                 predicates = absHoudini.GetPredicates();
             }
 
 
-            CommandLineOptions.Clo.InlineDepth = -1;
-            CommandLineOptions.Clo.ProcedureInlining = old;
-            CommandLineOptions.Clo.StratifiedInlining = si;
-            CommandLineOptions.Clo.ProverCCLimit = cc;
-            CommandLineOptions.Clo.ContractInfer = false;
-            CommandLineOptions.Clo.ProverKillTime = oldTimeout;
-            CommandLineOptions.Clo.AbstractHoudini = null;
-            CommandLineOptions.Clo.PrintErrorModel = 0;
-            CommandLineOptions.Clo.PrintErrorModelFile = oldmodelfile;
+            CommandLineOptions.InlineDepth = -1;
+            CommandLineOptions.ProcedureInlining = old;
+            CommandLineOptions.StratifiedInlining = si;
+            CommandLineOptions.ProverCCLimit = cc;
+            CommandLineOptions.ContractInfer = false;
+            CommandLineOptions.ProverKillTime = oldTimeout;
+            CommandLineOptions.AbstractHoudini = null;
+            CommandLineOptions.PrintErrorModel = 0;
+            CommandLineOptions.PrintErrorModelFile = oldmodelfile;
 
 #if false
             // get rid of "true ==> blah" for type-state predicates 
@@ -1830,19 +1830,19 @@ namespace Microsoft.Boogie
 
             // Run Abs Houdini
 
-            CommandLineOptions.Clo.InlineDepth = InlineDepth;
-            var old = CommandLineOptions.Clo.ProcedureInlining;
-            CommandLineOptions.Clo.ProcedureInlining = CommandLineOptions.Inlining.Spec;
-            var si = CommandLineOptions.Clo.StratifiedInlining;
-            CommandLineOptions.Clo.StratifiedInlining = 0;
-            var cc = CommandLineOptions.Clo.ProverCCLimit;
-            CommandLineOptions.Clo.ContractInfer = true;
-            var oldTimeout = CommandLineOptions.Clo.ProverKillTime;
+            CommandLineOptions.InlineDepth = InlineDepth;
+            var old = CommandLineOptions.ProcedureInlining;
+            CommandLineOptions.ProcedureInlining = CommandLineOptions.Inlining.Spec;
+            var si = CommandLineOptions.StratifiedInlining;
+            CommandLineOptions.StratifiedInlining = 0;
+            var cc = CommandLineOptions.ProverCCLimit;
+            CommandLineOptions.ContractInfer = true;
+            var oldTimeout = CommandLineOptions.ProverKillTime;
 
-            CommandLineOptions.Clo.ProverKillTime = 20000; // AbsHoudini interprets this as milliseconds
-            CommandLineOptions.Clo.ProverCCLimit = 1;
-            CommandLineOptions.Clo.AbstractHoudini = runAbsHoudiniConfig;
-            CommandLineOptions.Clo.PrintErrorModel = 1;
+            CommandLineOptions.ProverKillTime = 20000; // AbsHoudini interprets this as milliseconds
+            CommandLineOptions.ProverCCLimit = 1;
+            CommandLineOptions.AbstractHoudini = runAbsHoudiniConfig;
+            CommandLineOptions.PrintErrorModel = 1;
             AbstractHoudini.WitnessFile = null;
 
             Dictionary<string, List<Expr>> houdiniSummaryOut = new Dictionary<string, List<Expr>>();
@@ -1879,7 +1879,7 @@ namespace Microsoft.Boogie
                 AbstractDomainFactory.Initialize(houdiniProgram);
                 var domain = AbstractDomainFactory.GetInstance("PredicateAbs");
                 AbsHoudini abs = new AbsHoudini(houdiniProgram, domain);
-                CommandLineOptions.Clo.PrintAssignment = true;
+                CommandLineOptions.PrintAssignment = true;
                 var absout = abs.ComputeSummaries();
 
                 var summaries = abs.GetAssignment();
@@ -1929,21 +1929,21 @@ namespace Microsoft.Boogie
                 absHoudini = new AbstractHoudini(program);
                 absHoudini.computeSummaries(new PredicateAbs(program.TopLevelDeclarations.OfType<Implementation>().First().Name));
                 // Abstract houdini sets a prover option for the time limit. Get rid of that now
-                CommandLineOptions.Clo.ProverOptions.RemoveAll(str => str.StartsWith("TIME_LIMIT"));
+                CommandLineOptions.ProverOptions.RemoveAll(str => str.StartsWith("TIME_LIMIT"));
 
                 // Record new summaries
                 predicates = absHoudini.GetPredicates();
             }
 
 
-            CommandLineOptions.Clo.InlineDepth = -1;
-            CommandLineOptions.Clo.ProcedureInlining = old;
-            CommandLineOptions.Clo.StratifiedInlining = si;
-            CommandLineOptions.Clo.ProverCCLimit = cc;
-            CommandLineOptions.Clo.ContractInfer = false;
-            CommandLineOptions.Clo.ProverKillTime = oldTimeout;
-            CommandLineOptions.Clo.AbstractHoudini = null;
-            CommandLineOptions.Clo.PrintErrorModel = 0;
+            CommandLineOptions.InlineDepth = -1;
+            CommandLineOptions.ProcedureInlining = old;
+            CommandLineOptions.StratifiedInlining = si;
+            CommandLineOptions.ProverCCLimit = cc;
+            CommandLineOptions.ContractInfer = false;
+            CommandLineOptions.ProverKillTime = oldTimeout;
+            CommandLineOptions.AbstractHoudini = null;
+            CommandLineOptions.PrintErrorModel = 0;
 
 #if false
             // get rid of "true ==> blah" for type-state predicates 

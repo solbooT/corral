@@ -60,7 +60,7 @@ namespace ProofMinTrain
             }
 
             CommandLineOptions.Install(new CommandLineOptions());
-            CommandLineOptions.Clo.PrintInstrumented = true;
+            CommandLineOptions.PrintInstrumented = true;
 
             // Read command-line flags
 

@@ -436,10 +436,10 @@ namespace ProofMinimization
         static void Initalize(string boogieOptions)
         {
             CommandLineOptions.Install(new CommandLineOptions());
-            CommandLineOptions.Clo.PrintInstrumented = true;
-            CommandLineOptions.Clo.UseSubsumption = CommandLineOptions.SubsumptionOption.Never;
-            CommandLineOptions.Clo.ContractInfer = true;
-            CommandLineOptions.Clo.RecursionBound = 2;
+            CommandLineOptions.PrintInstrumented = true;
+            CommandLineOptions.UseSubsumption = CommandLineOptions.SubsumptionOption.Never;
+            CommandLineOptions.ContractInfer = true;
+            CommandLineOptions.RecursionBound = 2;
             BoogieUtil.InitializeBoogie(boogieOptions);
             cba.Util.BoogieVerify.options = new BoogieVerifyOptions();
             cba.Util.BoogieVerify.options.newStratifiedInlining = true;

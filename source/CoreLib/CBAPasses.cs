@@ -795,7 +795,7 @@ namespace cba
                     program.RemoveTopLevelDeclaration(impl);
                     program.RemoveTopLevelDeclaration(impl.Proc);
 
-                    for (int i = 0; i < CommandLineOptions.Clo.RecursionBound; i++)
+                    for (int i = 0; i < CommandLineOptions.RecursionBound; i++)
                     {
                         var dup = new FixedDuplicator(true);
                         var nimpl = dup.VisitImplementation(impl);
@@ -832,14 +832,14 @@ namespace cba
                                     continue;
                                 }
                                 newcmds.Add(
-                                    new CallCmd(ccmd.tok, ccmd.callee + string.Format("#{0}", CommandLineOptions.Clo.RecursionBound - 1),
+                                    new CallCmd(ccmd.tok, ccmd.callee + string.Format("#{0}", CommandLineOptions.RecursionBound - 1),
                                         ccmd.Ins, ccmd.Outs, ccmd.Attributes, ccmd.IsAsync));
                             }
                             blk.Cmds = newcmds;
                         }
                     }
 
-                    for (int i = 0; i < CommandLineOptions.Clo.RecursionBound; i++)
+                    for (int i = 0; i < CommandLineOptions.RecursionBound; i++)
                     {
                         var impl = implCopies[Tuple.Create(name, i)];
                         foreach (var blk in impl.Blocks)
@@ -1124,15 +1124,15 @@ namespace cba
             }
 
             // save RB
-            var rb = CommandLineOptions.Clo.RecursionBound;
+            var rb = CommandLineOptions.RecursionBound;
             if (BoogieVerify.irreducibleLoopUnroll >= 0)
-                CommandLineOptions.Clo.RecursionBound = BoogieVerify.irreducibleLoopUnroll;
+                CommandLineOptions.RecursionBound = BoogieVerify.irreducibleLoopUnroll;
 
             var procsWithIrreducibleLoops = new HashSet<string>();
             var passInfo = p.ExtractLoops(out procsWithIrreducibleLoops);
 
             // restore RB
-            CommandLineOptions.Clo.RecursionBound = rb;
+            CommandLineOptions.RecursionBound = rb;
 
             // no loops found, then this transformation is identity
             if (passInfo.Count == 0 && procsWithIrreducibleLoops.Count == 0)

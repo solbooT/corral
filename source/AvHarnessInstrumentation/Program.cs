@@ -428,9 +428,9 @@ namespace AvHarnessInstrumentation
             harnessInstrumentation.DoInstrument();
 
             //resolve+typecheck wo bothering about modSets
-            CommandLineOptions.Clo.DoModSetAnalysis = true;
+            CommandLineOptions.DoModSetAnalysis = true;
             init = BoogieUtil.ReResolveInMem(init);
-            CommandLineOptions.Clo.DoModSetAnalysis = false;
+            CommandLineOptions.DoModSetAnalysis = false;
 
             // Update mod sets
             BoogieUtil.DoModSetAnalysis(init);
@@ -564,7 +564,7 @@ namespace AvHarnessInstrumentation
 
             // Initialize Boogie
             CommandLineOptions.Install(new CommandLineOptions());
-            CommandLineOptions.Clo.PrintInstrumented = true;
+            CommandLineOptions.PrintInstrumented = true;
             BoogieUtil.InitializeBoogie("");
             ProgTransformation.PersistentProgramIO.useDuplicator = true;
 
@@ -788,12 +788,12 @@ namespace AvHarnessInstrumentation
                     program = BoogieUtil.ReResolveInMem(program);
                     Stats.stop("read.write");
 
-                    var op = CommandLineOptions.Clo.InlineDepth;
-                    CommandLineOptions.Clo.InlineDepth = Options.inlineDepth;
+                    var op = CommandLineOptions.InlineDepth;
+                    CommandLineOptions.InlineDepth = Options.inlineDepth;
 
                     cba.InliningPass.InlineToDepth(program);
 
-                    CommandLineOptions.Clo.InlineDepth = op;
+                    CommandLineOptions.InlineDepth = op;
 
                     RemoveHavocs(program);
 

@@ -694,7 +694,7 @@ namespace CoreLib
                 {
                     // Stop if we've reached the recursion bound or
                     // the stack-depth bound (if there is one)
-                    if (HasExceededRecursionDepth(cs, CommandLineOptions.Clo.RecursionBound) ||
+                    if (HasExceededRecursionDepth(cs, CommandLineOptions.RecursionBound) ||
                         (StackDepthBound > 0 &&
                         StackDepth(cs) > StackDepthBound))
                     {
@@ -856,7 +856,7 @@ namespace CoreLib
                 {                    
                     // Stop if we've reached the recursion bound or
                     // the stack-depth bound (if there is one)
-                    if (HasExceededRecursionDepth(cs, CommandLineOptions.Clo.RecursionBound) ||
+                    if (HasExceededRecursionDepth(cs, CommandLineOptions.RecursionBound) ||
                         (StackDepthBound > 0 &&
                         StackDepth(cs) > StackDepthBound))
                     {
@@ -995,7 +995,7 @@ namespace CoreLib
                 {
                     // Stop if we've reached the recursion bound or
                     // the stack-depth bound (if there is one)
-                    if (HasExceededRecursionDepth(cs, CommandLineOptions.Clo.RecursionBound) ||
+                    if (HasExceededRecursionDepth(cs, CommandLineOptions.RecursionBound) ||
                         (StackDepthBound > 0 &&
                         StackDepth(cs) > StackDepthBound))
                     {
@@ -1068,7 +1068,7 @@ namespace CoreLib
                 {
                     // Stop if we've reached the recursion bound or
                     // the stack-depth bound (if there is one)
-                    if (RecursionDepth(cs) > CommandLineOptions.Clo.RecursionBound ||
+                    if (RecursionDepth(cs) > CommandLineOptions.RecursionBound ||
                         (StackDepthBound > 0 &&
                         StackDepth(cs) > StackDepthBound))
                     {
@@ -1178,9 +1178,9 @@ namespace CoreLib
             while (true)
             {
                 // Check timeout
-                if (CommandLineOptions.Clo.TimeLimit != 0)
+                if (CommandLineOptions.TimeLimit != 0)
                 {
-                    if ((DateTime.UtcNow - startTime).TotalSeconds > CommandLineOptions.Clo.TimeLimit)
+                    if ((DateTime.UtcNow - startTime).TotalSeconds > CommandLineOptions.TimeLimit)
                     {
                         return Outcome.TimedOut;
                     }
@@ -1330,7 +1330,7 @@ namespace CoreLib
         public Outcome Bck(StratifiedVC svc, HashSet<StratifiedCallSite> openCallSites,
             StratifiedInliningErrorReporter reporter, Dictionary<string, int> backboneRecDepth)
         {
-            var outcome = Fwd(openCallSites, reporter, svc.info.impl.Name == mainProc.Name, CommandLineOptions.Clo.RecursionBound);
+            var outcome = Fwd(openCallSites, reporter, svc.info.impl.Name == mainProc.Name, CommandLineOptions.RecursionBound);
             if (outcome != Outcome.Errors)
                 return outcome;
             if (svc.info.impl.Name == mainProc.Name)
@@ -1341,7 +1341,7 @@ namespace CoreLib
 
             foreach (var caller in callGraph.callers[svc.info.impl.Proc])
             {
-                if (backboneRecDepth[caller.Name] == CommandLineOptions.Clo.RecursionBound)
+                if (backboneRecDepth[caller.Name] == CommandLineOptions.RecursionBound)
                 {
                     boundHit = true;
                     continue;
@@ -1558,7 +1558,7 @@ namespace CoreLib
                 var nextOpenCallSites = new HashSet<StratifiedCallSite>();
                 foreach (StratifiedCallSite scs in openCallSites)
                 {
-                    if (HasExceededRecursionDepth(scs, CommandLineOptions.Clo.RecursionBound)) continue;
+                    if (HasExceededRecursionDepth(scs, CommandLineOptions.RecursionBound)) continue;
 
                     var ss = Expand(scs);
                     if(ss != null) nextOpenCallSites.UnionWith(ss.CallSites);
@@ -1655,7 +1655,7 @@ namespace CoreLib
             }
             else
             {
-                int currRecursionBound = (BoogieVerify.options.extraFlags.Contains("MaxRec") || BoogieVerify.options.NonUniformUnfolding) ? CommandLineOptions.Clo.RecursionBound :
+                int currRecursionBound = (BoogieVerify.options.extraFlags.Contains("MaxRec") || BoogieVerify.options.NonUniformUnfolding) ? CommandLineOptions.RecursionBound :
                     1;
                 while (true)
                 {
@@ -1668,7 +1668,7 @@ namespace CoreLib
                         break;
 
                     // reached bound?
-                    if (outcome == Outcome.ReachedBound && currRecursionBound < CommandLineOptions.Clo.RecursionBound)
+                    if (outcome == Outcome.ReachedBound && currRecursionBound < CommandLineOptions.RecursionBound)
                     {
                         if(StratifiedInliningVerbose > 0)
                             Console.WriteLine("SI: Exhausted recursion bound of {0}", currRecursionBound);
@@ -3077,8 +3077,8 @@ namespace CoreLib
         bool HasExceededRecBound(string impl, int bound)
         {
             if (!extraRecBound.ContainsKey(impl))
-                return (bound > CommandLineOptions.Clo.RecursionBound);
-            return bound > CommandLineOptions.Clo.RecursionBound + extraRecBound[impl];
+                return (bound > CommandLineOptions.RecursionBound);
+            return bound > CommandLineOptions.RecursionBound + extraRecBound[impl];
         }
 
         // Returns the size of the fully expanded tree
@@ -4162,7 +4162,7 @@ namespace CoreLib
         // returns a list of blocks followed by a fake assert
         private List<Absy> GetAbsyTrace(StratifiedVC svc, IList<string> labels)
         {
-            if (CommandLineOptions.Clo.SIBoolControlVC)
+            if (CommandLineOptions.SIBoolControlVC)
                 return GetAbsyTraceBoolControlVC(svc);
             else
                 return GetAbsyTraceControlFlowVariable(svc, labels);
@@ -4184,7 +4184,7 @@ namespace CoreLib
 
         private List<Absy> GetAbsyTraceBoolControlVC(StratifiedVC svc)
         {
-            Debug.Assert(CommandLineOptions.Clo.UseProverEvaluate, "Must use prover evaluate option with boolControlVC"); 
+            Debug.Assert(CommandLineOptions.UseProverEvaluate, "Must use prover evaluate option with boolControlVC"); 
             
             var ret = new List<Absy>();
             var impl = svc.info.impl;
@@ -4246,14 +4246,14 @@ namespace CoreLib
                         }
                     }
                 }
-                if (svc.recordProcCallSites.ContainsKey(b) && (model != null || CommandLineOptions.Clo.UseProverEvaluate))
+                if (svc.recordProcCallSites.ContainsKey(b) && (model != null || CommandLineOptions.UseProverEvaluate))
                 {
                     foreach (StratifiedCallSite scs in svc.recordProcCallSites[b])
                     {
                         var args = new List<object>();
                         foreach (VCExpr expr in scs.interfaceExprs)
                         {
-                            if (model == null && CommandLineOptions.Clo.UseProverEvaluate)
+                            if (model == null && CommandLineOptions.UseProverEvaluate)
                             {
                                 args.Add(svc.info.vcgen.prover.Evaluate(expr));
                             }

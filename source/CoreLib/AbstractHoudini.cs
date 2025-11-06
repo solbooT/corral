@@ -48,8 +48,8 @@ namespace CoreLib {
             this.impl2Summary = new Dictionary<string, ISummaryElement>();
             this.name2Impl = BoogieUtil.nameImplMapping(program);
 
-            this.vcgen = new VCGen(program, CommandLineOptions.Clo.ProverLogFilePath, CommandLineOptions.Clo.ProverLogFileAppend, new List<Checker>());
-            this.prover = ProverInterface.CreateProver(program, CommandLineOptions.Clo.ProverLogFilePath, CommandLineOptions.Clo.ProverLogFileAppend, CommandLineOptions.Clo.TimeLimit);
+            this.vcgen = new VCGen(program, CommandLineOptions.ProverLogFilePath, CommandLineOptions.ProverLogFileAppend, new List<Checker>());
+            this.prover = ProverInterface.CreateProver(program, CommandLineOptions.ProverLogFilePath, CommandLineOptions.ProverLogFileAppend, CommandLineOptions.TimeLimit);
             this.reporter = new AbstractHoudiniErrorReporter();
 
             var impls = new List<Implementation>(
@@ -137,7 +137,7 @@ namespace CoreLib {
             }
 
             prover.Close();
-            CommandLineOptions.Clo.TheProverFactory.Close();
+            CommandLineOptions.TheProverFactory.Close();
         }
 
         private bool ProcessImpl(Implementation impl)

@@ -29,7 +29,7 @@ namespace cba.Util
     {
         public static bool InitializeBoogie(string clo)
         {
-            CommandLineOptions.Clo.RunningBoogieFromCommandLine = true;
+            CommandLineOptions.RunningBoogieFromCommandLine = true;
 
             var quotes = (" " + clo + " ").Split(new char[] { '\"' }, StringSplitOptions.RemoveEmptyEntries);
             var args = new List<string>();
@@ -42,7 +42,7 @@ namespace cba.Util
                     args.Add(quotes[i]);
             }
 
-            if (!CommandLineOptions.Clo.Parse(args.ToArray()))
+            if (!CommandLineOptions.Parse(args.ToArray()))
                 return true;
 
             return false;
@@ -1097,7 +1097,7 @@ namespace cba.Util
         public static Declaration MkProc(string name, List<Variable> ins, List<Variable> outs)
         {
             return new Procedure(
-                Token.NoToken, name, new List<TypeVariable>(), ins, outs, 
+                Token.NoToken, name, new List<TypeVariable>(), ins, outs, false, 
                 new List<Requires>(), new List<IdentifierExpr>(), new List<Ensures>());
         }
         public static Declaration MkProc(string name, 
@@ -1595,8 +1595,8 @@ namespace cba.Util
         {
             var irreducible = new HashSet<string>();
 
-            var op = CommandLineOptions.Clo.ExtractLoopsUnrollIrreducible;
-            CommandLineOptions.Clo.ExtractLoopsUnrollIrreducible = false;
+            var op = CommandLineOptions.ExtractLoopsUnrollIrreducible;
+            CommandLineOptions.ExtractLoopsUnrollIrreducible = false;
 
             // Extract loops, we don't want cycles in the CFG            
             program.ExtractLoops(out irreducible);
@@ -1624,7 +1624,7 @@ namespace cba.Util
             ssa.Compute(irreducible);
             Stats.stop("ssa");
 
-            CommandLineOptions.Clo.ExtractLoopsUnrollIrreducible = op;
+            CommandLineOptions.ExtractLoopsUnrollIrreducible = op;
 
             return program;
         }
@@ -1954,7 +1954,7 @@ namespace cba.Util
             var outParam = new Formal(Token.NoToken, new TypedIdent(Token.NoToken, "x_" + outVersion, outV.TypedIdent.Type), false);
 
             var proc = new Procedure(Token.NoToken, "phiNode$" + phiProcsDecl.Count, new List<TypeVariable>(),
-                new List<Variable>(inParams.ToArray()), new List<Variable>(new Variable[] { outParam }), new List<Requires>(), new List<IdentifierExpr>(), new List<Ensures>());
+                new List<Variable>(inParams.ToArray()), new List<Variable>(new Variable[] { outParam }), false, new List<Requires>(), new List<IdentifierExpr>(), new List<Ensures>());
             phiProcsDecl.Add(proc);
 
             Expr expr = Expr.False;

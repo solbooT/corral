@@ -297,7 +297,7 @@ namespace AngelicVerifierNull
         {
             // 
             CommandLineOptions.Install(new CommandLineOptions());
-            CommandLineOptions.Clo.PrintInstrumented = true;
+            CommandLineOptions.PrintInstrumented = true;
             
             // Set all defaults for corral
             corralOpts += " doesntExist.bpl /track:alloc /track:$Alloc /useProverEvaluate /printVerify ";
@@ -393,7 +393,7 @@ namespace AngelicVerifierNull
                 if(corralState != null)
                     corralState.CallTree = new HashSet<string>();
 
-                Utils.Print(string.Format("Recursion Bound: {0}", CommandLineOptions.Clo.RecursionBound), Utils.PRINT_TAG.AV_DEBUG);
+                Utils.Print(string.Format("Recursion Bound: {0}", CommandLineOptions.RecursionBound), Utils.PRINT_TAG.AV_DEBUG);
                 
                 Stats.count("corral.count");
                 cba.ErrorTrace cex = null;
@@ -981,7 +981,7 @@ namespace AngelicVerifierNull
         {
             corralIterationCount ++;
             SetCorralTimeout(corralTimeout);
-            CommandLineOptions.Clo.ProverLogFilePath = null;
+            CommandLineOptions.ProverLogFilePath = null;
 
             var trackedVars = new HashSet<string>(corralConfig.trackedVars);
             if (assertsPassedName != null) trackedVars.Add(assertsPassedName);
@@ -1449,7 +1449,7 @@ namespace AngelicVerifierNull
 
             Dictionary<string, string> eeComplexExprs;
             // Save commandlineoptions
-            var clo = CommandLineOptions.Clo;
+            var clo = CommandLineOptions;
             try
             {            
                 HashSet<List<Expr>> preDisjuncts;

@@ -128,7 +128,7 @@ namespace cba
             BoogieVerify.options.Set();
 
             // An important pass for recording the value of int variables
-            Debug.Assert(CommandLineOptions.Clo.StratifiedInlining > 0);
+            Debug.Assert(CommandLineOptions.StratifiedInlining > 0);
             if(WillGetModel)
               recordVarsTransformation(p, p.mainProcName);
 
@@ -1157,7 +1157,7 @@ namespace cba
             {
                 Debug.Assert(onlyEnsures());
                 // Turn on summary computation in Boogie
-                Debug.Assert(CommandLineOptions.Clo.StratifiedInlining > 0);
+                Debug.Assert(CommandLineOptions.StratifiedInlining > 0);
             }
 
             // Insert summaries
@@ -1381,16 +1381,16 @@ namespace cba
 
             // Run Houdini
 
-            CommandLineOptions.Clo.InlineDepth = InlineDepth;
-            var old = CommandLineOptions.Clo.ProcedureInlining;
-            CommandLineOptions.Clo.ProcedureInlining = CommandLineOptions.Inlining.Spec;
-            var si = CommandLineOptions.Clo.StratifiedInlining;
-            CommandLineOptions.Clo.StratifiedInlining = 0;
-            var oldErrorLimit = CommandLineOptions.Clo.ErrorLimit;
-            CommandLineOptions.Clo.ErrorLimit = runHoudiniLite ? 1 : 5;
-            CommandLineOptions.Clo.ContractInfer = true;
-            var oldTimeout = CommandLineOptions.Clo.TimeLimit;
-            CommandLineOptions.Clo.TimeLimit = Math.Max(1, (HoudiniTimeout + 500) / 1000); // milliseconds -> seconds
+            CommandLineOptions.InlineDepth = InlineDepth;
+            var old = CommandLineOptions.ProcedureInlining;
+            CommandLineOptions.ProcedureInlining = CommandLineOptions.Inlining.Spec;
+            var si = CommandLineOptions.StratifiedInlining;
+            CommandLineOptions.StratifiedInlining = 0;
+            var oldErrorLimit = CommandLineOptions.ErrorLimit;
+            CommandLineOptions.ErrorLimit = runHoudiniLite ? 1 : 5;
+            CommandLineOptions.ContractInfer = true;
+            var oldTimeout = CommandLineOptions.TimeLimit;
+            CommandLineOptions.TimeLimit = Math.Max(1, (HoudiniTimeout + 500) / 1000); // milliseconds -> seconds
 
             var time3 = DateTime.Now;
 
@@ -1486,12 +1486,12 @@ namespace cba
                     origProg.AddTopLevelDeclarations(newAxioms);
                     //BoogieUtil.PrintProgram(origProg, "h2.bpl");
 
-                    CommandLineOptions.Clo.ReverseHoudiniWorklist = true;
+                    CommandLineOptions.ReverseHoudiniWorklist = true;
                     var houdiniStats = new HoudiniSession.HoudiniStatistics();
                     Houdini houdini = new Houdini(origProg, houdiniStats);
                     HoudiniOutcome outcomeReq = houdini.PerformHoudiniInference();
                     Debug.Assert(outcomeReq.ErrorCount == 0, "Something wrong with houdini");
-                    CommandLineOptions.Clo.ReverseHoudiniWorklist = false;
+                    CommandLineOptions.ReverseHoudiniWorklist = false;
 
                     outcome.assignment.Where(kvp => !requiresConstants.Contains(kvp.Key))
                         .ForEach(kvp => { if (kvp.Value) trueConstants.Add(kvp.Key); });
@@ -1517,13 +1517,13 @@ namespace cba
                     });
             }
 
-            CommandLineOptions.Clo.InlineDepth = -1;
-            CommandLineOptions.Clo.ProcedureInlining = old;
-            CommandLineOptions.Clo.StratifiedInlining = si;
-            CommandLineOptions.Clo.ErrorLimit = oldErrorLimit;
-            CommandLineOptions.Clo.ContractInfer = false;
-            CommandLineOptions.Clo.TimeLimit = oldTimeout;
-            CommandLineOptions.Clo.PrintErrorModel = 0;
+            CommandLineOptions.InlineDepth = -1;
+            CommandLineOptions.ProcedureInlining = old;
+            CommandLineOptions.StratifiedInlining = si;
+            CommandLineOptions.ErrorLimit = oldErrorLimit;
+            CommandLineOptions.ContractInfer = false;
+            CommandLineOptions.TimeLimit = oldTimeout;
+            CommandLineOptions.PrintErrorModel = 0;
 
             #region debug static analysis
 
@@ -1624,7 +1624,7 @@ namespace cba
                 Implementation impl = d as Implementation;
                 if (impl != null && !impl.SkipVerification)
                 {
-                    if (CommandLineOptions.Clo.InlineDepth >= 0)
+                    if (CommandLineOptions.InlineDepth >= 0)
                     {
                         Inliner.ProcessImplementation(program, impl);
                     }
@@ -1730,13 +1730,13 @@ namespace cba
 
             if (ExtractLoops)
             {
-                var rb = CommandLineOptions.Clo.RecursionBound;
-                CommandLineOptions.Clo.RecursionBound = 2;
+                var rb = CommandLineOptions.RecursionBound;
+                CommandLineOptions.RecursionBound = 2;
                 
                 // Unroll loops
                 program.ExtractLoops();
 
-                CommandLineOptions.Clo.RecursionBound = rb;
+                CommandLineOptions.RecursionBound = rb;
             }
 
             program = new CBAProgram(BoogieUtil.ReResolve(program), program.mainProcName, program.contextBound);
@@ -1804,16 +1804,16 @@ namespace cba
             Console.WriteLine("Running Houdini");
             // Run Houdini
 
-            CommandLineOptions.Clo.InlineDepth = InlineDepth;
-            var old = CommandLineOptions.Clo.ProcedureInlining;
-            CommandLineOptions.Clo.ProcedureInlining = CommandLineOptions.Inlining.Spec;
-            var si = CommandLineOptions.Clo.StratifiedInlining;
-            CommandLineOptions.Clo.StratifiedInlining = 0;
-            var oldErrorLimit = CommandLineOptions.Clo.ErrorLimit;
-            CommandLineOptions.Clo.ErrorLimit = 5;
-            CommandLineOptions.Clo.ContractInfer = true;
-            var oldTimeout = CommandLineOptions.Clo.TimeLimit;
-            CommandLineOptions.Clo.TimeLimit = Math.Max(1, (HoudiniTimeout + 500) / 1000); // milliseconds -> seconds
+            CommandLineOptions.InlineDepth = InlineDepth;
+            var old = CommandLineOptions.ProcedureInlining;
+            CommandLineOptions.ProcedureInlining = CommandLineOptions.Inlining.Spec;
+            var si = CommandLineOptions.StratifiedInlining;
+            CommandLineOptions.StratifiedInlining = 0;
+            var oldErrorLimit = CommandLineOptions.ErrorLimit;
+            CommandLineOptions.ErrorLimit = 5;
+            CommandLineOptions.ContractInfer = true;
+            var oldTimeout = CommandLineOptions.TimeLimit;
+            CommandLineOptions.TimeLimit = Math.Max(1, (HoudiniTimeout + 500) / 1000); // milliseconds -> seconds
 
             var time3 = DateTime.Now;
 
@@ -1895,12 +1895,12 @@ namespace cba
                     origProg.AddTopLevelDeclarations(newAxioms);
                     //BoogieUtil.PrintProgram(origProg, "h2.bpl");
 
-                    CommandLineOptions.Clo.ReverseHoudiniWorklist = true;
+                    CommandLineOptions.ReverseHoudiniWorklist = true;
                     var houdiniStats = new HoudiniSession.HoudiniStatistics();
                     Houdini houdini = new Houdini(origProg, houdiniStats);
                     HoudiniOutcome outcomeReq = houdini.PerformHoudiniInference();
                     Debug.Assert(outcomeReq.ErrorCount == 0, "Something wrong with houdini");
-                    CommandLineOptions.Clo.ReverseHoudiniWorklist = false;
+                    CommandLineOptions.ReverseHoudiniWorklist = false;
 
                     outcome.assignment.Where(kvp => !requiresConstants.Contains(kvp.Key))
                         .ForEach(kvp => { if (kvp.Value) trueConstants.Add(kvp.Key); });
@@ -1925,13 +1925,13 @@ namespace cba
                     });
             }
 
-            CommandLineOptions.Clo.InlineDepth = -1;
-            CommandLineOptions.Clo.ProcedureInlining = old;
-            CommandLineOptions.Clo.StratifiedInlining = si;
-            CommandLineOptions.Clo.ErrorLimit = oldErrorLimit;
-            CommandLineOptions.Clo.ContractInfer = false;
-            CommandLineOptions.Clo.TimeLimit = oldTimeout;
-            CommandLineOptions.Clo.PrintErrorModel = 0;
+            CommandLineOptions.InlineDepth = -1;
+            CommandLineOptions.ProcedureInlining = old;
+            CommandLineOptions.StratifiedInlining = si;
+            CommandLineOptions.ErrorLimit = oldErrorLimit;
+            CommandLineOptions.ContractInfer = false;
+            CommandLineOptions.TimeLimit = oldTimeout;
+            CommandLineOptions.PrintErrorModel = 0;
 
             //#region debug static analysis
 
@@ -2527,7 +2527,7 @@ namespace cba
                     tc.LabelTargets = new List<Block>(tc.LabelNames.Select(s => l2b[s]));
                 }
 
-                mainCopy.Blocks = LoopUnroll.UnrollLoops(mainCopy.Blocks[0], CommandLineOptions.Clo.RecursionBound, false);
+                mainCopy.Blocks = LoopUnroll.UnrollLoops(mainCopy.Blocks[0], CommandLineOptions.RecursionBound, false);
 
                 // detect loops
                 l2b = BoogieUtil.labelBlockMapping(mainCopy);

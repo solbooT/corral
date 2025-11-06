@@ -93,7 +93,7 @@ namespace Trainer
             {
                 // Set up Boogie
                 CommandLineOptions.Install(new CommandLineOptions());
-                CommandLineOptions.Clo.PrintInstrumented = true;
+                CommandLineOptions.PrintInstrumented = true;
 
                 // Set up corral, duality
                 var root = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);

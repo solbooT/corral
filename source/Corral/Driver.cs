@@ -152,9 +152,9 @@ namespace cba
             boogieOptions += string.Format("/recursionBound:{0} ", config.recursionBound);
 
             // Initialize Boogie
-            CommandLineOptions.Clo.PrintInstrumented = true;
-            CommandLineOptions.Clo.ProcedureInlining = CommandLineOptions.Inlining.Assume;
-            CommandLineOptions.Clo.TypeEncodingMethod = CommandLineOptions.TypeEncoding.Monomorphic;
+            CommandLineOptions.PrintInstrumented = true;
+            CommandLineOptions.ProcedureInlining = CommandLineOptions.Inlining.Assume;
+            CommandLineOptions.TypeEncodingMethod = CommandLineOptions.TypeEncoding.Monomorphic;
 
             // /noRemoveEmptyBlocks is needed for field refinement. It ensures that
             // we get an actual path in the program (so that we can concretize it)
@@ -199,8 +199,8 @@ namespace cba
             if (BoogieUtil.InitializeBoogie(boogieOptions))
                 throw new InternalError("Cannot initialize Boogie");
 
-            if (CommandLineOptions.Clo.UseProverEvaluate)
-                CommandLineOptions.Clo.StratifiedInliningWithoutModels = true;
+            if (CommandLineOptions.UseProverEvaluate)
+                CommandLineOptions.StratifiedInliningWithoutModels = true;
 
             GlobalConfig.corralStartTime = DateTime.Now;
         }
@@ -337,7 +337,7 @@ namespace cba
                 {
                     elPass = new ExtractLoopsPass(true);
                     curr = elPass.run(curr);
-                    CommandLineOptions.Clo.ExtractLoops = false;
+                    CommandLineOptions.ExtractLoops = false;
                 }
             }
             else
@@ -731,13 +731,13 @@ namespace cba
             BoogieUtil.DoModSetAnalysis(init);
 
             // Now we can typecheck
-            CommandLineOptions.Clo.DoModSetAnalysis = true;
+            CommandLineOptions.DoModSetAnalysis = true;
             if (BoogieUtil.TypecheckProgram(init, config.inputFile))
             {
                 BoogieUtil.PrintProgram(init, "error.bpl");
                 throw new InvalidProg("Cannot typecheck " + config.inputFile);
             }
-            CommandLineOptions.Clo.DoModSetAnalysis = false;
+            CommandLineOptions.DoModSetAnalysis = false;
 
             //BoogieUtil.PrintProgram(init, "temp.bpl");
 
@@ -778,7 +778,7 @@ namespace cba
             }
             foreach (var impl in program.TopLevelDeclarations.OfType<Implementation>())
             {
-                if (CommandLineOptions.Clo.UserWantsToCheckRoutine(impl.Name) && !impl.SkipVerification)
+                if (CommandLineOptions.UserWantsToCheckRoutine(impl.Name) && !impl.SkipVerification)
                 {
                     CodeExprInliner.ProcessImplementation(program, impl);
                 }
@@ -848,11 +848,11 @@ namespace cba
 
         public static void InlineProcedures(Program program)
         {
-            var si = CommandLineOptions.Clo.StratifiedInlining;
-            CommandLineOptions.Clo.StratifiedInlining = 0;
+            var si = CommandLineOptions.StratifiedInlining;
+            CommandLineOptions.StratifiedInlining = 0;
             ExecutionEngine.EliminateDeadVariables(program);
             ExecutionEngine.Inline(program);
-            CommandLineOptions.Clo.StratifiedInlining = si;
+            CommandLineOptions.StratifiedInlining = si;
         }
 
         // Stats: LOC on trace and number of branches
@@ -1001,7 +1001,7 @@ namespace cba
             // extract loops
             var elPass = new ExtractLoopsPass(true);
             curr = elPass.run(curr);
-            CommandLineOptions.Clo.ExtractLoops = false;
+            CommandLineOptions.ExtractLoops = false;
             passes.Add(elPass);
 
             var currProg = curr.getCBAProgram();
@@ -1189,8 +1189,8 @@ namespace cba
                 var rcalls = new RewriteCallCmdsPass();
                 ptrace = rcalls.run(ptrace);
 
-                //var ul = CommandLineOptions.Clo.UseLabels;
-                //CommandLineOptions.Clo.UseLabels = true;
+                //var ul = CommandLineOptions.UseLabels;
+                //CommandLineOptions.UseLabels = true;
 
                 // Refine
                 Stats.beginTime();
@@ -1206,7 +1206,7 @@ namespace cba
                 
                 ProgTransformation.PersistentProgram.FreeParserMemory();
 
-                //CommandLineOptions.Clo.UseLabels = ul;
+                //CommandLineOptions.UseLabels = ul;
             }
             var endTime = DateTime.Now;
 
@@ -1585,7 +1585,7 @@ namespace cba
 
                 refinementState.Add(new TraceMapping(tinfo));
 
-                //CommandLineOptions.Clo.SimplifyLogFilePath = "log";
+                //CommandLineOptions.SimplifyLogFilePath = "log";
 
                 // Check if true bug. Otherwise, gather variables to track                
                 if (optRefinementLoop)

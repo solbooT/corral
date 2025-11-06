@@ -67,7 +67,7 @@ namespace HoudiniLite
             Console.WriteLine("HoudiniLite took: {0} seconds", sw.Elapsed.TotalSeconds.ToString("F2"));
             HoudiniStats.Print();
             Console.WriteLine("Num true = {0}", assignment.Count);
-            if(CommandLineOptions.Clo.PrintAssignment)
+            if(CommandLineOptions.PrintAssignment)
               Console.WriteLine("True assignment: {0}", assignment.Concat(" "));
 
             if (check)
@@ -75,9 +75,9 @@ namespace HoudiniLite
                 sw.Restart();
 
                 CommandLineOptions.Install(new CommandLineOptions());
-                CommandLineOptions.Clo.PrintInstrumented = true;
-                CommandLineOptions.Clo.UseSubsumption = CommandLineOptions.SubsumptionOption.Never;
-                CommandLineOptions.Clo.ContractInfer = true;
+                CommandLineOptions.PrintInstrumented = true;
+                CommandLineOptions.UseSubsumption = CommandLineOptions.SubsumptionOption.Never;
+                CommandLineOptions.ContractInfer = true;
                 BoogieUtil.InitializeBoogie(boogieArgs);
 
                 var actual = RunBoogieHoudini(BoogieUtil.ReadAndResolve(file));
@@ -97,11 +97,11 @@ namespace HoudiniLite
         static void Initalize(string boogieOptions)
         {
             CommandLineOptions.Install(new CommandLineOptions());
-            CommandLineOptions.Clo.PrintInstrumented = true;
-            CommandLineOptions.Clo.UseSubsumption = CommandLineOptions.SubsumptionOption.Never;
-            CommandLineOptions.Clo.ContractInfer = true;
+            CommandLineOptions.PrintInstrumented = true;
+            CommandLineOptions.UseSubsumption = CommandLineOptions.SubsumptionOption.Never;
+            CommandLineOptions.ContractInfer = true;
             BoogieUtil.InitializeBoogie(boogieOptions);
-            CommandLineOptions.Clo.ErrorLimit = 1;
+            CommandLineOptions.ErrorLimit = 1;
             cba.Util.BoogieVerify.options = new BoogieVerifyOptions();
         }
 

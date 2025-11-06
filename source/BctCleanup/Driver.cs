@@ -88,7 +88,7 @@ namespace BctCleanup
             }
 
             CommandLineOptions.Install(new CommandLineOptions());
-            CommandLineOptions.Clo.PrintInstrumented = true;
+            CommandLineOptions.PrintInstrumented = true;
 
             try
             {

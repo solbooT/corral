@@ -12,7 +12,7 @@ namespace Microsoft.Boogie
     {
         public static bool InitializeBoogie(string clo)
         {
-            CommandLineOptions.Clo.RunningBoogieFromCommandLine = true;
+            CommandLineOptions.RunningBoogieFromCommandLine = true;
 
             var quotes = clo.Split(new char[] { '\"' }, StringSplitOptions.RemoveEmptyEntries);
             var args = new List<string>();
@@ -24,7 +24,7 @@ namespace Microsoft.Boogie
                     args.Add(quotes[i]);
             }
 
-            CommandLineOptions.Clo.Parse(args.ToArray());
+            CommandLineOptions.Parse(args.ToArray());
 
             return false;
         }
@@ -1408,8 +1408,8 @@ namespace Microsoft.Boogie
         {
             var irreducible = new HashSet<string>();
 
-            var op = CommandLineOptions.Clo.ExtractLoopsUnrollIrreducible;
-            CommandLineOptions.Clo.ExtractLoopsUnrollIrreducible = false;
+            var op = CommandLineOptions.ExtractLoopsUnrollIrreducible;
+            CommandLineOptions.ExtractLoopsUnrollIrreducible = false;
 
             // Extract loops, we don't want cycles in the CFG            
             program.ExtractLoops(out irreducible);
@@ -1419,7 +1419,7 @@ namespace Microsoft.Boogie
 
             program.TopLevelDeclarations.AddRange(phiProcsDecl);
 
-            CommandLineOptions.Clo.ExtractLoopsUnrollIrreducible = op;
+            CommandLineOptions.ExtractLoopsUnrollIrreducible = op;
         }
 
         private void SSARename(Implementation impl)

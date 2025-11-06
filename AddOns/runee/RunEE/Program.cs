@@ -22,7 +22,7 @@ namespace RunEE
             }
 
             CommandLineOptions.Install(new CommandLineOptions());
-            CommandLineOptions.Clo.PrintInstrumented = true;
+            CommandLineOptions.PrintInstrumented = true;
 
             var program = BoogieUtil.ReadAndResolve(args[0]);
 

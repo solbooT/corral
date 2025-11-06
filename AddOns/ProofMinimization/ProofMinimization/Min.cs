@@ -514,10 +514,10 @@ namespace ProofMinimization
                 DropConstants(program, allconstants.Difference(candidates.Union(keep)));
 
                 // Run Houdini
-                var ot = CommandLineOptions.Clo.ProverKillTime;
-                CommandLineOptions.Clo.ProverKillTime = HoudiniTimeout;
+                var ot = CommandLineOptions.ProverKillTime;
+                CommandLineOptions.ProverKillTime = HoudiniTimeout;
                 var assignment = CoreLib.HoudiniInlining.RunHoudini(program, true);
-                CommandLineOptions.Clo.ProverKillTime = ot;
+                CommandLineOptions.ProverKillTime = ot;
                 //Console.WriteLine("  >> Contracts: {0}", assignment.Count);
 
                 // Read the program again, add contracts
@@ -583,10 +583,10 @@ namespace ProofMinimization
             //BoogieUtil.PrintProgram(program, "hi_query" + IterCnt + ".bpl");
 
             // Run Houdini
-            var ot = CommandLineOptions.Clo.ProverKillTime;
-            CommandLineOptions.Clo.ProverKillTime = HoudiniTimeout;
+            var ot = CommandLineOptions.ProverKillTime;
+            CommandLineOptions.ProverKillTime = HoudiniTimeout;
             assignment = CoreLib.HoudiniInlining.RunHoudini(program, true);
-            CommandLineOptions.Clo.ProverKillTime = ot;
+            CommandLineOptions.ProverKillTime = ot;
             //Console.WriteLine("  >> Contracts: {0}", assignment.Count);
 
             // Read the program again, add contracts

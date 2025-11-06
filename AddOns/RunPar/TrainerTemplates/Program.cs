@@ -206,7 +206,7 @@ namespace Trainer
             {
                 // Set up Boogie
                 CommandLineOptions.Install(new CommandLineOptions());
-                CommandLineOptions.Clo.PrintInstrumented = true;
+                CommandLineOptions.PrintInstrumented = true;
 
                 // Set up corral, duality
                 var root = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
@@ -214,7 +214,7 @@ namespace Trainer
                 corralexe = Path.Combine(root, "..", "corral", "corral.exe");
                 z3exe = Path.Combine(root, "..", "corral", "z3.exe");
                 iz3exe = Path.Combine(root, "..", "iz3", "z3.exe");
-                CommandLineOptions.Clo.Z3ExecutablePath = z3exe;
+                CommandLineOptions.Z3ExecutablePath = z3exe;
 
                 runGenerator();
             }
@@ -448,8 +448,8 @@ namespace Trainer
                     return;
                 }
 
-                CommandLineOptions.Clo.ApplyDefaultOptions(); // needed for creating prover
-                CommandLineOptions.Clo.StratifiedInlining = 1;
+                CommandLineOptions.ApplyDefaultOptions(); // needed for creating prover
+                CommandLineOptions.StratifiedInlining = 1;
                 addTemplatesFromDualityOutput(filename);
                 Console.WriteLine("Done");
             }
@@ -459,8 +459,8 @@ namespace Trainer
                 var corralout = CommonLib.Util.run(Environment.CurrentDirectory, wlimitexe,
                     string.Format("/w {0} {1} {2}", timeout, corralexe, filename + " " + corralflags));
 
-                CommandLineOptions.Clo.ApplyDefaultOptions(); // needed for creating prover
-                CommandLineOptions.Clo.StratifiedInlining = 1;
+                CommandLineOptions.ApplyDefaultOptions(); // needed for creating prover
+                CommandLineOptions.StratifiedInlining = 1;
                 addSummaryTemplate("train.bpl");
                 Console.WriteLine("Done");
             }

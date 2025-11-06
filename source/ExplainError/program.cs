@@ -1156,9 +1156,9 @@ namespace ExplainError
             //Custom parser to look and remove RootCause specific options
             var help = ParseArgs(oldArgs, out args);
             CommandLineOptions.Install(new CommandLineOptions());
-            CommandLineOptions.Clo.RunningBoogieFromCommandLine = true;
-            CommandLineOptions.Clo.TypeEncodingMethod = CommandLineOptions.TypeEncoding.Monomorphic;
-            CommandLineOptions.Clo.Parse(args);
+            CommandLineOptions.RunningBoogieFromCommandLine = true;
+            CommandLineOptions.TypeEncodingMethod = CommandLineOptions.TypeEncoding.Monomorphic;
+            CommandLineOptions.Parse(args);
             return !help;
         }
         public static bool CheckBooleanFlag(string s, string flagName, ref bool flag, bool valueWhenPresent)
@@ -1273,7 +1273,7 @@ namespace ExplainError
         private static bool CheckSanity(Implementation impl)
         {
             if (impl == null) { returnStatus = STATUS.ILLEGAL; return false; }
-            if (!CommandLineOptions.Clo.UserWantsToCheckRoutine(impl.Name))
+            if (!CommandLineOptions.UserWantsToCheckRoutine(impl.Name))
             {
                 returnStatus = STATUS.ILLEGAL; return false;
             }
@@ -1305,8 +1305,8 @@ namespace ExplainError
         private static void CreateProver()
         {
             //create vcgen/proverInterface
-            vcgen = new VCGen(prog, CommandLineOptions.Clo.ProverLogFilePath, CommandLineOptions.Clo.ProverLogFileAppend, new List<Checker>());
-            proverInterface = ProverInterface.CreateProver(prog, CommandLineOptions.Clo.ProverLogFilePath, CommandLineOptions.Clo.ProverLogFileAppend, CommandLineOptions.Clo.TimeLimit);
+            vcgen = new VCGen(prog, CommandLineOptions.ProverLogFilePath, CommandLineOptions.ProverLogFileAppend, new List<Checker>());
+            proverInterface = ProverInterface.CreateProver(prog, CommandLineOptions.ProverLogFilePath, CommandLineOptions.ProverLogFileAppend, CommandLineOptions.TimeLimit);
             translator = proverInterface.Context.BoogieExprTranslator;
             exprGen = proverInterface.Context.ExprGen;
             collector = new ConditionGeneration.CounterexampleCollector();
@@ -1353,7 +1353,7 @@ namespace ExplainError
             {
                 //this creates a z3 process per vcgen
                 var checkers = new List<Checker>();
-                VC.VCGen vcgen = new VC.VCGen(prog, CommandLineOptions.Clo.ProverLogFilePath, CommandLineOptions.Clo.ProverLogFileAppend, checkers);
+                VC.VCGen vcgen = new VC.VCGen(prog, CommandLineOptions.ProverLogFilePath, CommandLineOptions.ProverLogFileAppend, checkers);
                 //make deep copy of the blocks
                 var tmpBlocks = new List<Block>();
                 foreach (Block b in i.Blocks)

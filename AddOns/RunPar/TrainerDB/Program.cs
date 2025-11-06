@@ -303,15 +303,15 @@ namespace TrainerDB
 
         public static void CreateProver()
         {
-            CommandLineOptions.Clo.ApplyDefaultOptions();
-            CommandLineOptions.Clo.StratifiedInlining = 1;
-            prover = ProverInterface.CreateProver(new Program(), "log", CommandLineOptions.Clo.SimplifyLogFileAppend, -1);
+            CommandLineOptions.ApplyDefaultOptions();
+            CommandLineOptions.StratifiedInlining = 1;
+            prover = ProverInterface.CreateProver(new Program(), "log", CommandLineOptions.SimplifyLogFileAppend, -1);
         }
 
         public static void CloseProver()
         {
             prover.Close();
-            CommandLineOptions.Clo.TheProverFactory.Close();
+            CommandLineOptions.TheProverFactory.Close();
             prover = null;
         }
 
@@ -711,16 +711,16 @@ namespace TrainerDB
 
         public static void CreateProver(string z3exe)
         {
-            CommandLineOptions.Clo.Z3ExecutablePath = z3exe;
-            CommandLineOptions.Clo.ApplyDefaultOptions();
-            CommandLineOptions.Clo.StratifiedInlining = 1;
-            prover = ProverInterface.CreateProver(new Program(), "log", CommandLineOptions.Clo.SimplifyLogFileAppend, -1);
+            CommandLineOptions.Z3ExecutablePath = z3exe;
+            CommandLineOptions.ApplyDefaultOptions();
+            CommandLineOptions.StratifiedInlining = 1;
+            prover = ProverInterface.CreateProver(new Program(), "log", CommandLineOptions.SimplifyLogFileAppend, -1);
         }
 
         public static void CloseProver()
         {
             prover.Close();
-            CommandLineOptions.Clo.TheProverFactory.Close();
+            CommandLineOptions.TheProverFactory.Close();
             prover = null;
         }
 

@@ -309,7 +309,7 @@ namespace FastAVN
         private static void InitializeCorralandBoogie()
         {
             CommandLineOptions.Install(new CommandLineOptions());
-            CommandLineOptions.Clo.PrintInstrumented = true;
+            CommandLineOptions.PrintInstrumented = true;
         }
 
         // locate binary in the system

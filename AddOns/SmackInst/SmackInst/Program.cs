@@ -92,8 +92,8 @@ namespace SmackInst
                 visualizeHeap = true;
             // initialize Boogie
             CommandLineOptions.Install(new CommandLineOptions());
-            CommandLineOptions.Clo.PrintInstrumented = true;
-            CommandLineOptions.Clo.DoModSetAnalysis = true;
+            CommandLineOptions.PrintInstrumented = true;
+            CommandLineOptions.DoModSetAnalysis = true;
 
 
             // Read the input file
