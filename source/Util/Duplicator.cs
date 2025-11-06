@@ -409,7 +409,7 @@ namespace cba.Util
                 }
                 else
                 {
-                    node.Fun = nf.createUnresolvedCopy();
+                    node.Fun = nf.CreateUnresolvedCopy();
                 }
             }
             return node; // base.VisitNAryExpr(node);
