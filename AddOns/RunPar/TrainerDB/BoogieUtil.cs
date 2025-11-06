@@ -11,7 +11,7 @@ namespace Trainer
     {
         public static void PrintProgram(Program p, string filename)
         {
-            var outFile = new TokenTextWriter(filename);
+            var outFile = new TokenTextWriter(filename, null);
             p.Emit(outFile);
             outFile.Close();
         }

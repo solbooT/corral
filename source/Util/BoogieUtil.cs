@@ -55,7 +55,7 @@ namespace cba.Util
 
         public static void PrintProgram(Program p, string filename)
         {
-            var outFile = new TokenTextWriter(filename);
+            var outFile = new TokenTextWriter(filename, null);
             p.Emit(outFile);
             outFile.Close();
         }
@@ -454,7 +454,7 @@ namespace cba.Util
             using (var writer = new System.IO.MemoryStream())
             {
                 var st = new System.IO.StreamWriter(writer);
-                var tt = new TokenTextWriter(st);
+                var tt = new TokenTextWriter(st, null);
                 p.Emit(tt);
                 writer.Flush();
                 st.Flush();
@@ -485,7 +485,7 @@ namespace cba.Util
 
         public static void PrintGlobalVariables(Program p)
         {
-            TokenTextWriter log = new TokenTextWriter(Console.Out);
+            TokenTextWriter log = new TokenTextWriter(Console.Out, null);
             foreach (Declaration d in p.TopLevelDeclarations)
             {
                 if (d is GlobalVariable)

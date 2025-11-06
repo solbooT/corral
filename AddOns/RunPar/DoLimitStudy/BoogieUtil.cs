@@ -36,7 +36,7 @@ namespace Microsoft.Boogie
 
         public static void PrintProgram(Program p, string filename)
         {
-            var outFile = new TokenTextWriter(filename);
+            var outFile = new TokenTextWriter(filename, null);
             p.Emit(outFile);
             outFile.Close();
         }
@@ -374,7 +374,7 @@ namespace Microsoft.Boogie
 
         public static void PrintGlobalVariables(Program p)
         {
-            TokenTextWriter log = new TokenTextWriter(Console.Out);
+            TokenTextWriter log = new TokenTextWriter(Console.Out, null);
             foreach (Declaration d in p.TopLevelDeclarations)
             {
                 if (d is GlobalVariable)

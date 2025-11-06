@@ -570,7 +570,7 @@ namespace cba.Util
                 node = this.VisitDeclWithFormals((DeclWithFormals)node);
             else
             {
-                node.Emit(new TokenTextWriter(Console.Out), 0);
+                node.Emit(new TokenTextWriter(Console.Out, null), 0);
                 throw new InvalidInput("Unknown declaration type");
             }
 
@@ -591,7 +591,7 @@ namespace cba.Util
                 node = this.VisitProcedure((Procedure)node);
             else
             {
-                node.Emit(new TokenTextWriter(Console.Out), 0);
+                node.Emit(new TokenTextWriter(Console.Out, null), 0);
                 throw new InvalidInput("Unknown declaration type");
             }
 
@@ -756,7 +756,7 @@ namespace cba.Util
                 node = this.VisitDeclWithFormals((DeclWithFormals)node);
             else
             {
-                node.Emit(new TokenTextWriter(Console.Out), 0);
+                node.Emit(new TokenTextWriter(Console.Out, null), 0);
                 throw new InvalidInput("Unknown declaration type");
             }
 

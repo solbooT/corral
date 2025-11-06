@@ -679,7 +679,7 @@ namespace cba.Util
                     // to guard against vagaries of Boogie.)
 
                     //Log.Out(Log.Normal, "Could not find block " + b.Label);
-                    //b.Emit(new TokenTextWriter(Console.Out), 0);
+                    //b.Emit(new TokenTextWriter(Console.Out, null), 0);
                     for (int numInstr = 0; numInstr < b.Cmds.Count; numInstr++)
                     {
                         if (trace.calleeCounterexamples.ContainsKey(new TraceLocation(numBlock, numInstr)))
@@ -951,7 +951,7 @@ namespace cba.Util
             List<String> prev_labels = null;
             foreach (Block b in cex.Trace)
             {
-                //b.Emit(new TokenTextWriter(Console.Out), 0);
+                //b.Emit(new TokenTextWriter(Console.Out, null), 0);
                 if (prev_labels != null)
                 {
                     if (!prev_labels.Contains(b.Label))

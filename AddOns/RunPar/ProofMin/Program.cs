@@ -179,7 +179,7 @@ namespace ProofMin
             }
 
             var sw = new StreamWriter(outfile, false);
-            var tw = new TokenTextWriter(sw);
+            var tw = new TokenTextWriter(sw, null);
             program.Emit(tw);
             sw.Close();
             tw.Close();
@@ -220,7 +220,7 @@ namespace ProofMin
                 try
                 {
                     sw = new StreamWriter(trypath, false);
-                    var tw = new TokenTextWriter(sw);
+                    var tw = new TokenTextWriter(sw, null);
                     program.Emit(tw);
                     sw.Close();
                     tw.Close();

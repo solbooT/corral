@@ -295,7 +295,7 @@ namespace Microsoft.Boogie
 
             Contract.Assert(errCount1 == 0 && errCount2 == 0);
 
-            freshProgram.Emit(new TokenTextWriter("CombinedBPL.bpl"));
+            freshProgram.Emit(new TokenTextWriter("CombinedBPL.bpl", null));
 
             prover = ProverInterface.CreateProver(freshProgram, "log2.txt", true, CommandLineOptions.ProverKillTime);
 
@@ -342,7 +342,7 @@ namespace Microsoft.Boogie
 
             string fname = "DualitySummariesRenamed2.bpl";
 
-            TokenTextWriter tw = new TokenTextWriter(fname);
+            TokenTextWriter tw = new TokenTextWriter(fname, null);
             newProg.Emit(tw);
             tw.Close();
 
@@ -465,7 +465,7 @@ namespace Microsoft.Boogie
             int errCount1 = summariesProgram.Resolve();
             //int errCount2 = summariesProgram.Typecheck();
 
-            summariesProgram.Emit(new TokenTextWriter("final.bpl"));
+            summariesProgram.Emit(new TokenTextWriter("final.bpl", null));
 
             return summariesProgram;
         }
@@ -689,7 +689,7 @@ namespace Microsoft.Boogie
                 Contract.Assert(false);
 
 
-            TokenTextWriter f = new TokenTextWriter(outFileName);
+            TokenTextWriter f = new TokenTextWriter(outFileName, null);
             newfreshProgram.Emit(f);
             f.Close();
         }
@@ -1545,7 +1545,7 @@ namespace Microsoft.Boogie
             // dump and reload the fresh program to escape VCExprVar->ExprIdentifier->Variable mapping issues faced during translation
             if (true)
             {
-                TokenTextWriter tt = new TokenTextWriter("AbsHoudIn.bpl");
+                TokenTextWriter tt = new TokenTextWriter("AbsHoudIn.bpl", null);
                 program.Emit(tt);
                 tt.Close();
 
@@ -1862,7 +1862,7 @@ namespace Microsoft.Boogie
             // dump and reload the fresh program to escape VCExprVar->ExprIdentifier->Variable mapping issues faced during translation
             if (true)
             {
-                TokenTextWriter tt = new TokenTextWriter("AbsHoudIn.bpl");
+                TokenTextWriter tt = new TokenTextWriter("AbsHoudIn.bpl", null);
                 program.Emit(tt);
                 tt.Close();
 

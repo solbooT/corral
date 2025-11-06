@@ -219,7 +219,7 @@ namespace CoreLib
         /* initial analyses */
         public void RunInitialAnalyses(Program prog)
         {
-            //TokenTextWriter file = new TokenTextWriter("tmp1_"+DateTime.Now.Millisecond.ToString()+".bpl");
+            //TokenTextWriter file = new TokenTextWriter("tmp1_"+DateTime.Now.Millisecond.ToString(, null)+".bpl");
             //prog.Emit(file);
             //file.Close();
 

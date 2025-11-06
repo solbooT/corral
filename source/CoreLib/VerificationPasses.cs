@@ -1541,7 +1541,7 @@ namespace cba
                         break;
                     }
                     Console.WriteLine("The following expr in {0} is not valid", proc);
-                    expr.Emit(new TokenTextWriter(Console.Out));
+                    expr.Emit(new TokenTextWriter(Console.Out, null));
                     Console.WriteLine();
                 }
 
@@ -1949,7 +1949,7 @@ namespace cba
             //            break;
             //        }
             //        Console.WriteLine("The following expr in {0} is not valid", proc);
-            //        expr.Emit(new TokenTextWriter(Console.Out));
+            //        expr.Emit(new TokenTextWriter(Console.Out, null));
             //        Console.WriteLine();
             //    }
 

@@ -230,7 +230,7 @@ namespace cba
             
             if (p.Typecheck() != 0)
             {
-                p.Emit(new TokenTextWriter("error.bpl"));
+                p.Emit(new TokenTextWriter("error.bpl", null));
                 throw new InternalError("Type errors");
             }
             //BoogieUtil.PrintProgram(p, "RefineUp.bpl");
@@ -307,7 +307,7 @@ namespace cba
             var p = upperProg.getCBAProgram();
             if (p.Typecheck() != 0)
             {
-                p.Emit(new TokenTextWriter("error.bpl"));
+                p.Emit(new TokenTextWriter("error.bpl", null));
                 throw new InternalError("Type errors");
             }
 

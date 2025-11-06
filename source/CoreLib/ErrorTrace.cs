@@ -1327,7 +1327,7 @@ namespace cba
             stack = new List<PrintProgramPath.WorkItem>();
             program = p;
             nameImplMap = BoogieUtil.nameImplMapping(program);
-            pathFile = new TokenTextWriter(filename);
+            pathFile = new TokenTextWriter(filename, null);
             gcnt = 1;
             abortMessage = null;
 
@@ -1506,8 +1506,8 @@ namespace cba
         {
             program = p;
             nameImplMap = BoogieUtil.nameImplMapping(program);
-            pathFile = new TokenTextWriter(filename);
-            stackFile = new TokenTextWriter(stackFileName);
+            pathFile = new TokenTextWriter(filename, null);
+            stackFile = new TokenTextWriter(stackFileName, null);
             gcnt = 1;
             abortMessage = null;
             abortMessageLocation = null;
@@ -1544,7 +1544,7 @@ namespace cba
 
             if (scalarWrites.Count > 0)
             {
-                var scalarFile = new TokenTextWriter("scalars.txt");
+                var scalarFile = new TokenTextWriter("scalars.txt", null);
                 scalarWrites.ForEach(kvp =>
                     {
                         scalarFile.Write("{0}: ", kvp.Key);
@@ -1575,7 +1575,7 @@ namespace cba
                 memWrites.ForEach(kvp =>
                     kvp.Value.ForEach(line => lineWrites.InitAndAdd(line, kvp.Key)));
 
-                var memFile = new TokenTextWriter("mem1.txt");
+                var memFile = new TokenTextWriter("mem1.txt", null);
                 
                 var lines = new HashSet<string>();
                 lineReads.Keys.ForEach(line => lines.Add(line));
@@ -1592,7 +1592,7 @@ namespace cba
 
                 memFile.Close();
 
-                memFile = new TokenTextWriter("mem2.txt");
+                memFile = new TokenTextWriter("mem2.txt", null);
 
                 var addresses = new HashSet<int>();
                 memReads.Keys.ForEach(a => addresses.Add(a));
@@ -1619,7 +1619,7 @@ namespace cba
                 memWritesCS.ForEach(kvp =>
                     kvp.Value.ForEach(cs => stateWrites.InitAndAdd(cs, kvp.Key)));
 
-                memFile = new TokenTextWriter("mem3.txt");
+                memFile = new TokenTextWriter("mem3.txt", null);
 
                 var states = new HashSet<int>();
                 stateReads.Keys.ForEach(s => states.Add(s));
@@ -1636,7 +1636,7 @@ namespace cba
 
                 memFile.Close();
 
-                memFile = new TokenTextWriter("mem4.txt");
+                memFile = new TokenTextWriter("mem4.txt", null);
 
                 foreach (var add in addresses)
                 {
@@ -1924,7 +1924,7 @@ namespace cba
         private static void setupPrint(PersistentProgram program, ErrorTrace trace, string file)
         {
             // Set output files
-            pathFile = new TokenTextWriter(file + "_trace.txt");
+            pathFile = new TokenTextWriter(file + "_trace.txt", null);
             program.writeToFile(file + ".bpl");
             Program prog = program.getProgram();
 

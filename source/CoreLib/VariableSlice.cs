@@ -214,7 +214,7 @@ namespace cba
                 {
                     if (!en.Free)
                     {
-                        //en.Emit(new TokenTextWriter(Console.Out), 0);
+                        //en.Emit(new TokenTextWriter(Console.Out, null), 0);
                         //throw new InternalError("Cannot yet abstract ensures annotations that have untracked variables");
                         slicedEnsures.Add(node.Name);
                     }                    
@@ -237,7 +237,7 @@ namespace cba
                 {
                     if (!re.Free)
                     {
-                        //re.Emit(new TokenTextWriter(Console.Out), 0);
+                        //re.Emit(new TokenTextWriter(Console.Out, null), 0);
                         //throw new InternalError("Cannot yet abstract requires annotations that have untracked variables");
                         slicedRequires.Add(node.Name);
                     }
@@ -423,7 +423,7 @@ namespace cba
                 }
                 else
                 {
-                    cmd.Emit(new TokenTextWriter(Console.Out), 0);
+                    cmd.Emit(new TokenTextWriter(Console.Out, null), 0);
                     throw new InternalError("Unkown Cmd type encountered during variable slicing");
                 }
 
@@ -552,7 +552,7 @@ namespace cba
             }
             else
             {
-                lhs.Emit(new TokenTextWriter(Console.Out));
+                lhs.Emit(new TokenTextWriter(Console.Out, null));
                 throw new InternalError("Unknown type of AssignLhs");
             }
 

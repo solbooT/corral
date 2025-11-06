@@ -180,14 +180,14 @@ namespace ProgTransformation
                 count++;
 
                 StreamWriter writer = new StreamWriter(programStream as FileStream);
-                p.Emit(new TokenTextWriter(writer));
+                p.Emit(new TokenTextWriter(writer, null));
                 writer.Flush();
             }
             else if (useStrings)
             {
                 fileName = "";
                 var sw = new StringWriter();
-                p.Emit(new TokenTextWriter(sw));
+                p.Emit(new TokenTextWriter(sw, null));
                 sw.Flush();
                 programStream = sw.ToString();
             }
@@ -197,7 +197,7 @@ namespace ProgTransformation
                 programStream = new MemoryStream();
 
                 StreamWriter writer = new StreamWriter(programStream as MemoryStream);
-                p.Emit(new TokenTextWriter(writer));
+                p.Emit(new TokenTextWriter(writer, null));
                 writer.Flush();
             }
 

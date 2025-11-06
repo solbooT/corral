@@ -369,7 +369,7 @@ namespace StaticAnalysis
         public void Print(bool forSummary)
         {
             var expr = ToExpr(forSummary);
-            expr.ForEach(e => { e.Emit(new TokenTextWriter(Console.Out)); Console.WriteLine(); });
+            expr.ForEach(e => { e.Emit(new TokenTextWriter(Console.Out, null)); Console.WriteLine(); });
         }
 
         public IEnumerable<Expr> ToExpr(bool forSummary)
@@ -598,7 +598,7 @@ namespace StaticAnalysis
             foreach (var e in constExprs)
             {
                 var sb = new System.IO.StringWriter();
-                e.Emit(new TokenTextWriter(sb));
+                e.Emit(new TokenTextWriter(sb, null));
                 sb.Close();
                 exprs += "," + sb.ToString();
             }

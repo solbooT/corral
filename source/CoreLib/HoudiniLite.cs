@@ -137,7 +137,7 @@ namespace CoreLib
                     }
                 }
 
-                //impl.Emit(new TokenTextWriter(Console.Out), 0);
+                //impl.Emit(new TokenTextWriter(Console.Out, null), 0);
             });
 
             program.AddTopLevelDeclarations(CandidateFuncsAssumed.Values);

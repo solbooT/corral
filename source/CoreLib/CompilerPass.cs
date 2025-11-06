@@ -450,7 +450,7 @@ namespace cba
                 .ForEach(cc =>
                 {
                     var str = new System.IO.StringWriter();
-                    var tt = new TokenTextWriter(str);
+                    var tt = new TokenTextWriter(str, null);
                     cc.Emit(tt, 0);
                     tt.Close();
                     callStr.Add(str.ToString());
@@ -540,7 +540,7 @@ namespace cba
             // we need the type of "untracked-expr" or of "Mem[x]"
             if (p.Typecheck() != 0)
             {
-                p.Emit(new TokenTextWriter("error.bpl"));
+                p.Emit(new TokenTextWriter("error.bpl", null));
                 throw new InternalError("Type errors");
             }
             vslice.VisitProgram(p as Program);
