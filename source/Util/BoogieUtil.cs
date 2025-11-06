@@ -1657,7 +1657,7 @@ namespace cba.Util
             }
 
             // Remove unreachble blocks
-            impl.PruneUnreachableBlocks();
+            impl.PruneUnreachableBlocks(null);
 
             // Live variable analysis
             CbaLiveVariableAnalysis.ClearLiveVariables(impl);
