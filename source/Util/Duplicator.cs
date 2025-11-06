@@ -358,16 +358,6 @@ namespace cba.Util
             return base.VisitBlockSeq(new List<Block>(blockSeq));
         }
 
-        public override List<Block> VisitBlockList(List<Block> blocks)
-        {
-            var nblocks = new List<Block>();
-            for (int i = 0, n = blocks.Count; i < n; i++)
-            {
-                nblocks.Add(this.VisitBlock(blocks[i]));
-            }
-            return nblocks;
-        }
-
         public override List<Declaration> VisitDeclarationList(List<Declaration> decls)
         {
             var ndelcs = new List<Declaration>();
@@ -454,7 +444,6 @@ namespace cba.Util
         {
             node = (Function)node.Clone();
             node.Attributes = CopyAttr(node.Attributes);
-            node.doingExpansion = false;
             return base.VisitFunction(node);
         }
 

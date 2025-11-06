@@ -9,6 +9,7 @@ using cba;
 using Microsoft.Boogie.Houdini;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
+using System.Text.Json;
 
 namespace cba
 {
@@ -1261,10 +1262,10 @@ namespace cba
                 }
 
                 //serialize the buggyTrace
-                BinaryFormatter serializer = new BinaryFormatter();
-                FileStream stream = new FileStream("buggyTrace.serialised", FileMode.Create, FileAccess.Write, FileShare.None);
-                serializer.Serialize(stream, buggyTrace);
-                stream.Close();
+                using (StreamWriter outputFile = new StreamWriter("buggyTrace.serialised"))
+                {
+                    outputFile.Write(JsonSerializer.Serialize(buggyTrace));
+                }
             }
 
             CorralState.DumpCorralState(config, progVerifyOptions.CallTree, varsToKeep.Variables);

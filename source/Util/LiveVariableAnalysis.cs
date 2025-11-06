@@ -85,7 +85,7 @@ public class CbaLiveVariableAnalysis
     private static void PropagateCall(CallCmd cc, HashSet<Variable> liveVarsAfter, Program program)
     {
         // globals U in-params U (after - out-params)
-        cc.Outs.Where(ie => ie != null).Iter(ie => liveVarsAfter.Remove(ie.Decl));
+        cc.Outs.Where(ie => ie != null).ForEach(ie => liveVarsAfter.Remove(ie.Decl));
         if (program != null)
         {
             program.TopLevelDeclarations

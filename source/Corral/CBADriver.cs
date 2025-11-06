@@ -7,6 +7,7 @@ using System.Diagnostics;
 using cba.Util;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text.Json;
 
 namespace cba
 {
@@ -456,12 +457,10 @@ namespace cba
             if (file == null || !System.IO.File.Exists(file))
                 return null;
 
-            var serailizer = new BinaryFormatter();
-            FileStream stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.None);
-            var cs = (CorralState)serailizer.Deserialize(stream);
-            stream.Close();
-
-            return cs;
+            using (StreamReader input = new StreamReader(file))
+            {
+                return JsonSerializer.Deserialize<CorralState>(input.Read());
+            }
         }
 
         public static void AbsorbPrevState(Configs config, BoogieVerifyOptions progVerifyOptions)
@@ -486,10 +485,11 @@ namespace cba
                 var cs = new CorralState();
                 cs.CallTree = CallTree;
                 cs.TrackedVariables = Vars;
-                BinaryFormatter serializer = new BinaryFormatter();
-                FileStream stream = new FileStream(file, FileMode.Create, FileAccess.Write, FileShare.None);
-                serializer.Serialize(stream, cs);
-                stream.Close();
+
+                using (StreamWriter outputFile = new StreamWriter(file))
+                {
+                    outputFile.Write(JsonSerializer.Serialize(cs));
+                }
             }
         }
     }
