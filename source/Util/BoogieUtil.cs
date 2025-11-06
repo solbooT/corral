@@ -1769,7 +1769,7 @@ namespace cba.Util
 
             foreach (var blk in sortedBlockList)
             {
-                var lvars = HashSetExtras<Variable>.Intersection(new HashSet<Variable>(blk.liveVarsBefore), variables);
+                var lvars = HashSetExtras<Variable>.Intersection(new HashSet<Variable>(blk.LiveVarsBefore), variables);
 
                 // compute reachDefIn
                 if (blk == impl.Blocks[0])
