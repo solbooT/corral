@@ -148,9 +148,9 @@ namespace AvHarnessInstrumentation
                     proc.Attributes = BoogieUtil.removeAttr("entrypoint", proc.Attributes);
                 }
                 // add global variables to prog
-                // globals.Iter(x => prog.AddTopLevelDeclaration(x)); 
+                // globals.ForEach(x => prog.AddTopLevelDeclaration(x)); 
                 //add the constants to the prog
-                blockCallConsts.Iter(x => prog.AddTopLevelDeclaration(x));
+                blockCallConsts.ForEach(x => prog.AddTopLevelDeclaration(x));
                 //TODO: get globals of type refs/pointers and maps
                 var initCmd = (AssumeCmd)BoogieAstFactory.MkAssume(Expr.True);
 
@@ -164,12 +164,12 @@ namespace AvHarnessInstrumentation
                 prog.GlobalVariables
                     .Where(g => g.Name == "alloc" || BoogieUtil.checkAttrExists(AvnAnnotations.AllocatorVarAttr, g.Attributes))
                     .Where(g => !BoogieUtil.checkAttrExists("scalar", g.Attributes))
-                    .Iter(g => g.AddAttribute("scalar"));
+                    .ForEach(g => g.AddAttribute("scalar"));
 
                 // initialize globals
                 prog.GlobalVariables
                     .Where(g => g.Name != "alloc" && !BoogieUtil.checkAttrExists(AvnAnnotations.AllocatorVarAttr, g.Attributes))
-                    .Iter(g => g.Attributes = BoogieUtil.removeAttrs(new HashSet<string> { "scalar", "pointer" }, g.Attributes));
+                    .ForEach(g => g.Attributes = BoogieUtil.removeAttrs(new HashSet<string> { "scalar", "pointer" }, g.Attributes));
 
                 globalCmds.AddRange(AllocatePointersAsUnknowns(prog.GlobalVariables.Select(x => (Variable)x).ToList()));
 
@@ -211,8 +211,8 @@ namespace AvHarnessInstrumentation
                 // Get other information in sync
                 entrypoints.ExceptWith(procs);
                 var bc = new HashSet<string>(impl2BlockingConstant.Where(tup => procs.Contains(tup.Key)).Select(tup => tup.Value.Name));
-                bc.Iter(b => blockEntryPointConstants.Remove(b));
-                procs.Iter(p => impl2BlockingConstant.Remove(p));
+                bc.ForEach(b => blockEntryPointConstants.Remove(b));
+                procs.ForEach(p => impl2BlockingConstant.Remove(p));
             }
 
             // create a copy ofthe variables without annotations
@@ -220,7 +220,7 @@ namespace AvHarnessInstrumentation
             {
                 var ret = new List<Variable>();
                 var dup = new Duplicator();
-                vars.Select(v => dup.VisitVariable(v)).Iter(v =>
+                vars.Select(v => dup.VisitVariable(v)).ForEach(v =>
                 {
                     v.Attributes = null;
                     ret.Add(v);
@@ -237,9 +237,9 @@ namespace AvHarnessInstrumentation
                 // remove procedures that are never called
                 var procsUsed = new HashSet<string>();
                 prog.TopLevelDeclarations.OfType<Implementation>()
-                    .Iter(impl => impl.Blocks
-                        .Iter(blk => blk.cmds.OfType<CallCmd>()
-                            .Iter(cc => procsUsed.Add(cc.callee))));
+                    .ForEach(impl => impl.Blocks
+                        .ForEach(blk => blk.cmds.OfType<CallCmd>()
+                            .ForEach(cc => procsUsed.Add(cc.callee))));
 
                 //TODO: this can be almost quadratic in the size of |Procedures|, cleanup
                 var procsWithoutImpl = procs.Where(x => !procsWithImpl.Contains(x) && procsUsed.Contains(x.Name));                     
@@ -407,7 +407,7 @@ namespace AvHarnessInstrumentation
                 // Remove extra ones
                 var extra = new HashSet<string>(unknownGenProcs.Keys);
                 extra.ExceptWith(Options.unknownTypes);
-                extra.Iter(s => unknownGenProcs.Remove(s));
+                extra.ForEach(s => unknownGenProcs.Remove(s));
                 
                 foreach (var proc in unknownGenProcs.Values)
                 {
@@ -425,7 +425,7 @@ namespace AvHarnessInstrumentation
                 // Extra annotations for user-defined unknowns
                 prog.TopLevelDeclarations.OfType<Procedure>()
                     .Where(p => Options.unknownProcs.Contains(p.Name))
-                    .Iter(p => p.AddAttribute(AvnAnnotations.AngelicUnknownCall));
+                    .ForEach(p => p.AddAttribute(AvnAnnotations.AngelicUnknownCall));
             }
 
             private void FindNULL()
@@ -517,7 +517,7 @@ namespace AvHarnessInstrumentation
                                 lookups.Add(x);
                         }
                         if (lookups.Count() > 0)
-                            lookups.Iter(x =>
+                            lookups.ForEach(x =>
                             {
                                 //newCmdSeq.Add(new AssumeCmd(Token.NoToken, Expr.Neq(x, new LiteralExpr(Token.NoToken, Microsoft.BaseTypes.BigNum.FromInt(0)))));
                                 var expr = Expr.Neq(x, new LiteralExpr(Token.NoToken, Microsoft.BaseTypes.BigNum.FromInt(0)));
@@ -639,8 +639,8 @@ namespace AvHarnessInstrumentation
             foreach (var tup in ib.allocationSite2Func)
             {
                 var asites = res.allocationSites[tup.Value.Name];
-                asites.Where(s => !as2id.ContainsKey(s)).Iter(s => as2id.Add(s, new HashSet<int>()));
-                asites.Iter(s => as2id[s].Add(tup.Key));
+                asites.Where(s => !as2id.ContainsKey(s)).ForEach(s => as2id.Add(s, new HashSet<int>()));
+                asites.ForEach(s => as2id[s].Add(tup.Key));
             }
 
             if (AliasAnalysis.AliasConstraintSolver.environmentPointersUnroll != 0)
@@ -681,12 +681,12 @@ namespace AvHarnessInstrumentation
                             // compute dependent allocations for this branch
                             var dep = new HashSet<int>();
                             asites.Where(a => as2id.ContainsKey(a))
-                                .Iter(a => dep.UnionWith(as2id[a]));
+                                .ForEach(a => dep.UnionWith(as2id[a]));
 
                             dep.Where(d => !depInfo.ContainsKey(d))
-                                .Iter(d => depInfo.Add(d, new HashSet<int>()));
+                                .ForEach(d => depInfo.Add(d, new HashSet<int>()));
 
-                            dep.Iter(d => depInfo[d].Add(assertid));
+                            dep.ForEach(d => depInfo[d].Add(assertid));
 
                             added++;
                         }
@@ -708,7 +708,7 @@ namespace AvHarnessInstrumentation
                 // Instrument branches
                 id = 0;
                 program.TopLevelDeclarations.OfType<Implementation>()
-                    .Iter(impl => instrument(impl));
+                    .ForEach(impl => instrument(impl));
                 return;
             }
 
@@ -726,7 +726,7 @@ namespace AvHarnessInstrumentation
             // Instrument branches
             id = 0;
             program.TopLevelDeclarations.OfType<Implementation>()
-                .Iter(impl => instrument(impl));
+                .ForEach(impl => instrument(impl));
 
             // Get the allocation site for NULL
             nullQuery = GetQueryFunc();

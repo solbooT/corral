@@ -85,7 +85,7 @@ namespace PropInstUtils
             }
 
             var dispatchedIns = new List<Expr>();
-            node.Ins.Iter(arg => dispatchedIns.Add(VisitExpr(arg)));
+            node.Ins.ForEach(arg => dispatchedIns.Add(VisitExpr(arg)));
 
             var dispatchedOuts = new List<IdentifierExpr>();
             foreach (var arg in node.Outs)
@@ -412,7 +412,7 @@ namespace PropInstUtils
                 && fcall.Func.HasAttribute(ExprMatchVisitor.BoogieKeyWords.MkUniqueFn))
             {
                 var formals = new List<Variable>();
-                fcall.Func.InParams.Iter(a =>
+                fcall.Func.InParams.ForEach(a =>
                     {
                         var z = new Formal(Token.NoToken, new TypedIdent(Token.NoToken, a.Name, a.TypedIdent.Type), true);
                         formals.Add(z);

@@ -129,8 +129,8 @@ namespace AngelicVerifierNull
                 {
                     // strip out {:Ebasic}
                     prog.TopLevelDeclarations.OfType<Implementation>()
-                        .Iter(impl => impl.Blocks
-                            .Iter(blk =>
+                        .ForEach(impl => impl.Blocks
+                            .ForEach(blk =>
                                 blk.Cmds.RemoveAll(c => (c is AssumeCmd &&
                                     QKeyValue.FindBoolAttribute((c as AssumeCmd).Attributes, AvnAnnotations.EnvironmentAssumptionAttr)))));
                 }
@@ -197,9 +197,9 @@ namespace AngelicVerifierNull
                 runHoudini = true;
 
             args.Where(s => s.StartsWith("/bopt:"))
-                .Iter(s => boogieOpts += " \"/" + s.Substring("/bopt:".Length) + "\" ");
+                .ForEach(s => boogieOpts += " \"/" + s.Substring("/bopt:".Length) + "\" ");
             args.Where(s => s.StartsWith("/copt:"))
-                .Iter(s => corralOpts += " /" + s.Substring("/copt:".Length) + " ");
+                .ForEach(s => corralOpts += " /" + s.Substring("/copt:".Length) + " ");
 
             if (args.Any(s => s == "/noReuse"))
                 Options.UsePrevCorralState = false;
@@ -238,32 +238,32 @@ namespace AngelicVerifierNull
                 Options.blockOnFreeVars = true;
 
             args.Where(s => s.StartsWith("/timeout:"))
-                .Iter(s => timeout = int.Parse(s.Substring("/timeout:".Length)));
+                .ForEach(s => timeout = int.Parse(s.Substring("/timeout:".Length)));
 
             args.Where(s => s.StartsWith("/timeoutEE:"))
-                .Iter(s => Options.eeTimeout = int.Parse(s.Substring("/timeoutEE:".Length)));
+                .ForEach(s => Options.eeTimeout = int.Parse(s.Substring("/timeoutEE:".Length)));
 
             args.Where(s => s.StartsWith("/killAfter:"))
-                .Iter(s => Options.killAfter = int.Parse(s.Substring("/killAfter:".Length)));
+                .ForEach(s => Options.killAfter = int.Parse(s.Substring("/killAfter:".Length)));
 
             args.Where(s => s.StartsWith("/recordVar:"))
-                .Iter(s => Driver.recordVars.Add(s.Substring("/recordVar:".Length)));
+                .ForEach(s => Driver.recordVars.Add(s.Substring("/recordVar:".Length)));
 
             if (args.Any(s => s == "/traceSlicing"))
                 Options.TraceSlicing = true;
 
             args.Where(s => s.StartsWith("/EE:"))
-                .Iter(s => Options.EEflags.Add("/" + s.Substring("/EE:".Length)));
+                .ForEach(s => Options.EEflags.Add("/" + s.Substring("/EE:".Length)));
 
             args.Where(s => s.StartsWith("/EEfilters:"))
-                .Iter(s => Options.eeFilters = s.Substring("/EEfilters:".Length));
+                .ForEach(s => Options.eeFilters = s.Substring("/EEfilters:".Length));
 
             args.Where(s => s.StartsWith("/maxTries:"))
-                .Iter(s => Options.MAX_REPEATED_BLOCK_EXPR = int.Parse(s.Substring("/maxTries:".Length)));
+                .ForEach(s => Options.MAX_REPEATED_BLOCK_EXPR = int.Parse(s.Substring("/maxTries:".Length)));
 
             string resultsfilename = null;
             args.Where(s => s.StartsWith("/dumpResults:"))
-                .Iter(s => resultsfilename = s.Substring("/dumpResults:".Length));
+                .ForEach(s => resultsfilename = s.Substring("/dumpResults:".Length));
 
             Options.UseDuplicator = true;
             if (args.Any(s => s == "/nodup"))
@@ -375,7 +375,7 @@ namespace AngelicVerifierNull
         // Returns true if the call finishes conclusively
         private static bool RunCorralIterative(AvnInstrumentation instr, int corralTimeout)
         {
-            Stats.resume("run.corral.iterative");
+            Stats.resume("run.corral.ForEachative");
             var corralIterativeStartTime = DateTime.Now;
 
             int iterCount = 0;
@@ -519,9 +519,9 @@ namespace AngelicVerifierNull
                             // drop asserts
                             PrintAndSuppressAssert(instr, pendingTraces.Where(tup => inconsistent.Contains(tup.Key)).Select(tup => tup.Value), failStatus);
                             // drop constraints
-                            inconsistent.Iter(id => instr.RemoveInputSuppression(id));
+                            inconsistent.ForEach(id => instr.RemoveInputSuppression(id));
                             // drop traces
-                            inconsistent.Iter(id => pendingTraces.Remove(id));
+                            inconsistent.ForEach(id => pendingTraces.Remove(id));
                         }
                         else
                         {
@@ -534,7 +534,7 @@ namespace AngelicVerifierNull
 
                 iterCount++;
             }
-            Stats.stop("run.corral.iterative");
+            Stats.stop("run.corral.ForEachative");
             return ret;
         }
 
@@ -576,13 +576,13 @@ namespace AngelicVerifierNull
             var vu = new VarsUsed();
             vu.VisitExpr(expr);
             vu.functionsUsed.Where(f => mallocInstrumentation.mallocTriggerToAllocationSite.ContainsKey(f))
-                .Iter(f => asites.Add(mallocInstrumentation.mallocTriggerToAllocationSite[f]));
+                .ForEach(f => asites.Add(mallocInstrumentation.mallocTriggerToAllocationSite[f]));
 
             //Console.WriteLine("Blocking condition has triggers: {0}", asites.Print());
 
             var ret = new HashSet<int>();
             asites.Where(a => DeadCodeBranchesDependencyInfo.ContainsKey(a))
-                .Iter(a => ret.UnionWith(DeadCodeBranchesDependencyInfo[a]));
+                .ForEach(a => ret.UnionWith(DeadCodeBranchesDependencyInfo[a]));
 
             //Console.WriteLine("Blocking condition can potentially affect branches: {0}", ret.Print());
 
@@ -631,7 +631,7 @@ namespace AngelicVerifierNull
                     continue;
                 foreach (var block in impl.Blocks)
                 {
-                    block.Cmds.Iter(AddAttr);
+                    block.Cmds.ForEach(AddAttr);
                 }
             }
 
@@ -691,7 +691,7 @@ namespace AngelicVerifierNull
             CoreLib.StratifiedInlining.StackDepthBound = sd;
 
             if(ret != null)
-                ret.Iter(n => instr.SuppressEnvironmentConstraint(soft2actual[n]));
+                ret.ForEach(n => instr.SuppressEnvironmentConstraint(soft2actual[n]));
         }
 
         public static Function FindReachableStatesFunc(Program program)
@@ -716,7 +716,7 @@ namespace AngelicVerifierNull
         {
 
             var traces = "";
-            traceInfos.Iter(info => traces += info.TraceName + " ");
+            traceInfos.ForEach(info => traces += info.TraceName + " ");
             traces = "{" + traces + "}";
 
             foreach (var traceInfo in traceInfos)
@@ -732,7 +732,7 @@ namespace AngelicVerifierNull
             Stats.count("bug.count");
 
             var traces = "";
-            traceInfos.Iter(info => traces += info.TraceName + " ");
+            traceInfos.ForEach(info => traces += info.TraceName + " ");
             traces = "{" + traces + "}";
             Utils.Print(String.Format("ANGELIC_VERIFIER_WARNING: Failing traces {0}", traces), Utils.PRINT_TAG.AV_OUTPUT);
 
@@ -889,10 +889,10 @@ namespace AngelicVerifierNull
 
             foreach (var impl in program.TopLevelDeclarations.OfType<Implementation>())
                 foreach (var block in impl.Blocks)
-                    block.Cmds.Iter(AddAttrAssume);
+                    block.Cmds.ForEach(AddAttrAssume);
 
             program.TopLevelDeclarations.OfType<Procedure>()
-                .Iter(p => p.Requires.Iter(AddAttrRequires));
+                .ForEach(p => p.Requires.ForEach(AddAttrRequires));
 
             // Now, move assertions to the end of main
             var main = program.TopLevelDeclarations.OfType<Implementation>()
@@ -917,7 +917,7 @@ namespace AngelicVerifierNull
             var ret = new HashSet<int>();
             
             if(softret != null)
-                softret.Iter(n => ret.Add(soft2actual[n]));
+                softret.ForEach(n => ret.Add(soft2actual[n]));
 
             return ret;
         }
@@ -1019,7 +1019,7 @@ namespace AngelicVerifierNull
                 if(outcome && BoogieVerify.procsHitRecBound != null)
                 {
                     Console.Write("Procedures that hit the recursion bound: ");
-                    BoogieVerify.procsHitRecBound.Iter(s => Console.Write("{0} ", s));
+                    BoogieVerify.procsHitRecBound.ForEach(s => Console.Write("{0} ", s));
                     Console.WriteLine();
                 }
             }
@@ -1285,7 +1285,7 @@ namespace AngelicVerifierNull
 
             corralState.TrackedVariables
                 .Where(tv => boolVarMap.ContainsKey(tv))
-                .Iter(tv => ret.Add(boolVarMap[tv]));
+                .ForEach(tv => ret.Add(boolVarMap[tv]));
             corralState = prevTracked;
 
             return ret;
@@ -1427,8 +1427,8 @@ namespace AngelicVerifierNull
 
                 var negativeFilters = new List<Expr>();
                 var positiveFilters = new List<Expr>();
-                negativeFilterStrings.Iter(nfs => negativeFilters.Add(createFilterFromString(templateVariables, nfs)));
-                positiveFilterStrings.Iter(nfs => positiveFilters.Add(createFilterFromString(templateVariables, nfs)));
+                negativeFilterStrings.ForEach(nfs => negativeFilters.Add(createFilterFromString(templateVariables, nfs)));
+                positiveFilterStrings.ForEach(nfs => positiveFilters.Add(createFilterFromString(templateVariables, nfs)));
 
                 ExplainError.Toplevel.useFiltersFromFile = true;
                 ExplainError.Toplevel.negativeFilters = negativeFilters;
@@ -1606,7 +1606,7 @@ namespace AngelicVerifierNull
                 // triggers for unknown are created by mallocInstrumentation, and each is tagged with ConcretizeCallIdAttr;
                 // Others should be skipped
                 .Where(x => x.Value >= 0)
-                .Iter(x =>
+                .ForEach(x =>
                     {
                         var xConst = nprog.TopLevelDeclarations.OfType<Constant>().Where(y => y.Name == x.Key).FirstOrDefault();
                         if (xConst == null)
@@ -1646,7 +1646,7 @@ namespace AngelicVerifierNull
             var substMap = new Dictionary<Variable, Expr>();
             var forallPre = new List<Expr>();
             List<Variable> bvarList = new List<Variable>(); //only bound variables used in the expression
-            usedVarsCollector.usedVars.Iter(x =>
+            usedVarsCollector.usedVars.ForEach(x =>
             {
                 if (allocToBndVarAndTrigger.ContainsKey(x.Name))
                 {
@@ -1683,7 +1683,7 @@ namespace AngelicVerifierNull
         {
             var repeatedFields = new HashSet<Variable>();
             //once a field has been generalized, we should not see blocks over it
-            supportVars.Iter(x =>
+            supportVars.ForEach(x =>
                 {
                     if (x.TypedIdent.Type.IsMap && x.TypedIdent.Type.AsMap.MapArity == 1)
                     {
@@ -1719,7 +1719,7 @@ namespace AngelicVerifierNull
         //    var forallPre = new List<Expr>();
         //    List<Variable> bvarList = new List<Variable>(); //only bound variables used in the expression
         //    int cnt = 0; 
-        //    supportVars.Iter(x =>
+        //    supportVars.ForEach(x =>
         //    {
         //        if (x.TypedIdent.Type.IsInt && !(x is Constant)) //exclude NULL
         //        {

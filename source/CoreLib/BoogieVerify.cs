@@ -124,7 +124,7 @@ namespace cba.Util
             // set bounds
             if (options.extraRecBound != null)
             {
-                options.extraRecBound.Iter(tup =>
+                options.extraRecBound.ForEach(tup =>
                     {
                         var impl = BoogieUtil.findProcedureImpl(program.TopLevelDeclarations, tup.Key);
                         if (impl != null) impl.AddAttribute(BoogieVerify.ExtraRecBoundAttr, Expr.Literal(tup.Value));
@@ -249,7 +249,7 @@ namespace cba.Util
                 {
                     var model = errors[0].Model;
                     var cnt = 0;
-                    model.States.Iter(st =>
+                    model.States.ForEach(st =>
                     {
                         if (st.Name.StartsWith("corral"))
                         {
@@ -388,7 +388,7 @@ namespace cba.Util
             if (newLocals.Count > 0)
             {
                 var ies = new List<IdentifierExpr>();
-                newLocals.Values.Iter(v => ies.Add(Expr.Ident(v)));
+                newLocals.Values.ForEach(v => ies.Add(Expr.Ident(v)));
                 impl.Blocks[0].Cmds.Insert(0, new HavocCmd(Token.NoToken, ies));
             }
              */

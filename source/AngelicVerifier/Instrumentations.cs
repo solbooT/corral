@@ -111,7 +111,7 @@ namespace AngelicVerifierNull
             public RewriteConstants(HashSet<Variable> newConstants)
             {
                 this.newConstantsMap = new Dictionary<string, Variable>();
-                newConstants.Iter(x => this.newConstantsMap[x.Name] = x);
+                newConstants.ForEach(x => this.newConstantsMap[x.Name] = x);
             }
             public override Variable VisitVariable(Variable node)
             {
@@ -415,7 +415,7 @@ namespace AngelicVerifierNull
             foreach (var impl in program.TopLevelDeclarations.OfType<Implementation>())
             {
                 foreach(var block in impl.Blocks) 
-                    block.Cmds.Iter(c => AddAttr(impl, c));
+                    block.Cmds.ForEach(c => AddAttr(impl, c));
             }
         }
 
@@ -440,7 +440,7 @@ namespace AngelicVerifierNull
                     continue;
 
                 foreach (var block in impl.Blocks)
-                    block.Cmds.Iter(Mutate);
+                    block.Cmds.ForEach(Mutate);
             }
             Debug.Assert(suppressed);
         }
@@ -508,7 +508,7 @@ namespace AngelicVerifierNull
 
             trace = ptrace;
             (suppressInfo as IEnumerable<cba.InsertionTrans>)
-                .Reverse().Iter(tinfo => trace = tinfo.mapBackTrace(trace));
+                .Reverse().ForEach(tinfo => trace = tinfo.mapBackTrace(trace));
 
             trace = assertInstrInfo.mapBackTrace(trace);
             trace = compressBlocks.mapBackTrace(trace);
@@ -535,8 +535,8 @@ namespace AngelicVerifierNull
                 ret.Add(trace.procName);
 
             trace.Blocks
-                .Iter(blk => blk.Cmds.OfType<cba.CallInstr>()
-                    .Iter(cc => GetStubs(cc.calleeTrace, ret)));                   
+                .ForEach(blk => blk.Cmds.OfType<cba.CallInstr>()
+                    .ForEach(cc => GetStubs(cc.calleeTrace, ret)));                   
         }
 
         // Returns file and line of the failing assert. Dumps
@@ -557,7 +557,7 @@ namespace AngelicVerifierNull
                 if (eeSlicedSourceLines != null)
                 {
                     cba.PrintSdvPath.relevantLines = new HashSet<Tuple<string, int>>();
-                    eeSlicedSourceLines.Iter(tup => cba.PrintSdvPath.relevantLines.Add(Tuple.Create(tup.Item1, tup.Item2)));
+                    eeSlicedSourceLines.ForEach(tup => cba.PrintSdvPath.relevantLines.Add(Tuple.Create(tup.Item1, tup.Item2)));
                 }
 
                 cba.PrintSdvPath.failingLocation = null;
@@ -622,7 +622,7 @@ namespace AngelicVerifierNull
         {
             var ret = new HashSet<string>();
             procToTokens.Where(kvp => kvp.Value.Count != 0)
-                .Iter(kvp => ret.Add(kvp.Key));
+                .ForEach(kvp => ret.Add(kvp.Key));
             return ret;
         }
 
@@ -633,9 +633,9 @@ namespace AngelicVerifierNull
             Debug.Assert(tempSuppressedTokens.Count == 0);
             tempSuppressedTokens = new HashSet<AssertToken>();
             procToTokens.Where(kvp => kvp.Key != procName)
-                .Iter(kvp => tempSuppressedTokens.UnionWith(kvp.Value));
+                .ForEach(kvp => tempSuppressedTokens.UnionWith(kvp.Value));
 
-            tempSuppressedTokens.Iter(t => SuppressToken(t));
+            tempSuppressedTokens.ForEach(t => SuppressToken(t));
 
             var ret = new HashSet<AssertToken>(procToTokens[procName]);
             ret.ExceptWith(suppressedTokens);

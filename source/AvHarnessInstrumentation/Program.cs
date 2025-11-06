@@ -97,10 +97,10 @@ namespace AvHarnessInstrumentation
                     Program stubProg = BoogieUtil.ParseProgram(Options.stubsfile);
 
                     var procs = new Dictionary<string, Procedure>();
-                    init.TopLevelDeclarations.OfType<Procedure>().Iter(proc => procs.Add(proc.Name, proc));
+                    init.TopLevelDeclarations.OfType<Procedure>().ForEach(proc => procs.Add(proc.Name, proc));
 
                     var impls = new HashSet<string>();
-                    init.TopLevelDeclarations.OfType<Implementation>().Iter(impl => impls.Add(impl.Name));
+                    init.TopLevelDeclarations.OfType<Implementation>().ForEach(impl => impls.Add(impl.Name));
 
                     foreach (var impl in stubProg.TopLevelDeclarations.OfType<Implementation>())
                     {
@@ -143,7 +143,7 @@ namespace AvHarnessInstrumentation
                 {
                     var vu = new VarsUsed();
                     vu.VisitExpr(expr);
-                    vu.localsUsed.Iter(v => ret.Add(v));
+                    vu.localsUsed.ForEach(v => ret.Add(v));
                 }
 
                 foreach (var lhs in acmd.Lhss)
@@ -156,7 +156,7 @@ namespace AvHarnessInstrumentation
                         {
                             var vu = new VarsUsed();
                             vu.VisitExpr(expr);
-                            vu.localsUsed.Iter(v => ret.Add(v));
+                            vu.localsUsed.ForEach(v => ret.Add(v));
                         }
                     }
                 }
@@ -172,7 +172,7 @@ namespace AvHarnessInstrumentation
                 {
                     var vu = new VarsUsed();
                     vu.VisitExpr(expr);
-                    vu.localsUsed.Iter(v => ret.Add(v));
+                    vu.localsUsed.ForEach(v => ret.Add(v));
                 }
 
                 return ret;
@@ -242,11 +242,11 @@ namespace AvHarnessInstrumentation
 
                 // will be used to perform fixed point iteration on blocks, CFG traversal is DFS
                 Dictionary<string, bool> changedBlocks = new Dictionary<string, bool>();
-                impl.Blocks.Iter(b => changedBlocks[b.Label] = false);
+                impl.Blocks.ForEach(b => changedBlocks[b.Label] = false);
 
                 // blk -> variables uninitialized at the end of blk
                 Dictionary<string, HashSet<string>> LIVE_out = new Dictionary<string, HashSet<string>>();
-                impl.Blocks.Iter(b => LIVE_out[b.Label] = new HashSet<string>());
+                impl.Blocks.ForEach(b => LIVE_out[b.Label] = new HashSet<string>());
 
                 Block entry = impl.Blocks[0];
 
@@ -272,9 +272,9 @@ namespace AvHarnessInstrumentation
                     // taking union of all predecessors
                     if (b.Label.Equals(entry.Label))
                     {
-                        locVars.Iter(v => live_vars.Add(v));
+                        locVars.ForEach(v => live_vars.Add(v));
                     }
-                    else b.Predecessors.Iter(block => live_vars.UnionWith(LIVE_out[block.Label]));
+                    else b.Predecessors.ForEach(block => live_vars.UnionWith(LIVE_out[block.Label]));
 
                     foreach (Cmd c in b.Cmds)
                     {
@@ -323,7 +323,7 @@ namespace AvHarnessInstrumentation
 
                 List<Block> newblocks = new List<Block>();
                 newblocks.Add(init);
-                impl.Blocks.Iter(blk => newblocks.Add(blk));
+                impl.Blocks.ForEach(blk => newblocks.Add(blk));
 
                 impl.Blocks = newblocks;
             }
@@ -368,9 +368,9 @@ namespace AvHarnessInstrumentation
                     ac.Attributes = new QKeyValue(Token.NoToken, "slic", new List<object>(), ac.Attributes);
                 });
                 init.TopLevelDeclarations.OfType<Implementation>()
-                    .Iter(impl => impl.Blocks
-                        .Iter(blk => blk.Cmds.OfType<AssumeCmd>()
-                            .Iter(AddAnnotation)));
+                    .ForEach(impl => impl.Blocks
+                        .ForEach(blk => blk.Cmds.OfType<AssumeCmd>()
+                            .ForEach(AddAnnotation)));
             }
 
             // Only keep assertions in assertProc procedures
@@ -392,7 +392,7 @@ namespace AvHarnessInstrumentation
                 Options.useHarnessTag = false;
                 Options.useProvidedEntryPoints = true;
                 init.TopLevelDeclarations.OfType<NamedDeclaration>()
-                    .Iter(d => d.Attributes = BoogieUtil.removeAttr("entrypoint", d.Attributes));
+                    .ForEach(d => d.Attributes = BoogieUtil.removeAttr("entrypoint", d.Attributes));
             }
             var matchesEntryPointExclude = new Func<string, bool>(s =>
             {
@@ -405,7 +405,7 @@ namespace AvHarnessInstrumentation
                     .Where(d => d is Procedure || d is Implementation)
                     .Where(d => Options.entryPointProcs == null || Options.entryPointProcs.Contains(d.Name))
                     .Where(d => (Options.entryPointExcludes == null || !matchesEntryPointExclude(d.Name)))
-                    .Iter(d => d.AddAttribute("entrypoint"));
+                    .ForEach(d => d.AddAttribute("entrypoint"));
             }
             // Add {:entrypoint} to procs with {:harness}
             if (Options.useHarnessTag)
@@ -418,7 +418,7 @@ namespace AvHarnessInstrumentation
             // inlining introduces havoc statements; lets just delete them (TODO: make inlining not introduce redundant havoc statements)
             //foreach (var impl in init.TopLevelDeclarations.OfType<Implementation>())
             //{
-            //    impl.Blocks.Iter(blk =>
+            //    impl.Blocks.ForEach(blk =>
             //        blk.Cmds.RemoveAll(cmd => cmd is HavocCmd));
             //}
             ReplaceHavocsWithNonDet(init);
@@ -507,40 +507,40 @@ namespace AvHarnessInstrumentation
                 AliasAnalysis.AliasAnalysis.mergeFull = false;
 
             args.Where(s => s.StartsWith("/inlineDepth:"))
-                .Iter(s => Options.inlineDepth = int.Parse(s.Substring("/inlineDepth:".Length)));
+                .ForEach(s => Options.inlineDepth = int.Parse(s.Substring("/inlineDepth:".Length)));
 
             args.Where(s => s.StartsWith("/unrollDepth:"))
-                .Iter(s => Options.unrollDepth = int.Parse(s.Substring("/unrollDepth:".Length)));
+                .ForEach(s => Options.unrollDepth = int.Parse(s.Substring("/unrollDepth:".Length)));
 
             if (args.Any(s => s == "/markAssumesAsSlic"))
                 Options.markAssumesAsSlic = true;
 
             args.Where(s => s.StartsWith("/stubPath:"))
-                .Iter(s => Options.stubsfile = s.Substring("/stubPath:".Length));
+                .ForEach(s => Options.stubsfile = s.Substring("/stubPath:".Length));
 
             args.Where(s => s.StartsWith("/unknownType:"))
-                .Iter(s => Options.unknownTypes.Add(s.Substring("/unknownType:".Length)));
+                .ForEach(s => Options.unknownTypes.Add(s.Substring("/unknownType:".Length)));
 
             args.Where(s => s.StartsWith("/unknownProc:"))
-                .Iter(s => Options.unknownProcs.Add(s.Substring("/unknownProc:".Length)));
+                .ForEach(s => Options.unknownProcs.Add(s.Substring("/unknownProc:".Length)));
 
             args.Where(s => s.StartsWith("/killAfter:"))
-                .Iter(s => Options.killAfter = int.Parse(s.Substring("/killAfter:".Length)));
+                .ForEach(s => Options.killAfter = int.Parse(s.Substring("/killAfter:".Length)));
 
             args.Where(s => s.StartsWith("/assertProc:"))
-                .Iter(s =>
+                .ForEach(s =>
                     {
                         if (Options.assertProcs == null) { Options.assertProcs = new HashSet<string>(); }
                         Options.assertProcs.Add(s.Substring("/assertProc:".Length));
                     });
             args.Where(s => s.StartsWith("/entryPointProc:"))
-                .Iter(s =>
+                .ForEach(s =>
                 {
                     if (Options.entryPointProcs == null) { Options.entryPointProcs = new HashSet<string>(); }
                     Options.entryPointProcs.Add(s.Substring("/entryPointProc:".Length));
                 });
             args.Where(s => s.StartsWith("/entryPointExcludes:"))
-                .Iter(s =>
+                .ForEach(s =>
                 {
                     if (Options.entryPointExcludes == null) { Options.entryPointExcludes = new HashSet<string>(); }
                     Options.entryPointExcludes.Add(s.Substring("/entryPointExcludes:".Length));
@@ -737,7 +737,7 @@ namespace AvHarnessInstrumentation
                         else
                         {
                             var hVars = ((HavocCmd)cmd).Vars;
-                            hVars.Iter(hv => 
+                            hVars.ForEach(hv => 
                             {
                                 var cCmd = new CallCmd(Token.NoToken, mkOrLookupNonDetProc(hv.Decl).ToString(),
                                     new List<Expr>(), new List<IdentifierExpr>() { hv });
@@ -748,7 +748,7 @@ namespace AvHarnessInstrumentation
                     blk.Cmds = newCmds;
                 }
             }
-            nonDetProcs.Iter(x => program.AddTopLevelDeclaration(x));
+            nonDetProcs.ForEach(x => program.AddTopLevelDeclaration(x));
 
         }
 
@@ -822,7 +822,7 @@ namespace AvHarnessInstrumentation
                     AliasAnalysis.SimplifyAliasingQueries.Simplify(program);
 
                 res = new AliasAnalysis.AliasAnalysisResults();
-                af.Iter(s => res.aliases.Add(s, true));
+                af.ForEach(s => res.aliases.Add(s, true));
             }
 
             var origProgram = inp.getProgram();

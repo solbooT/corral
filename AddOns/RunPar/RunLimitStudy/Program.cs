@@ -99,11 +99,11 @@ namespace RunCorral
                 Util.run(Environment.CurrentDirectory, wlimitexe,
                 string.Format("/w {0} {1} {2}", timeout, boogieexe, boogieflags_runDualityInitial));
 
-            result2.Iter(s => output.WriteLine("{0}", s));
+            result2.ForEach(s => output.WriteLine("{0}", s));
             string withoutSummaries = parseDualityOutput(result2);
 
 
-            //result1.Iter(s => output.WriteLine("{0}", s));
+            //result1.ForEach(s => output.WriteLine("{0}", s));
             /////////////  Run the GlobalInductiveSummaries /////////////////////////////
 
             
@@ -115,7 +115,7 @@ namespace RunCorral
                 Util.run(Environment.CurrentDirectory, wlimitexe,
                 string.Format("/w {0} {1} {2}", timeout, boogieexe, boogieflags_runCollectPredicates1));
 
-            result31.Iter(s => output.WriteLine("{0}", s));
+            result31.ForEach(s => output.WriteLine("{0}", s));
 
             output.WriteLine("Running {0} /w {1} {2} {3}", wlimitexe, timeout, boogieexe, boogieflags_runDualityWithSummaries1);
 
@@ -125,7 +125,7 @@ namespace RunCorral
                 Util.run(Environment.CurrentDirectory, wlimitexe,
                 string.Format("/w {0} {1} {2}", timeout, boogieexe, boogieflags_runDualityWithSummaries1));
             
-            result41.Iter(s => output.WriteLine("{0}", s));
+            result41.ForEach(s => output.WriteLine("{0}", s));
 
             string withSummaries1 = parseDualityOutput(result41);
 
@@ -154,7 +154,7 @@ namespace RunCorral
                     Util.run(Environment.CurrentDirectory, wlimitexe,
                     string.Format("/w {0} {1} {2}", timeout, boogieexe, cmdLine));
 
-                result32.Iter(s => output.WriteLine("{0}", s));
+                result32.ForEach(s => output.WriteLine("{0}", s));
 
                 output.WriteLine("Running {0} /w {1} {2} {3}", wlimitexe, timeout, boogieexe, boogieflags_runDualityWithSummaries2);
 
@@ -164,7 +164,7 @@ namespace RunCorral
                     Util.run(Environment.CurrentDirectory, wlimitexe,
                     string.Format("/w {0} {1} {2}", timeout, boogieexe, boogieflags_runDualityWithSummaries2));
 
-                result42.Iter(s => output.WriteLine("{0}", s));
+                result42.ForEach(s => output.WriteLine("{0}", s));
                 withSummaries2[i] = parseDualityOutput(result42);
 
                 /////////////// Print results ////////////////////
@@ -186,7 +186,7 @@ namespace RunCorral
                                      "DualitySummaries1.bpl", 
                                      "DualitySummaries2.bpl",
                                      "Templates.txt" }; 
-            copyfiles.Iter<string>(n => System.IO.File.Copy(n, dirpath + "\\" + n));
+            copyfiles.ForEach<string>(n => System.IO.File.Copy(n, dirpath + "\\" + n));
 
             Console.WriteLine("{0} {1} {2} {3} {4}", withoutSummaries, withSummaries1, withSummaries2[5], withSummaries2[6], withSummaries2[7]);
 

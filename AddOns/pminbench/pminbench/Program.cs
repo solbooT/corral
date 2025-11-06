@@ -74,7 +74,7 @@ namespace pminbench
             var templates = ParseOutput(res);
 
             Console.WriteLine("Inferred annotations: ");
-            templates.Iter(t => Console.WriteLine("  {0}", t));
+            templates.ForEach(t => Console.WriteLine("  {0}", t));
         }
 
         public static List<string> ParseOutput(List<string> output)

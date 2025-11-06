@@ -56,11 +56,11 @@ namespace ProgTransformation
             FreeParserMemory();
             program.TopLevelDeclarations
                 .OfType<Implementation>()
-                .Iter(impl => impl.StructuredStmts = new StmtList(new List<BigBlock>(), Token.NoToken));
+                .ForEach(impl => impl.StructuredStmts = new StmtList(new List<BigBlock>(), Token.NoToken));
 
             var avisitor = new AbsyVisitor();
             avisitor.VisitProgram(program);
-            avisitor.m.Values.Iter(absy => absy.tok = Token.NoToken);
+            avisitor.m.Values.ForEach(absy => absy.tok = Token.NoToken);
         }
 
     }

@@ -49,8 +49,8 @@ namespace StaticAnalysis
                 .Where(v => v.TypedIdent.Type.IsInt);
 
             var ret = new ConstantProp();
-            domainG.Iter(g => ret.val.Add(g.Name, Value.GetSingleton(g)));
-            domainL.Iter(l => ret.val.Add(l.Name, Value.GetTop()));
+            domainG.ForEach(g => ret.val.Add(g.Name, Value.GetSingleton(g)));
+            domainL.ForEach(l => ret.val.Add(l.Name, Value.GetTop()));
             ret.impl = impl;
             ret.isZero = false;
 
@@ -69,8 +69,8 @@ namespace StaticAnalysis
                 .Where(v => v.TypedIdent.Type.IsInt);
 
             var ret = new ConstantProp();
-            domainG.Iter(g => ret.val.Add(g.Name, Value.GetTop()));
-            domainL.Iter(l => ret.val.Add(l.Name, Value.GetTop()));
+            domainG.ForEach(g => ret.val.Add(g.Name, Value.GetTop()));
+            domainL.ForEach(l => ret.val.Add(l.Name, Value.GetTop()));
             ret.impl = impl;
             ret.isZero = false;
 
@@ -164,7 +164,7 @@ namespace StaticAnalysis
 
             var ret = new Dictionary<string, Value>();
 
-            domainG.Iter(g => ret.Add(g.Name, val[g.Name].ForgetVars()));
+            domainG.ForEach(g => ret.Add(g.Name, val[g.Name].ForgetVars()));
             for (int i = 0; i < callee.InParams.Count; i++)
             {
                 var formal = callee.InParams[i];
@@ -174,7 +174,7 @@ namespace StaticAnalysis
                 ret.Add(formal.Name, actual.ForgetVars());
             }
             domainL.Where(v => !ret.ContainsKey(v.Name))
-                .Iter(v => ret.Add(v.Name, Value.GetTop()));
+                .ForEach(v => ret.Add(v.Name, Value.GetTop()));
 
             return new ConstantProp(ret, callee);
         }
@@ -183,7 +183,7 @@ namespace StaticAnalysis
         {
             var ret = new Dictionary<string, Value>();
             // Deep copy
-            val.Iter(kvp => ret.Add(kvp.Key, new Value(kvp.Value)));
+            val.ForEach(kvp => ret.Add(kvp.Key, new Value(kvp.Value)));
 
             foreach (var v in cmd.Vars.OfType<IdentifierExpr>())
             {
@@ -211,7 +211,7 @@ namespace StaticAnalysis
             }
 
             // Deep copy
-            val.Iter(kvp => ret.Add(kvp.Key, new Value(kvp.Value)));
+            val.ForEach(kvp => ret.Add(kvp.Key, new Value(kvp.Value)));
 
             for (int i = 0; i < assgnCmd.Lhss.Count; i++)
             {
@@ -234,8 +234,8 @@ namespace StaticAnalysis
         {
             // this is just like havoc
             var havoc = new List<IdentifierExpr>();
-            cmd.Outs.Iter(ie => havoc.Add(ie));
-            cmd.Proc.Modifies.OfType<IdentifierExpr>().Iter(ie => havoc.Add(ie));
+            cmd.Outs.ForEach(ie => havoc.Add(ie));
+            cmd.Proc.Modifies.OfType<IdentifierExpr>().ForEach(ie => havoc.Add(ie));
 
             return ApplyHavoc(new HavocCmd(Token.NoToken, havoc));
         }
@@ -257,7 +257,7 @@ namespace StaticAnalysis
             var ret = new Dictionary<string, Value>();
             var subst = new Dictionary<string, Value>();
 
-            domainG.Iter(g => subst.Add(g.Name, val[g.Name]));
+            domainG.ForEach(g => subst.Add(g.Name, val[g.Name]));
             for (int i = 0; i < summary.impl.InParams.Count; i++)
             {
                 var formal = summary.impl.InParams[i];
@@ -369,7 +369,7 @@ namespace StaticAnalysis
         public void Print(bool forSummary)
         {
             var expr = ToExpr(forSummary);
-            expr.Iter(e => { e.Emit(new TokenTextWriter(Console.Out)); Console.WriteLine(); });
+            expr.ForEach(e => { e.Emit(new TokenTextWriter(Console.Out)); Console.WriteLine(); });
         }
 
         public IEnumerable<Expr> ToExpr(bool forSummary)
@@ -403,7 +403,7 @@ namespace StaticAnalysis
             var mod = new HashSet<string>();
             impl.Proc.Modifies
                 .OfType<IdentifierExpr>()
-                .Iter(ie => mod.Add(ie.Name));
+                .ForEach(ie => mod.Add(ie.Name));
 
             foreach (var v in domainG.Concat(domainL))
             {
@@ -418,7 +418,7 @@ namespace StaticAnalysis
             impl.Proc.OutParams
                 .OfType<Variable>()
                 .Concat(impl.Proc.InParams.OfType<Variable>())
-                .Iter(v => subst.Add(v.Name, v));
+                .ForEach(v => subst.Add(v.Name, v));
 
             var vsubst = new VarSubstituter(subst, new Dictionary<string,Variable>());
 
@@ -495,7 +495,7 @@ namespace StaticAnalysis
                     return GetTop();
 
                 var vsubst = new Dictionary<string, Variable>();
-                vused.varsUsed.Iter(v => vsubst.Add(v, subst[v].ToSingletonVar()));
+                vused.varsUsed.ForEach(v => vsubst.Add(v, subst[v].ToSingletonVar()));
 
                 var dup = new FixedDuplicator();
                 var ne = (new VarSubstituter(vsubst, new Dictionary<string, Variable>())).VisitExpr(dup.VisitExpr(e));
@@ -545,7 +545,7 @@ namespace StaticAnalysis
                 return GetTop();
 
             var vsubst = new Dictionary<string, Variable>();
-            subst.Keys.Iter(v => vsubst.Add(v, subst[v].ToSingletonVar()));
+            subst.Keys.ForEach(v => vsubst.Add(v, subst[v].ToSingletonVar()));
 
             var dup = new FixedDuplicator();
             var ne = (new VarSubstituter(vsubst, new Dictionary<string, Variable>())).VisitExpr(dup.VisitExpr(expr));

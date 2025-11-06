@@ -36,7 +36,7 @@ namespace StaticAnalysis
             // Make all the graphs
             program.TopLevelDeclarations
                 .OfType<Implementation>()
-                .Iter(impl => intraGraphs.Add(
+                .ForEach(impl => intraGraphs.Add(
                     new IntraGraph(impl, iw, p =>
                         {
                             if (!id2Graph.ContainsKey(p)) return null;
@@ -44,18 +44,18 @@ namespace StaticAnalysis
                         }
             )));
 
-            intraGraphs.Iter(g => id2Graph.Add(g.Id, g));
+            intraGraphs.ForEach(g => id2Graph.Add(g.Id, g));
 
-            intraGraphs.Iter(g =>
+            intraGraphs.ForEach(g =>
             {
                 Succ.Add(g.Id, new HashSet<IntraGraph>());
                 Pred.Add(g.Id, new HashSet<IntraGraph>());
             });
 
-            intraGraphs.Iter(g =>
+            intraGraphs.ForEach(g =>
                 g.Callees
                 .Where(s => id2Graph.ContainsKey(s))
-                .Iter(s =>
+                .ForEach(s =>
                     {
                         Succ[g.Id].Add(id2Graph[s]);
                         Pred[s].Add(g);
@@ -76,10 +76,10 @@ namespace StaticAnalysis
                 if (scc.Count > 1)
                 {
                     Console.WriteLine("SCC size: {0}", scc.Count);
-                    scc.Iter(g => Console.WriteLine("{0}", g.Id));
+                    scc.ForEach(g => Console.WriteLine("{0}", g.Id));
                 }
                 */
-                scc.Iter(g => g.priority = priority);
+                scc.ForEach(g => g.priority = priority);
                 priority--;
             }
 
@@ -90,7 +90,7 @@ namespace StaticAnalysis
             var begin = DateTime.Now;
 
             var worklist = new SortedSet<IntraGraph>(intraGraphs.First());
-            intraGraphs.Iter(g => worklist.Add(g));
+            intraGraphs.ForEach(g => worklist.Add(g));
 
             while (worklist.Any())
             {
@@ -100,7 +100,7 @@ namespace StaticAnalysis
                 proc.Compute();
                 if (proc.summaryChanged)
                 {
-                    Pred[proc.Id].Iter(g => worklist.Add(g));
+                    Pred[proc.Id].ForEach(g => worklist.Add(g));
                 }
             }
 
@@ -234,7 +234,7 @@ namespace StaticAnalysis
 
             }
 
-            Nodes.Iter(n => idToNode.Add(n.Id, n));
+            Nodes.ForEach(n => idToNode.Add(n.Id, n));
             entryNode = idToNode[impl.Blocks[0].Label + "::in"];
 
             // connecting edges
@@ -250,7 +250,7 @@ namespace StaticAnalysis
                     .Select(s => idToNode[s + "::in"])
                     .Select(tgt => new Edge(src, tgt, new Cmd[] { }));
 
-                edges.Iter(e => { Edges.Add(e); e.src.AddEdge(e); e.tgt.AddEdge(e); });
+                edges.ForEach(e => { Edges.Add(e); e.src.AddEdge(e); e.tgt.AddEdge(e); });
 
             }
             
@@ -263,7 +263,7 @@ namespace StaticAnalysis
             int p = 0;
             foreach (var scc in sccs)
             {
-                scc.Iter(n => n.priority = p);
+                scc.ForEach(n => n.priority = p);
                 p++;
             }
         }
@@ -285,7 +285,7 @@ namespace StaticAnalysis
             }
             else
             {
-                updatedCallees.Iter(c => calleeToEdgeSrc[c].Iter(n => worklist.Add(n)));
+                updatedCallees.ForEach(c => calleeToEdgeSrc[c].ForEach(n => worklist.Add(n)));
             }
             
             computedBefore = true;

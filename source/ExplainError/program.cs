@@ -243,7 +243,7 @@ namespace ExplainError
         private static void PersistSuggestionsInFile(HashSet<List<Expr>> preInDnfForm, List<string> preStrings)
         {
             var cnfClauses = ExprListSetToNegatedCNFExprList(preInDnfForm);
-            cnfClauses.Iter(x =>
+            cnfClauses.ForEach(x =>
                 suggestions.Add(x));
         }
 
@@ -337,7 +337,7 @@ namespace ExplainError
                         numAssertsInTrace++;
                         //pre = Expr.And(Expr.Not(((AssertCmd)cmd).Expr), pre); //TODO: Boolean simplifications
                         preL.Add(Expr.Not(((AssertCmd)cmd).Expr));
-                        GetSupportVars(((AssertCmd)cmd).Expr).Iter(x => supportVarsInPre.Add(x));
+                        GetSupportVars(((AssertCmd)cmd).Expr).ForEach(x => supportVarsInPre.Add(x));
                     }
                 }
                 else if (cmd is AssumeCmd)
@@ -361,7 +361,7 @@ namespace ExplainError
                     if (conjunctCount % 100 == 0) Console.Write("{0},", conjunctCount);
                     //pre = Expr.And(((AssumeCmd)cmd).Expr, pre); //TODO: Boolean simplifications
                     preL.Add(((AssumeCmd)cmd).Expr);
-                    GetSupportVars(((AssumeCmd)cmd).Expr).Iter(x => supportVarsInPre.Add(x));
+                    GetSupportVars(((AssumeCmd)cmd).Expr).ForEach(x => supportVarsInPre.Add(x));
                 }
                 else if (cmd is AssignCmd)
                 {
@@ -373,7 +373,7 @@ namespace ExplainError
                     preL = preL.ConvertAll((x => ExprUtil.MySubstituteInExpr(x, a.Lhss, a.Rhss)));
                     numAssigns++;
                     supportVarsInPre.Clear(); //we will compute it fresh from preL
-                    preL.Iter(e => GetSupportVars(e).Iter(y => supportVarsInPre.Add(y)));
+                    preL.ForEach(e => GetSupportVars(e).ForEach(y => supportVarsInPre.Add(y)));
                     if (!oldPreL.Zip(preL).Any(x => x.Item1.ToString() != x.Item2.ToString()))
                     {
                         numAssignsSkipped++;

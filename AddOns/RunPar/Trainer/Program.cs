@@ -61,7 +61,7 @@ namespace Trainer
                 {
                     // merge atoms.db
                     var dbs = new List<AtomDictionary>();
-                    files.Iter(f => dbs.Add(TrainerDB.Driver.ReadAtomDB(f)));
+                    files.ForEach(f => dbs.Add(TrainerDB.Driver.ReadAtomDB(f)));
                     TrainerDB.Driver.WriteDB(
                         AtomDictionary.Merge(dbs), CommonLib.GlobalConfig.util_result_file);
                 }
@@ -69,7 +69,7 @@ namespace Trainer
                 {
                     // merge candidates db
                     var dbs = new List<StubAnnotatedSummaryDictionary>();
-                    files.Iter(f => dbs.Add(TrainerDB.Driver.ReadCandidateDB(f)));
+                    files.ForEach(f => dbs.Add(TrainerDB.Driver.ReadCandidateDB(f)));
                     TrainerDB.Driver.WriteDB(   
                         StubAnnotatedSummaryDictionary.Merge(dbs), CommonLib.GlobalConfig.util_result_file);
 
@@ -272,7 +272,7 @@ namespace Trainer
                 // Run vanilla Corral without Houdini inference
 
                 string corralFlagsNoHoudini = "";
-                corralflags.Split(' ').Iter<string>(n => { if (!n.StartsWith("/runHoudini")) corralFlagsNoHoudini += n + " "; });
+                corralflags.Split(' ').ForEach<string>(n => { if (!n.StartsWith("/runHoudini")) corralFlagsNoHoudini += n + " "; });
                 
                 if (debugging) Console.WriteLine("Running corral with flags: {0}", corralflags);
 
@@ -322,7 +322,7 @@ namespace Trainer
             var testBpl = BoogieUtil.ParseProgram(filename);
             testBpl.TopLevelDeclarations.OfType<Variable>()
                 .Where(g => QKeyValue.FindBoolAttribute(g.Attributes, "environment"))
-                .Iter(g => slicVars.Add(g.Name));
+                .ForEach(g => slicVars.Add(g.Name));
 
             var outatoms = new HashSet<string>();
             var summaries = new AtomDictionary();
@@ -371,7 +371,7 @@ namespace Trainer
                 });
 
                 literals.Select(l => GetAtomFromLiteral(l))
-                    .Iter(t =>
+                    .ForEach(t =>
                         {
                             summaries.Add(t.Item1, t.Item2);
                             outatoms.Add(t.Item1 + " " + t.Item2);
@@ -423,10 +423,10 @@ namespace Trainer
             var summaries = new StubAnnotatedSummaryDictionary();
             StubAnnotatedSummaryDictionary.CreateProver(z3exe);
             if (useStubs)
-                predWithStubs.Iter(tup => summaries.Add(tup.Item1, tup.Item2));
+                predWithStubs.ForEach(tup => summaries.Add(tup.Item1, tup.Item2));
             else
-                predWithStubs.Iter(tup => summaries.Add("", tup.Item2));
-            //predicates.Iter(pred => summaries.Add(property, pred));
+                predWithStubs.ForEach(tup => summaries.Add("", tup.Item2));
+            //predicates.ForEach(pred => summaries.Add(property, pred));
             //summaries.Print(databaseTxt);
             StubAnnotatedSummaryDictionary.CloseProver();
             summaries.Marshall();

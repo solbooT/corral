@@ -101,7 +101,7 @@ namespace RunCorral
                 Util.run(Environment.CurrentDirectory, wlimitexe,
                 string.Format("/w {0} /m {1} {2} {3}", timeout, memout, corralexe, corralflags.Concat(" ")));
 
-            result.Iter(s => output.WriteLine("{0}", s));
+            result.ForEach(s => output.WriteLine("{0}", s));
 
             Util.parseOutput(result);
             if (collectSIfiles && File.Exists("si.bpl"))

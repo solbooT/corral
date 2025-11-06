@@ -241,7 +241,7 @@ namespace cba
         public List<string> getBlockLabels()
         {
             var ret = new List<string>();
-            Blocks.Iter(blk => ret.Add(blk.blockName));
+            Blocks.ForEach(blk => ret.Add(blk.blockName));
             return ret;
         }
 
@@ -255,7 +255,7 @@ namespace cba
         {
             if (blockMap != null) return;
             blockMap = new Dictionary<string, ErrorTraceBlock>();
-            Blocks.Iter(blk => blockMap.Add(blk.blockName, blk));
+            Blocks.ForEach(blk => blockMap.Add(blk.blockName, blk));
         }
 
         // Return the set of procedures that the trace passes through
@@ -497,7 +497,7 @@ namespace cba
 
             // Sort values
             var vlist = new List<int>();
-            vals.Iter(v => vlist.Add(v));
+            vals.ForEach(v => vlist.Add(v));
             vlist.Sort();
 
             // Build map to new values
@@ -1545,10 +1545,10 @@ namespace cba
             if (scalarWrites.Count > 0)
             {
                 var scalarFile = new TokenTextWriter("scalars.txt");
-                scalarWrites.Iter(kvp =>
+                scalarWrites.ForEach(kvp =>
                     {
                         scalarFile.Write("{0}: ", kvp.Key);
-                        kvp.Value.Iter(s => scalarFile.Write("{0}", s));
+                        kvp.Value.ForEach(s => scalarFile.Write("{0}", s));
                         scalarFile.Write("\n");
                     });
                 scalarFile.Close();
@@ -1561,7 +1561,7 @@ namespace cba
                 {
                     if (kvp.Value.Count < 2) continue;
                     Console.Write("Possible type-unification needed ({0}):", kvp.Key);
-                    kvp.Value.Iter(s => Console.Write(" {0}", s));
+                    kvp.Value.ForEach(s => Console.Write(" {0}", s));
                     Console.WriteLine();
                 }
 
@@ -1569,17 +1569,17 @@ namespace cba
                 var lineReads = new Dictionary<string, HashSet<int>>();
                 var lineWrites = new Dictionary<string, HashSet<int>>();
 
-                memReads.Iter(kvp =>
-                    kvp.Value.Iter(line => lineReads.InitAndAdd(line, kvp.Key)));
+                memReads.ForEach(kvp =>
+                    kvp.Value.ForEach(line => lineReads.InitAndAdd(line, kvp.Key)));
 
-                memWrites.Iter(kvp =>
-                    kvp.Value.Iter(line => lineWrites.InitAndAdd(line, kvp.Key)));
+                memWrites.ForEach(kvp =>
+                    kvp.Value.ForEach(line => lineWrites.InitAndAdd(line, kvp.Key)));
 
                 var memFile = new TokenTextWriter("mem1.txt");
                 
                 var lines = new HashSet<string>();
-                lineReads.Keys.Iter(line => lines.Add(line));
-                lineWrites.Keys.Iter(line => lines.Add(line));
+                lineReads.Keys.ForEach(line => lines.Add(line));
+                lineWrites.Keys.ForEach(line => lines.Add(line));
 
                 foreach (var line in lines)
                 {
@@ -1595,16 +1595,16 @@ namespace cba
                 memFile = new TokenTextWriter("mem2.txt");
 
                 var addresses = new HashSet<int>();
-                memReads.Keys.Iter(a => addresses.Add(a));
+                memReads.Keys.ForEach(a => addresses.Add(a));
 
                 foreach (var add in addresses)
                 {
                     memFile.WriteLine("{0}:", add);
                     if (memReads[add].Count > 0)
                     {
-                        memReads[add].Iter(rd => memFile.WriteLine("  Read : {0}", rd));
+                        memReads[add].ForEach(rd => memFile.WriteLine("  Read : {0}", rd));
                         if (memWrites.ContainsKey(add) && memWrites[add].Count > 0)
-                            memWrites[add].Iter(wr => memFile.WriteLine("  Write: {0}", wr));
+                            memWrites[add].ForEach(wr => memFile.WriteLine("  Write: {0}", wr));
                     }
                 }
 
@@ -1614,16 +1614,16 @@ namespace cba
                 // per capture state info
                 var stateReads = new Dictionary<int, HashSet<int>>();
                 var stateWrites = new Dictionary<int, HashSet<int>>();
-                memReadsCS.Iter(kvp =>
-                    kvp.Value.Iter(cs => stateReads.InitAndAdd(cs, kvp.Key)));
-                memWritesCS.Iter(kvp =>
-                    kvp.Value.Iter(cs => stateWrites.InitAndAdd(cs, kvp.Key)));
+                memReadsCS.ForEach(kvp =>
+                    kvp.Value.ForEach(cs => stateReads.InitAndAdd(cs, kvp.Key)));
+                memWritesCS.ForEach(kvp =>
+                    kvp.Value.ForEach(cs => stateWrites.InitAndAdd(cs, kvp.Key)));
 
                 memFile = new TokenTextWriter("mem3.txt");
 
                 var states = new HashSet<int>();
-                stateReads.Keys.Iter(s => states.Add(s));
-                stateWrites.Keys.Iter(s => states.Add(s));
+                stateReads.Keys.ForEach(s => states.Add(s));
+                stateWrites.Keys.ForEach(s => states.Add(s));
 
                 foreach (var state in states)
                 {
@@ -1643,9 +1643,9 @@ namespace cba
                     memFile.WriteLine("{0}:", add);
                     if (memReadsCS[add].Count > 0)
                     {
-                        memReadsCS[add].Iter(rd => memFile.WriteLine("  Read : {0}", rd));
+                        memReadsCS[add].ForEach(rd => memFile.WriteLine("  Read : {0}", rd));
                         if (memWritesCS.ContainsKey(add) && memWritesCS[add].Count > 0)
-                            memWritesCS[add].Iter(wr => memFile.WriteLine("  Write: {0}", wr));
+                            memWritesCS[add].ForEach(wr => memFile.WriteLine("  Write: {0}", wr));
                     }
                 }
 
@@ -2080,8 +2080,8 @@ namespace cba
         static void AnnotateUniqueId(Implementation impl)
         {
             impl.Blocks
-                .Iter(blk => blk.Cmds.OfType<CallCmd>()
-                    .Iter(c => 
+                .ForEach(blk => blk.Cmds.OfType<CallCmd>()
+                    .ForEach(c => 
                         c.Attributes = new QKeyValue(Token.NoToken, "InlineToTraceUniqueId", 
                             new object[] { Expr.Literal(uniqueId++) }.ToList(), c.Attributes)));
         }
@@ -2121,7 +2121,7 @@ namespace cba
 
                 // rename blocks and variables to avoid future naming conflicts with inlining
                 var rename = new RenameLabelsAndVariables();
-                impl.LocVars.Iter(v => rename.VisitVariable(v));
+                impl.LocVars.ForEach(v => rename.VisitVariable(v));
                 rename.VisitBlockList(impl.Blocks);
             }
         }
@@ -2185,7 +2185,7 @@ namespace cba
             {
                 var ss = node.labelNames;
                 node.labelNames = new List<String>();
-                ss.OfType<string>().Iter(s =>
+                ss.OfType<string>().ForEach(s =>
                     {
                         if (s.StartsWith("inline$"))
                             node.labelNames.Add("itt$" + s);

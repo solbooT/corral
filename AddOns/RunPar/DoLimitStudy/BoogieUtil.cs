@@ -126,10 +126,10 @@ namespace Microsoft.Boogie
                 foreach (var blk in impl.Blocks)
                 {
                     blk.Cmds.OfType<CallCmd>()
-                        .Iter(ccmd => edges[impl.Name].Add(ccmd.callee));
+                        .ForEach(ccmd => edges[impl.Name].Add(ccmd.callee));
                     blk.Cmds.OfType<ParCallCmd>()
-                        .Iter(pcmd => pcmd.CallCmds
-                            .Iter(ccmd => edges[impl.Name].Add(ccmd.callee)));
+                        .ForEach(pcmd => pcmd.CallCmds
+                            .ForEach(ccmd => edges[impl.Name].Add(ccmd.callee)));
                 }
             }
             var reachable = new HashSet<string>();
@@ -173,10 +173,10 @@ namespace Microsoft.Boogie
                 foreach (var blk in impl.Blocks)
                 {
                     blk.Cmds.OfType<CallCmd>()
-                        .Iter(ccmd => edges.InitAndAdd(ccmd.callee, impl.Name));
+                        .ForEach(ccmd => edges.InitAndAdd(ccmd.callee, impl.Name));
                     blk.Cmds.OfType<ParCallCmd>()
-                        .Iter(pcmd => pcmd.CallCmds
-                            .Iter(ccmd => edges.InitAndAdd(ccmd.callee, impl.Name)));
+                        .ForEach(pcmd => pcmd.CallCmds
+                            .ForEach(ccmd => edges.InitAndAdd(ccmd.callee, impl.Name)));
                     if (blk.Cmds.Any(c => pred(c)))
                         targets.Add(impl.Name);
                 }
@@ -762,7 +762,7 @@ namespace Microsoft.Boogie
         public static Expr MkExprAnd(params Expr[] e)
         {
             Expr ret = Expr.True;
-            e.Iter(expr => { ret = Expr.And(ret, expr); });
+            e.ForEach(expr => { ret = Expr.And(ret, expr); });
             return ret;
         }
 
@@ -1415,7 +1415,7 @@ namespace Microsoft.Boogie
             program.ExtractLoops(out irreducible);
             program.TopLevelDeclarations.OfType<Implementation>()
                 .Where(impl => !irreducible.Contains(impl.Name))
-                .Iter(SSARename);
+                .ForEach(SSARename);
 
             program.TopLevelDeclarations.AddRange(phiProcsDecl);
 
@@ -1451,7 +1451,7 @@ namespace Microsoft.Boogie
             foreach (var blk in impl.Blocks.Where(blk => blk.TransferCmd is GotoCmd))
             {
                 var gc = blk.TransferCmd as GotoCmd;
-                gc.labelNames.OfType<string>().Iter(s => graph.AddEdge(blk, labelToBlock[s]));
+                gc.labelNames.OfType<string>().ForEach(s => graph.AddEdge(blk, labelToBlock[s]));
             }
             graph.AddSource(impl.Blocks[0]);
 
@@ -1470,8 +1470,8 @@ namespace Microsoft.Boogie
             var DF = new Dictionary<Block, HashSet<Block>>();
             var idom = new Dictionary<Block, Block>();
 
-            impl.Blocks.Iter(blk => DF.Add(blk, new HashSet<Block>()));
-            impl.Blocks.Iter(blk => graph.ImmediatelyDominatedBy(blk).Iter(blk2 => idom[blk2] = blk));
+            impl.Blocks.ForEach(blk => DF.Add(blk, new HashSet<Block>()));
+            impl.Blocks.ForEach(blk => graph.ImmediatelyDominatedBy(blk).ForEach(blk2 => idom[blk2] = blk));
 
             foreach (var blk in impl.Blocks)
             {
@@ -1496,7 +1496,7 @@ namespace Microsoft.Boogie
                     Console.WriteLine("    {0}", b.Label);
             }
 
-            DF.Values.Iter(hs => phiBlocks.UnionWith(hs));
+            DF.Values.ForEach(hs => phiBlocks.UnionWith(hs));
             */
 
             // Lets do reaching definitions on a DAG
@@ -1514,12 +1514,12 @@ namespace Microsoft.Boogie
 
             // current max version
             var maxVersion = new Dictionary<Variable, int>();
-            variables.OfType<LocalVariable>().Iter(v => maxVersion[v] = 0);
-            variables.OfType<Formal>().Iter(v => maxVersion[v] = 1);
+            variables.OfType<LocalVariable>().ForEach(v => maxVersion[v] = 0);
+            variables.OfType<Formal>().ForEach(v => maxVersion[v] = 1);
 
             // block -> Variable -> [out-version, in-versions]
             var phiNodes = new Dictionary<Block, Dictionary<Variable, List<int>>>();
-            impl.Blocks.Iter(blk => phiNodes[blk] = new Dictionary<Variable, List<int>>());
+            impl.Blocks.ForEach(blk => phiNodes[blk] = new Dictionary<Variable, List<int>>());
 
             var newVars = new Dictionary<string, LocalVariable>();
 
@@ -1549,8 +1549,8 @@ namespace Microsoft.Boogie
                 {
                     // entry block
                     reachDefIn[blk] = new Dictionary<Variable, int>();
-                    variables.OfType<LocalVariable>().Iter(v => reachDefIn[blk].Add(v, 0));
-                    variables.OfType<Formal>().Iter(v => reachDefIn[blk].Add(v, 1));
+                    variables.OfType<LocalVariable>().ForEach(v => reachDefIn[blk].Add(v, 0));
+                    variables.OfType<Formal>().ForEach(v => reachDefIn[blk].Add(v, 1));
                 }
                 else
                 {
@@ -1724,13 +1724,13 @@ namespace Microsoft.Boogie
             if (cmd is AssignCmd)
             {
                 var acmd = cmd as AssignCmd;
-                acmd.Lhss.Iter(lhs => ret.Add(lhs.DeepAssignedVariable.Name));
+                acmd.Lhss.ForEach(lhs => ret.Add(lhs.DeepAssignedVariable.Name));
                 return ret;
             }
             else if (cmd is CallCmd)
             {
                 var ccmd = cmd as CallCmd;
-                ccmd.Outs.Iter(ie => ret.Add(ie.Name));
+                ccmd.Outs.ForEach(ie => ret.Add(ie.Name));
                 return ret;
             }
             else
@@ -1755,7 +1755,7 @@ namespace Microsoft.Boogie
             phiProcsDecl.Add(proc);
 
             Expr expr = Expr.False;
-            inParams.Iter(i => expr = Expr.Or(expr, Expr.Eq(Expr.Ident(outParam), Expr.Ident(i))));
+            inParams.ForEach(i => expr = Expr.Or(expr, Expr.Eq(Expr.Ident(outParam), Expr.Ident(i))));
             proc.Ensures.Add(new Ensures(true, expr));
 
             var callCmd = new CallCmd(Token.NoToken, proc.Name, new List<Expr>(inVersionVars.Select(x => Expr.Ident(x)).ToArray()), new List<IdentifierExpr>(new IdentifierExpr[] { Expr.Ident(outV) }));
@@ -1828,7 +1828,7 @@ namespace Microsoft.Boogie
             {
                 var acmd = cmd as AssignCmd;
                 var assignedVars = new HashSet<Variable>();
-                acmd.Lhss.Iter(lhs => assignedVars.Add(lhs.DeepAssignedVariable));
+                acmd.Lhss.ForEach(lhs => assignedVars.Add(lhs.DeepAssignedVariable));
 
                 foreach (var tup in defsIn)
                 {
@@ -1867,7 +1867,7 @@ namespace Microsoft.Boogie
             {
                 var ccmd = cmd as CallCmd;
                 var assignedVars = new HashSet<Variable>();
-                ccmd.Outs.Iter(ie => assignedVars.Add(ie.Decl));
+                ccmd.Outs.ForEach(ie => assignedVars.Add(ie.Decl));
 
                 foreach (var tup in defsIn)
                 {
@@ -2249,8 +2249,8 @@ namespace Microsoft.Boogie
             name2Impl = BoogieUtil.nameImplMapping(program);
             var Succ = new Dictionary<Implementation, HashSet<Implementation>>();
             var Pred = new Dictionary<Implementation, HashSet<Implementation>>();
-            name2Impl.Values.Iter(impl => Succ.Add(impl, new HashSet<Implementation>()));
-            name2Impl.Values.Iter(impl => Pred.Add(impl, new HashSet<Implementation>()));
+            name2Impl.Values.ForEach(impl => Succ.Add(impl, new HashSet<Implementation>()));
+            name2Impl.Values.ForEach(impl => Pred.Add(impl, new HashSet<Implementation>()));
 
             foreach (var impl in program.TopLevelDeclarations.OfType<Implementation>())
             {

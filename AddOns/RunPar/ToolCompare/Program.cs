@@ -50,7 +50,7 @@ namespace ToolCompare
                     Util.run(Environment.CurrentDirectory, wlimitexe,
                     string.Format("/w {0} {1} {2} {3}", timeout, SI_exe, SI_flags, args[0]));
 
-                result1.Iter(s => output.WriteLine("{0}", s));
+                result1.ForEach(s => output.WriteLine("{0}", s));
                 execution_output = parseDualityOutput(result1);
             }
             else if (toolSelect == 2)
@@ -61,7 +61,7 @@ namespace ToolCompare
                     Util.run(Environment.CurrentDirectory, wlimitexe,
                     string.Format("/w {0} {1} {2} {3}", timeout, Duality_exe, Duality_flags, args[0]));
 
-                result2.Iter(s => output.WriteLine("{0}", s));
+                result2.ForEach(s => output.WriteLine("{0}", s));
                 execution_output = parseDualityOutput(result2);
             }
             else if (toolSelect == 3)
@@ -72,7 +72,7 @@ namespace ToolCompare
                     Util.run(Environment.CurrentDirectory, wlimitexe,
                     string.Format("/w {0} {1} {2} {3}", timeout, Tool_exe, " /configSetting:2 " + Tool_flags, args[0]));
 
-                result3.Iter(s => output.WriteLine("{0}", s));
+                result3.ForEach(s => output.WriteLine("{0}", s));
                 execution_output = parseDualityOutput(result3);
             }
             else if (toolSelect == 4)
@@ -83,7 +83,7 @@ namespace ToolCompare
                     Util.run(Environment.CurrentDirectory, wlimitexe,
                     string.Format("/w {0} {1} {2} {3}", timeout, Tool_exe, " /configSetting:8 " + Tool_flags, args[0]));
 
-                result4.Iter(s => output.WriteLine("{0}", s));
+                result4.ForEach(s => output.WriteLine("{0}", s));
                 execution_output = parseDualityOutput(result4);
             }
             else if (toolSelect == 5)
@@ -94,7 +94,7 @@ namespace ToolCompare
                     Util.run(Environment.CurrentDirectory, wlimitexe,
                     string.Format("/w {0} {1} {2} {3}", timeout, Tool_exe, " /configSetting:4 " + Tool_flags, args[0]));
 
-                result4.Iter(s => output.WriteLine("{0}", s));
+                result4.ForEach(s => output.WriteLine("{0}", s));
                 execution_output = parseDualityOutput(result4);
             }
             else if (toolSelect == 6)
@@ -105,7 +105,7 @@ namespace ToolCompare
                     Util.run(Environment.CurrentDirectory, wlimitexe,
                     string.Format("/w {0} {1} {2} {3}", timeout, Tool_exe, " /configSetting:6 " + Tool_flags, args[0]));
 
-                result4.Iter(s => output.WriteLine("{0}", s));
+                result4.ForEach(s => output.WriteLine("{0}", s));
                 execution_output = parseDualityOutput(result4);
             }
             else if (toolSelect == 7)
@@ -116,7 +116,7 @@ namespace ToolCompare
                     Util.run(Environment.CurrentDirectory, wlimitexe,
                     string.Format("/w {0} {1} {2} {3}", timeout, Tool_exe, " /configSetting:7 " + Tool_flags, args[0]));
 
-                result4.Iter(s => output.WriteLine("{0}", s));
+                result4.ForEach(s => output.WriteLine("{0}", s));
                 execution_output = parseDualityOutput(result4);
             }
             else

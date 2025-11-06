@@ -90,11 +90,11 @@ public class CbaLiveVariableAnalysis
         {
             program.TopLevelDeclarations
                 .OfType<GlobalVariable>()
-                .Iter(v => liveVarsAfter.Add(v));
+                .ForEach(v => liveVarsAfter.Add(v));
         }
 
         VariableCollector/*!*/ collector = new VariableCollector();
-        cc.Ins.Where(e => e != null).Iter(e => collector.Visit(e));
+        cc.Ins.Where(e => e != null).ForEach(e => collector.Visit(e));
         if (program == null)
         {
             liveVarsAfter.UnionWith(collector.usedVars.Where(v => v is LocalVariable || v is Formal));
@@ -128,12 +128,12 @@ public class CbaLiveVariableAnalysis
             {
                 program.TopLevelDeclarations
                     .OfType<GlobalVariable>()
-                    .Iter(v => liveVarsAfter.Add(v));
+                    .ForEach(v => liveVarsAfter.Add(v));
             }
 
             impl.OutParams
                 .OfType<Formal>()
-                .Iter(v => liveVarsAfter.Add(v));
+                .ForEach(v => liveVarsAfter.Add(v));
         }
         return liveVarsAfter;
     }

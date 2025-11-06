@@ -42,8 +42,8 @@ namespace cba
                 allVars.Add(new VarSet(uses.globalsUsed, impl.Name));
             }
 
-            //globalDecls.Iterate(x => procedures.Iterate(y => allVars.Add(x.Name, y.Name)));
-            //globalDecls.Iterate(x => implementations.Iterate(y => allVars.Add(x.Name, y.Name)));
+            //globalDecls.ForEachate(x => procedures.ForEachate(y => allVars.Add(x.Name, y.Name)));
+            //globalDecls.ForEachate(x => implementations.ForEachate(y => allVars.Add(x.Name, y.Name)));
             return allVars;
         }
 

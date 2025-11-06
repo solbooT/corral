@@ -139,7 +139,7 @@ namespace cba
             Log.noDebuggingOutput = true;
             Log.verbose_level = config.verboseMode;
 
-            config.specialVars.Iter(s => LanguageSemantics.specialVars.Add(s));
+            config.specialVars.ForEach(s => LanguageSemantics.specialVars.Add(s));
             #endregion
 
             ConfigManager.Initialize(config);
@@ -267,7 +267,7 @@ namespace cba
                 try
                 {
                     var bounds = LoopBound.Compute(lprog.getCBAProgram(), config.maxStaticLoopBound, GlobalConfig.annotations, LBoptions);
-                    bounds.Iter(kvp => ConfigManager.progVerifyOptions.extraRecBound.Add(kvp.Key, kvp.Value));
+                    bounds.ForEach(kvp => ConfigManager.progVerifyOptions.extraRecBound.Add(kvp.Key, kvp.Value));
                 }
                 catch (CoreLib.InsufficientDetailsToConstructCexPath e)
                 {
@@ -365,7 +365,7 @@ namespace cba
                     if (GlobalConfig.genCTrace == null)
                         return;
                     passes.Where(p => p != null)
-                        .Iter(p => trace = p.mapBackTrace(trace));
+                        .ForEach(p => trace = p.mapBackTrace(trace));
                     PrintConcurrentProgramPath.printCTrace(inputProg, trace, fileName);
                     apass.reset();
                 });
@@ -523,7 +523,7 @@ namespace cba
 
             var nonTrivialProcs = new HashSet<string>();
             var finalVars = new HashSet<string>();
-            trackedVars.Iter(s => { if (s.StartsWith("F$")) finalVars.Add(s); });
+            trackedVars.ForEach(s => { if (s.StartsWith("F$")) finalVars.Add(s); });
 
             foreach (var impl in init.TopLevelDeclarations.OfType<Implementation>())
             {
@@ -920,7 +920,7 @@ namespace cba
             if (config.mainProcName != null)
             {
                 program.TopLevelDeclarations.OfType<Implementation>()
-                    .Iter(impl => impl.Attributes = BoogieUtil.removeAttr("entrypoint", impl.Attributes));
+                    .ForEach(impl => impl.Attributes = BoogieUtil.removeAttr("entrypoint", impl.Attributes));
                 var ep = BoogieUtil.findProcedureImpl(program.TopLevelDeclarations, config.mainProcName);
                 if (ep == null)
                     throw new InvalidInput(string.Format("Entrypoint {0} not found", config.mainProcName));
@@ -1064,13 +1064,13 @@ namespace cba
 
                     var bounds = LoopBound.Compute(abs.getCBAProgram(), maxBound, GlobalConfig.annotations, LBoptions);
                     progVerifyOptions.extraRecBound = new Dictionary<string, int>();
-                    bounds.Iter(kvp => progVerifyOptions.extraRecBound.Add(kvp.Key, kvp.Value));
+                    bounds.ForEach(kvp => progVerifyOptions.extraRecBound.Add(kvp.Key, kvp.Value));
                     Console.WriteLine("LB: Took {0} s", LoopBound.timeTaken.TotalSeconds.ToString("F2"));
                 }
 
                 if (config.trackedVarsSecondary.Count > 0)
                 {
-                    config.trackedVarsSecondary.Iter(s => refinementState.trackVar(s));
+                    config.trackedVarsSecondary.ForEach(s => refinementState.trackVar(s));
                     config.trackedVarsSecondary.Clear();
                     continue;
                 }
@@ -1244,7 +1244,7 @@ namespace cba
                 Console.WriteLine("Program has bugs");
 
                 passes.Reverse<CompilerPass>()
-                                   .Iter(cp => buggyTrace = cp.mapBackTrace(buggyTrace));
+                                   .ForEach(cp => buggyTrace = cp.mapBackTrace(buggyTrace));
 
                 buggyTrace = captureTrans.mapBackTrace(buggyTrace);
                 if (mainTrans != null)
@@ -1253,7 +1253,7 @@ namespace cba
 
                     // knock off fakeMain
                     ErrorTrace tempt = null;
-                    buggyTrace.Blocks.Iter(blk =>
+                    buggyTrace.Blocks.ForEach(blk =>
                         {
                             var cmain = blk.Cmds.OfType<CallInstr>().Where(ci => ci.callee == config.mainProcName).FirstOrDefault();
                             if (cmain != null) tempt = cmain.calleeTrace;
@@ -1427,10 +1427,10 @@ namespace cba
             var outs = new List<IdentifierExpr>();
 
             oldMainImpl.InParams.OfType<Variable>()
-                .Iter(v => ins.Add(Expr.Ident(v)));
+                .ForEach(v => ins.Add(Expr.Ident(v)));
 
             oldMainImpl.OutParams.OfType<Variable>()
-                .Iter(v => outs.Add(Expr.Ident(v)));
+                .ForEach(v => outs.Add(Expr.Ident(v)));
 
             var callMain = new CallCmd(Token.NoToken, oldMainProc.Name, ins, outs);
             callMain.Proc = oldMainProc;
@@ -1471,11 +1471,11 @@ namespace cba
 
                     proc.Ensures.OfType<Ensures>().Where(e =>
                         (!BoogieUtil.checkAttrExists("abshoudini", e.Attributes)))
-                        .Iter(e => ens.Add(e));
+                        .ForEach(e => ens.Add(e));
 
                     proc.Requires.OfType<Requires>().Where(r =>
                         (!BoogieUtil.checkAttrExists("abshoudini", r.Attributes)))
-                        .Iter(r => req.Add(r));
+                        .ForEach(r => req.Add(r));
                 }
 
             }

@@ -46,10 +46,10 @@ namespace AliasAnalysis
             AliasAnalysis.mergeFull = false; // don't merge by default
             
             args.Where(s => s.StartsWith("/prune:"))
-                .Iter(s => prune = s.Split(':')[1]);
+                .ForEach(s => prune = s.Split(':')[1]);
 
             args.Where(s => s.StartsWith("/envUnroll:"))
-                .Iter(s => AliasConstraintSolver.environmentPointersUnroll = Int32.Parse(s.Split(':')[1]));
+                .ForEach(s => AliasConstraintSolver.environmentPointersUnroll = Int32.Parse(s.Split(':')[1]));
 
             CommandLineOptions.Install(new CommandLineOptions());
             CommandLineOptions.Clo.PrintInstrumented = true;
@@ -156,7 +156,7 @@ namespace AliasAnalysis
                 program.AddTopLevelDeclaration(asType);
                 // add AS constants
                 var sites = new HashSet<string>();
-                result.allocationSites.Values.Iter(v => sites.UnionWith(v));
+                result.allocationSites.Values.ForEach(v => sites.UnionWith(v));
                 foreach (var s in sites)
                 {
                     var c = new Constant(Token.NoToken,
@@ -179,14 +179,14 @@ namespace AliasAnalysis
             // marking aliasing queries as mustNULL
             var mark = new MarkMustAliasQueries(result);
             program.TopLevelDeclarations.OfType<Implementation>()
-                .Iter(impl => mark.VisitImplementation(impl));
+                .ForEach(impl => mark.VisitImplementation(impl));
 
             var prune = new PruneAliasingQueries(result, AllocationSites, asToAS);
 
             program.TopLevelDeclarations.OfType<Implementation>()
-                .Iter(impl => prune.VisitImplementation(impl));
+                .ForEach(impl => prune.VisitImplementation(impl));
             program.TopLevelDeclarations.OfType<Implementation>()
-                .Iter(impl => prune.PruneFalseBranches(impl));
+                .ForEach(impl => prune.PruneFalseBranches(impl));
             var main = program.TopLevelDeclarations.OfType<Procedure>()
                 .Where(proc => QKeyValue.FindBoolAttribute(proc.Attributes, "entrypoint"))
                 .FirstOrDefault();
@@ -323,7 +323,7 @@ namespace AliasAnalysis
         {
             node.TopLevelDeclarations.OfType<Function>()
                 .Where(func => BoogieUtil.checkAttrExists("aliasingQuery", func.Attributes))
-                .Iter(func => aliasingFunctions.Add(func.Name));
+                .ForEach(func => aliasingFunctions.Add(func.Name));
 
             return base.VisitProgram(node);
         }
@@ -748,7 +748,7 @@ namespace AliasAnalysis
         {
             node.TopLevelDeclarations.OfType<Function>()
                 .Where(func => BoogieUtil.checkAttrExists("aliasingQuery", func.Attributes))
-                .Iter(func => aliasingQueryFuncs.Add(func.Name));
+                .ForEach(func => aliasingQueryFuncs.Add(func.Name));
 
             return base.VisitProgram(node);
         }
@@ -928,11 +928,11 @@ namespace AliasAnalysis
                 this.IsReachable = IsReachable;
                 this.IsMustAlias = IsMustAlias;
                 this.PointsToSet = PointsToSet;
-                aliasQueryFuncs.Iter(q => results.aliases.Add(q, false));
-                aliasQueryFuncs.Iter(q => results.mustbeNULL.Add(q, true));
-                reachableQueryFuncs.Iter(q => results.aliases.Add(q, false));
-                reachableQueryFuncs.Iter(q => results.mustbeNULL.Add(q, true));
-                allocationSitesQueryFuncs.Iter(q => results.allocationSites.Add(q, new HashSet<string>()));
+                aliasQueryFuncs.ForEach(q => results.aliases.Add(q, false));
+                aliasQueryFuncs.ForEach(q => results.mustbeNULL.Add(q, true));
+                reachableQueryFuncs.ForEach(q => results.aliases.Add(q, false));
+                reachableQueryFuncs.ForEach(q => results.mustbeNULL.Add(q, true));
+                allocationSitesQueryFuncs.ForEach(q => results.allocationSites.Add(q, new HashSet<string>()));
             }
 
             public static AliasAnalysisResults Solve(Program program, 
@@ -955,7 +955,7 @@ namespace AliasAnalysis
 
                 var qSolver = new AliasQuerySolver(aq, rq, asq, IsAlias, IsReachable, IsMustAlias, PointsToSet);
                 program.TopLevelDeclarations.OfType<Implementation>()
-                    .Iter(impl =>
+                    .ForEach(impl =>
                     {
                         qSolver.currImpl = impl;
                         qSolver.VisitImplementation(impl);
@@ -1010,19 +1010,19 @@ namespace AliasAnalysis
             var allocators = new HashSet<string>();
             program.TopLevelDeclarations.OfType<Procedure>()
                 .Where(proc => BoogieUtil.checkAttrExists("allocator", proc.Attributes))
-                .Iter(proc => allocators.Add(proc.Name));
+                .ForEach(proc => allocators.Add(proc.Name));
 
             var funkyAllocators = new HashSet<string>();
             program.TopLevelDeclarations.OfType<Procedure>()
                 .Where(proc => QKeyValue.FindStringAttribute(proc.Attributes, "allocator") == "full")
-                .Iter(proc => funkyAllocators.Add(proc.Name));
+                .ForEach(proc => funkyAllocators.Add(proc.Name));
 
             var nameToImpl = BoogieUtil.nameImplMapping(program);
 
             // Add allocated global constants
             program.TopLevelDeclarations.OfType<Constant>()
                 .Where(c => QKeyValue.FindBoolAttribute(c.Attributes, "allocated"))
-                .Iter(c =>
+                .ForEach(c =>
                 {
                     allocatedConstants.Add(c.Name);
                     if (AliasAnalysis.demandDrivenAA)
@@ -1220,7 +1220,7 @@ namespace AliasAnalysis
             ConstructConstraintStmts.allocatedConstants = new HashSet<string>();
             program.TopLevelDeclarations.OfType<Constant>()
                 .Where(c => QKeyValue.FindBoolAttribute(c.Attributes, "allocated"))
-                .Iter(c =>
+                .ForEach(c =>
                 {
                     ConstructConstraintStmts.allocatedConstants.Add(c.Name);
                 });
@@ -1228,15 +1228,15 @@ namespace AliasAnalysis
             ConstructConstraintStmts.allocators = new HashSet<string>();
             program.TopLevelDeclarations.OfType<Procedure>()
                 .Where(proc => BoogieUtil.checkAttrExists("allocator", proc.Attributes))
-                .Iter(proc => ConstructConstraintStmts.allocators.Add(proc.Name));
+                .ForEach(proc => ConstructConstraintStmts.allocators.Add(proc.Name));
 
             ConstructConstraintStmts.fullAllocators = new HashSet<string>();
             program.TopLevelDeclarations.OfType<Procedure>()
                 .Where(proc => QKeyValue.FindStringAttribute(proc.Attributes, "allocator") == "full")
-                .Iter(proc => ConstructConstraintStmts.fullAllocators.Add(proc.Name));
+                .ForEach(proc => ConstructConstraintStmts.fullAllocators.Add(proc.Name));
 
             ConstructConstraintStmts.implNames = new HashSet<string>();
-            program.TopLevelDeclarations.OfType<Implementation>().Iter(impl => ConstructConstraintStmts.implNames.Add(impl.Name));
+            program.TopLevelDeclarations.OfType<Implementation>().ForEach(impl => ConstructConstraintStmts.implNames.Add(impl.Name));
 
             ConstructConstraintStmts.asCounter = 0;
 
@@ -1248,7 +1248,7 @@ namespace AliasAnalysis
         private static void InitializeGlobals()
         {
             HashSet<string> entrypoints = new HashSet<string>();
-            constraintProg.TopLevelDeclarations.OfType<Procedure>().Where(proc => BoogieUtil.checkAttrExists("entrypoint", proc.Attributes)).Iter(proc => entrypoints.Add(proc.Name));
+            constraintProg.TopLevelDeclarations.OfType<Procedure>().Where(proc => BoogieUtil.checkAttrExists("entrypoint", proc.Attributes)).ForEach(proc => entrypoints.Add(proc.Name));
             //Debug.Assert(entrypoints.Count == 1);
 
             Implementation entrypoint = constraintProg.TopLevelDeclarations.OfType<Implementation>().Where(impl => impl.Name.Equals(entrypoints.FirstOrDefault())).FirstOrDefault();
@@ -1296,7 +1296,7 @@ namespace AliasAnalysis
             Block newBlock = new Block(Token.NoToken, "init", cmds, new GotoCmd(Token.NoToken, new List<Block> { entrypoint.Blocks[0] }));
             List<Block> newBlocks = new List<Block>();
             newBlocks.Add(newBlock);
-            entrypoint.Blocks.Iter(blk => newBlocks.Add(blk));
+            entrypoint.Blocks.ForEach(blk => newBlocks.Add(blk));
             entrypoint.Blocks = newBlocks;
         }
 
@@ -1311,12 +1311,12 @@ namespace AliasAnalysis
                 HashSet<string> globalMaps = new HashSet<string>();
                 
                 List<Variable> input = new List<Variable>();
-                impl.InParams.Iter(v => input.Add(new Formal(Token.NoToken, new TypedIdent(Token.NoToken, v.Name, new CtorType(Token.NoToken, Type_AS, new List<btype>())), true)));
+                impl.InParams.ForEach(v => input.Add(new Formal(Token.NoToken, new TypedIdent(Token.NoToken, v.Name, new CtorType(Token.NoToken, Type_AS, new List<btype>())), true)));
 
                 List<Variable> output = new List<Variable>();
-                impl.OutParams.Iter(v => output.Add(new Formal(Token.NoToken, new TypedIdent(Token.NoToken, v.Name, new CtorType(Token.NoToken, Type_AS, new List<btype>())), true)));
+                impl.OutParams.ForEach(v => output.Add(new Formal(Token.NoToken, new TypedIdent(Token.NoToken, v.Name, new CtorType(Token.NoToken, Type_AS, new List<btype>())), true)));
 
-                impl.LocVars.Iter(v => newLocVars.Add(new LocalVariable(Token.NoToken, new TypedIdent(Token.NoToken, v.Name, new CtorType(Token.NoToken, Type_AS, new List<btype>())))));
+                impl.LocVars.ForEach(v => newLocVars.Add(new LocalVariable(Token.NoToken, new TypedIdent(Token.NoToken, v.Name, new CtorType(Token.NoToken, Type_AS, new List<btype>())))));
 
                 ConstructConstraintStmts.varCounter = 0;
 
@@ -1490,7 +1490,7 @@ namespace AliasAnalysis
                     SimpleAssignLhs lhs = new SimpleAssignLhs(Token.NoToken, cc.Outs[0]);
                     var ac = new AssignCmd(Token.NoToken, new List<AssignLhs> { lhs }, new List<Expr> { new IdentifierExpr(Token.NoToken, getAllocationConstant(fullAllocators.Contains(cc.callee))) });
                     currCmds.Add(ac);
-                    cc.Outs.Iter(id => { if (id.Decl is GlobalVariable) addGlobalVar(id.Decl.Name); });
+                    cc.Outs.ForEach(id => { if (id.Decl is GlobalVariable) addGlobalVar(id.Decl.Name); });
                     return;
                 }
                 else if (!implNames.Contains(cc.callee))
@@ -1521,7 +1521,7 @@ namespace AliasAnalysis
                     newins.Add(newin);
                     currCmds.AddRange(cmds);
                 }
-                cc.Outs.Iter(id => { if (id.Decl is GlobalVariable) addGlobalVar(id.Decl.Name); });
+                cc.Outs.ForEach(id => { if (id.Decl is GlobalVariable) addGlobalVar(id.Decl.Name); });
                 var newcc = new CallCmd(Token.NoToken, cc.callee, newins, cc.Outs);
                 currCmds.Add(newcc);
             }
@@ -1690,7 +1690,7 @@ namespace AliasAnalysis
         public static HashSet<Tuple<Variable, List<string>>> Get(IEnumerable<Expr> exprs)
         {
             var rs = new ReadSet();
-            exprs.Iter(expr => rs.VisitExpr(expr));
+            exprs.ForEach(expr => rs.VisitExpr(expr));
             return rs.readSet;
         }
 
@@ -2023,31 +2023,31 @@ namespace AliasAnalysis
 
             // variables
             var variables = new HashSet<string>();
-            constraints.Iter(c => c.GatherMentionedVars(ref variables));
+            constraints.ForEach(c => c.GatherMentionedVars(ref variables));
 
             // maps
             maps = new HashSet<string>();
             constraints.OfType<LoadConstraint>()
-                .Iter(c => maps.Add(c.map));
+                .ForEach(c => maps.Add(c.map));
             constraints.OfType<StoreConstraint>()
-                .Iter(c => maps.Add(c.map));
+                .ForEach(c => maps.Add(c.map));
 
             // alloc sites
             var allocSites = new HashSet<string>();
             constraints.OfType<AllocationConstraint>()
-                .Iter(c => allocSites.Add(c.allocSite));
+                .ForEach(c => allocSites.Add(c.allocSite));
 
             // Varible -> store instruction
             var varToStore = new Dictionary<string, List<StoreConstraint>>();
-            variables.Iter(v => varToStore.Add(v, new List<StoreConstraint>()));
+            variables.ForEach(v => varToStore.Add(v, new List<StoreConstraint>()));
             constraints.OfType<StoreConstraint>()
-                .Iter(s => varToStore[s.target].Add(s));
+                .ForEach(s => varToStore[s.target].Add(s));
 
             // Variable -> load instruction
             var varToLoad = new Dictionary<string, List<LoadConstraint>>();
-            variables.Iter(v => varToLoad.Add(v, new List<LoadConstraint>()));
+            variables.ForEach(v => varToLoad.Add(v, new List<LoadConstraint>()));
             constraints.OfType<LoadConstraint>()
-                .Iter(l => varToLoad[l.source].Add(l));
+                .ForEach(l => varToLoad[l.source].Add(l));
 
             InitFullAllocators();
 
@@ -2261,7 +2261,7 @@ namespace AliasAnalysis
                 if (!PointsTo.ContainsKey(n)) PointsTo.Add(n, new HashSet<string>());
                 if (!PointsToDelta.ContainsKey(n)) PointsToDelta.Add(n, new HashSet<string>());
 
-                G[n].Iter(nprime => DiffProp(PointsToDelta[n], nprime));
+                G[n].ForEach(nprime => DiffProp(PointsToDelta[n], nprime));
 
                 if (variables.Contains(n))
                 {
@@ -2322,7 +2322,7 @@ namespace AliasAnalysis
                 if (!FakePointsTo.ContainsKey(n)) FakePointsTo.Add(n, new HashSet<string>());
                 if (!FakePointsToDelta.ContainsKey(n)) FakePointsToDelta.Add(n, new HashSet<string>());
 
-                G[n].Iter(nprime => FakeDiffProp(FakePointsToDelta[n], nprime));
+                G[n].ForEach(nprime => FakeDiffProp(FakePointsToDelta[n], nprime));
 
                 foreach (string s in n.collection)
                 {
@@ -2423,13 +2423,13 @@ namespace AliasAnalysis
             // For "full" allocation sites, add extra constraints
             var fullAllocSites = new HashSet<string>();
             constraints.OfType<AllocationConstraint>().Where(ac => ac.full)
-                .Iter(ac => fullAllocSites.Add(ac.allocSite));
+                .ForEach(ac => fullAllocSites.Add(ac.allocSite));
 
             var maps = new HashSet<string>();
             constraints.OfType<LoadConstraint>()
-                .Iter(l => maps.Add(l.map));
+                .ForEach(l => maps.Add(l.map));
             constraints.OfType<StoreConstraint>()
-                .Iter(l => maps.Add(l.map));
+                .ForEach(l => maps.Add(l.map));
 
             // For each full alloc site o and map f, add:
             // PointsTo[o.f] = {o_f_i}

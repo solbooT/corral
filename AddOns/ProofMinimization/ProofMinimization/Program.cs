@@ -187,7 +187,7 @@ namespace ProofMinimization
                     var rerun = false;
                     Minimize.candidateToCost = new Dictionary<int, int>();
                     var newTemplates = new HashSet<int>();
-                    min2.Iter(t => { var b = Minimize.PruneDisjuncts(t, ref newTemplates); rerun |= b; });
+                    min2.ForEach(t => { var b = Minimize.PruneDisjuncts(t, ref newTemplates); rerun |= b; });
 
                     if (!rerun)
                     {
@@ -239,7 +239,7 @@ namespace ProofMinimization
                 Console.WriteLine("Contract to pref: {0} {1}", tup.Value, Minimize.templateToStr[tup.Key]);
             }
 
-            Console.WriteLine("Cache hits on calls to PruneAndRun: {0} / {1}", Minimize.CacheHit, Minimize.IterCnt);
+            Console.WriteLine("Cache hits on calls to PruneAndRun: {0} / {1}", Minimize.CacheHit, Minimize.ForEachCnt);
 
         }
 
@@ -261,7 +261,7 @@ namespace ProofMinimization
             var constants = new Dictionary<string, Constant>();
             program.TopLevelDeclarations.OfType<Constant>()
                 .Where(c => QKeyValue.FindBoolAttribute(c.Attributes, "existential"))
-                .Iter(c => constants.Add(c.Name, c));
+                .ForEach(c => constants.Add(c.Name, c));
 
             foreach (var proc in program.TopLevelDeclarations.OfType<Procedure>())
             {
@@ -302,7 +302,7 @@ namespace ProofMinimization
 
             program.TopLevelDeclarations.OfType<Constant>()
                 .Where(c => markkeep.Contains(c.Name))
-                .Iter(c => c.AddAttribute(Driver.MustKeepAttr));
+                .ForEach(c => c.AddAttribute(Driver.MustKeepAttr));
 
             program.AddTopLevelDeclarations(added);
 
@@ -483,7 +483,7 @@ namespace ProofMinimization
             var prog = inprog.getProgram();
             prog.TopLevelDeclarations.OfType<Constant>()
                 .Where(c => QKeyValue.FindBoolAttribute(c.Attributes, Driver.MustKeepAttr))
-                .Iter(c => keep.Add(c.Name));
+                .ForEach(c => keep.Add(c.Name));
         }
 
         public bool Run(out HashSet<string> constantsToKeep, out HashSet<string> constantsToDrop, out Dictionary<string, int> constantToPerf)
@@ -503,11 +503,11 @@ namespace ProofMinimization
 
             program.TopLevelDeclarations.OfType<Constant>()
                 .Where(c => QKeyValue.FindBoolAttribute(c.Attributes, "existential"))
-                .Iter(c => candidates.Add(c.Name));
+                .ForEach(c => candidates.Add(c.Name));
 
             program.TopLevelDeclarations.OfType<Constant>()
                 .Where(c => candidates.Contains(c.Name))
-                .Iter(c => candidateToCost.Add(c.Name, QKeyValue.FindIntAttribute(c.Attributes, Driver.CostAttr, 0)));
+                .ForEach(c => candidateToCost.Add(c.Name, QKeyValue.FindIntAttribute(c.Attributes, Driver.CostAttr, 0)));
 
             var rt = PruneAndRun(inprog, candidates, out assignment, ref perf);
 

@@ -95,7 +95,7 @@ namespace ProofMinimization
                     var re = new Regex(p);
                     program.TopLevelDeclarations.OfType<Constant>()
                     .Where(c => QKeyValue.FindBoolAttribute(c.Attributes, "existential") && re.IsMatch(c.Name))
-                    .Iter(c =>
+                    .ForEach(c =>
                         {
                             c.AddAttribute(Driver.MustKeepAttr);
                             fileToKeepConstants[f].Add(c.Name);
@@ -111,21 +111,21 @@ namespace ProofMinimization
                 var allconstants = new Dictionary<string, Constant>();
                 program.TopLevelDeclarations.OfType<Constant>()
                     .Where(c => QKeyValue.FindBoolAttribute(c.Attributes, "existential"))
-                    .Iter(c => allconstants.Add(c.Name, c));
+                    .ForEach(c => allconstants.Add(c.Name, c));
 
                 // Normalize expressions
                 if (!SimplifyExpr.SimplifyToCNF)
                 {
                     program.TopLevelDeclarations.OfType<Implementation>()
-                        .Iter(impl => impl.Proc.Ensures.Iter(ens => SimplifyExpr.SimplifyEnsures(ens, allconstants)));
+                        .ForEach(impl => impl.Proc.Ensures.ForEach(ens => SimplifyExpr.SimplifyEnsures(ens, allconstants)));
                 }
                 else
                 {
                     var constants = new HashSet<string>(allconstants.Keys);
                     program.TopLevelDeclarations.OfType<Implementation>()
-                        .Iter(impl => impl.Proc.Ensures = SimplifyExpr.SimplifyEnsures(impl.Proc.Ensures, allconstants));
+                        .ForEach(impl => impl.Proc.Ensures = SimplifyExpr.SimplifyEnsures(impl.Proc.Ensures, allconstants));
                     allconstants.Where(tup => !constants.Contains(tup.Key))
-                        .Iter(tup => program.AddTopLevelDeclaration(tup.Value));
+                        .ForEach(tup => program.AddTopLevelDeclaration(tup.Value));
                 }
                 // Remove constants that don't hold -- optimization
                 HashSet<string> consts = new HashSet<string>(allconstants.Keys);
@@ -145,7 +145,7 @@ namespace ProofMinimization
 
                 // anything not in assignment can be dropped
                 DropConstants(program, consts.Difference(assignment));
-                consts.Difference(assignment).Iter(s => allconstants.Remove(s));
+                consts.Difference(assignment).ForEach(s => allconstants.Remove(s));
                 fileToKeepConstants[f].IntersectWith(assignment);
 
                 Console.WriteLine("File {0} defines {1} constants ({2} dropped)", f, assignment.Count, consts.Count - assignment.Count);
@@ -192,7 +192,7 @@ namespace ProofMinimization
             }
 
             templateToStr = new Dictionary<int, string>();
-            strToTemplate.Iter(tup => templateToStr.Add(tup.Value, tup.Key));
+            strToTemplate.ForEach(tup => templateToStr.Add(tup.Value, tup.Key));
 
             Console.WriteLine("Found {0} templates", templateMap.Count);
 
@@ -204,7 +204,7 @@ namespace ProofMinimization
                     foreach (var tup2 in tup.Value)
                     {
                         Console.WriteLine("  File {0}", tup2.Key);
-                        tup2.Value.Iter(c => Console.WriteLine("    Candidate {0}", c));
+                        tup2.Value.ForEach(c => Console.WriteLine("    Candidate {0}", c));
                     }
                 }
             }
@@ -213,7 +213,7 @@ namespace ProofMinimization
         static void AssignDefaultCost(HashSet<int> templates)
         {
             templates.Where(t => !candidateToCost.ContainsKey(t))
-                .Iter(t => candidateToCost.Add(t, 0));
+                .ForEach(t => candidateToCost.Add(t, 0));
 
             foreach (var t in templates)
             {
@@ -272,11 +272,11 @@ namespace ProofMinimization
 
                     // Extra information
                     var delta = 0;
-                    perf.Iter(tup => delta += (tup.Value - fileToPerf[tup.Key]));
+                    perf.ForEach(tup => delta += (tup.Value - fileToPerf[tup.Key]));
                     templateToPerfDelta[c] = delta;
 
                     // Update perf stats
-                    perf.Iter(tup => fileToPerf[tup.Key] = tup.Value);
+                    perf.ForEach(tup => fileToPerf[tup.Key] = tup.Value);
                 }
                 else
                 {
@@ -318,7 +318,7 @@ namespace ProofMinimization
             var newFileToProg = new Dictionary<string, PersistentProgram>();
 
             var templateToConstants = new Dictionary<int, int>();
-            templates.Iter(t => templateToConstants.Add(t, 0));
+            templates.ForEach(t => templateToConstants.Add(t, 0));
 
             foreach (var tup in fileToProg)
             {
@@ -488,7 +488,7 @@ namespace ProofMinimization
                 // candidate constants
                 var candidates = new HashSet<string>();
                 candidateTemplates.Where(t => templateMap[t].ContainsKey(file))
-                    .Iter(t => candidates.UnionWith(templateMap[t][file]));
+                    .ForEach(t => candidates.UnionWith(templateMap[t][file]));
 
                 // to keep
                 var keep = fileToKeepConstants[file].Intersection(allconstants);

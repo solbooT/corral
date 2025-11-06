@@ -56,9 +56,9 @@ namespace CoreLib
                 if (cba.Util.BoogieVerify.ignoreAssertMethods.Contains(impl.Name))
                     continue;
 
-                impl.Blocks.Iter(block =>
+                impl.Blocks.ForEach(block =>
                     block.Cmds.OfType<AssignCmd>()
-                    .Iter(cmd =>
+                    .ForEach(cmd =>
                     {
                         foreach (var lhs in cmd.Lhss)
                             if (lhs.DeepAssignedVariable.Name == cba.Util.BoogieVerify.assertsPassed)
@@ -261,7 +261,7 @@ namespace CoreLib
 
             this.extraRecBound = new Dictionary<string, int>();
             program.TopLevelDeclarations.OfType<Implementation>()
-                .Iter(impl =>
+                .ForEach(impl =>
                 {
                     var b = QKeyValue.FindIntAttribute(impl.Attributes, BoogieVerify.ExtraRecBoundAttr, -1);
                     if (b != -1) extraRecBound.Add(impl.Name, b);
@@ -517,7 +517,7 @@ namespace CoreLib
                     foreach (var e in tup.Value)
                         nodeToTime.Add(e.Item1, e.Item3);
 
-                nodeToTime.Keys.Iter(n => nodeToChildren.Add(n, new HashSet<int>()));
+                nodeToTime.Keys.ForEach(n => nodeToChildren.Add(n, new HashSet<int>()));
 
                 // Edges
                 foreach (var tup in Edges)
@@ -566,7 +566,7 @@ namespace CoreLib
                         var tleft = threads[i].Item2 - min;
                         if (isZero(tleft))
                         {
-                            nodeToChildren[threads[i].Item1].Iter(n => available.Add(n));
+                            nodeToChildren[threads[i].Item1].ForEach(n => available.Add(n));
                             threads[i] = Tuple.Create(-1, 0.0);
                         }
                         else
@@ -601,8 +601,8 @@ namespace CoreLib
             var PrevAsserted = new Func<HashSet<Tuple<StratifiedVC, Block>>>(() =>
             {
                 var ret = new HashSet<Tuple<StratifiedVC, Block>>();
-                prevMustAsserted.ToList().Iter(ls =>
-                    ls.Iter(tup => ret.Add(tup)));
+                prevMustAsserted.ToList().ForEach(ls =>
+                    ls.ForEach(tup => ret.Add(tup)));
                 return ret;
             });
 
@@ -616,7 +616,7 @@ namespace CoreLib
                     {
                         var disj = di.DisjointNodes(n);
 
-                        disj.Iter(m => di.DeleteNode(m));
+                        disj.ForEach(m => di.DeleteNode(m));
                     }
                 });
 
@@ -659,14 +659,14 @@ namespace CoreLib
                             maxVcScore = score;
                         }
                     }
-                    toRemove.Iter(vc => attachedVCInv.Remove(vc));
+                    toRemove.ForEach(vc => attachedVCInv.Remove(vc));
 
                     var scs = attachedVCInv[maxVc];
                     Debug.Assert(!openCallSites.Contains(scs));
 
                     var desc = sizes[maxVc];
                     var cnt = 0;
-                    openCallSites.Iter(cs => cnt += desc.Contains(containingVC(cs)) ? 1 : 0);
+                    openCallSites.ForEach(cs => cnt += desc.Contains(containingVC(cs)) ? 1 : 0);
                     
                     // Push & Block
                     MacroSI.PRINT("{0}>>> Pushing Block({1}, {2}, {3}, {4}, {5})", indent(decisions.Count), scs.callSite.calleeName, sizes[maxVc].Count, disj[maxVc], size, stats.numInlined);
@@ -834,8 +834,8 @@ namespace CoreLib
             var PrevAsserted = new Func<HashSet<Tuple<StratifiedVC, Block>>>(() =>
                 {
                     var ret = new HashSet<Tuple<StratifiedVC, Block>>();
-                    prevMustAsserted.ToList().Iter(ls =>
-                        ls.Iter(tup => ret.Add(tup)));
+                    prevMustAsserted.ToList().ForEach(ls =>
+                        ls.ForEach(tup => ret.Add(tup)));
                     return ret;
                 });
             
@@ -1383,7 +1383,7 @@ namespace CoreLib
                     foreach (var s in svc.CallSites)
                         parent.Remove(s);
 
-                    callerOpenCallSites.Iter(ocs => attachedVC.Remove(ocs));
+                    callerOpenCallSites.ForEach(ocs => attachedVC.Remove(ocs));
 
                     Pop();
 
@@ -1415,7 +1415,7 @@ namespace CoreLib
             Outcome outcome = Outcome.Correct;
             var backbonedepth = new Dictionary<string, int>();
             program.TopLevelDeclarations.OfType<Procedure>()
-                .Iter(proc => backbonedepth.Add(proc.Name, 0));
+                .ForEach(proc => backbonedepth.Add(proc.Name, 0));
             mainProc = impl.Proc;
 
             var boundHit = false;
@@ -1707,7 +1707,7 @@ namespace CoreLib
                 callsites.UnionWith(parent.Keys);
                 callsites.UnionWith(parent.Values);
                 callsites.ExceptWith(openCallSites);
-                callsites.Iter(scs => CallTree.Add(GetPersistentID(scs)));
+                callsites.ForEach(scs => CallTree.Add(GetPersistentID(scs)));
 
                 prevMain = impl.Name;
                 prevDag = di.GetDag();
@@ -1988,7 +1988,7 @@ namespace CoreLib
         {
             var assumptions = new List<VCExpr>();
             var query = new HashSet<string>();
-            varsToSet.Iter(v => query.Add(v.Name));
+            varsToSet.ForEach(v => query.Add(v.Name));
 
             prover.LogComment("FindLeast: Query Begin");
 
@@ -2170,7 +2170,7 @@ namespace CoreLib
             {
                 IndexC = new IndexComputer(SI.program);
                 var impls = new Dictionary<string, Implementation>();
-                SI.implName2StratifiedInliningInfo.Iter(tup => impls.Add(tup.Key, tup.Value.impl));
+                SI.implName2StratifiedInliningInfo.ForEach(tup => impls.Add(tup.Key, tup.Value.impl));
                 Disj = new ProgramDisjointness(impls);
 
                 currentDag = new DagOracle(SI.program, Disj, SI.extraRecBound);
@@ -2258,7 +2258,7 @@ namespace CoreLib
         {
             var ret = new HashSet<StratifiedVC>();
             var disj = currentDag.AllDisjointNodes();
-            disj[vcNodeMap[vc]].Iter(n => ret.Add(vcNodeMap[n]));
+            disj[vcNodeMap[vc]].ForEach(n => ret.Add(vcNodeMap[n]));
             return ret;
         }
 
@@ -2280,7 +2280,7 @@ namespace CoreLib
             Dictionary<DagOracle.DagNode, HashSet<DagOracle.DagNode>> nodeToChildren;
             currentDag.ComputeDagSizes(out nodeToTreeSize, out nodeToChildren);
 
-            nodeToChildren.Iter(tup => ret.Add(vcNodeMap[tup.Key],
+            nodeToChildren.ForEach(tup => ret.Add(vcNodeMap[tup.Key],
                 new HashSet<StratifiedVC>(tup.Value.Select(n => vcNodeMap[n]))));
 
             return ret;
@@ -2571,7 +2571,7 @@ namespace CoreLib
             foreach (var p in cg.Nodes)
             {
                 procToReachableProcs[p] = new HashSet<string>();
-                sccToReachableScc[procToScc[p]].Iter(scc => procToReachableProcs[p].UnionWith(scc));
+                sccToReachableScc[procToScc[p]].ForEach(scc => procToReachableProcs[p].UnionWith(scc));
             }
 
             recursiveProcs = BoogieUtil.GetCyclicNodes<string>(cg);
@@ -2579,7 +2579,7 @@ namespace CoreLib
             indexToProc = new string[cg.Nodes.Count];
             procToIndex = new Dictionary<string, int>();
             int i = 0;
-            cg.Nodes.Iter(p => { indexToProc[i] = p; procToIndex[p] = i; i++; });
+            cg.Nodes.ForEach(p => { indexToProc[i] = p; procToIndex[p] = i; i++; });
         }
 
         public int[] GetMainRv()
@@ -2624,7 +2624,7 @@ namespace CoreLib
         {
             var map = new Dictionary<string, Implementation>();
             program.TopLevelDeclarations.OfType<Implementation>()
-                .Iter(impl => map.Add(impl.Name, impl));
+                .ForEach(impl => map.Add(impl.Name, impl));
 
             exclusiveCache = new Dictionary<string, HashSet<Tuple<int, int>>>();
             this.impls = new Dictionary<string, Implementation>(map);
@@ -2686,7 +2686,7 @@ namespace CoreLib
 
             var graph = Program.GraphFromImpl(impl);
             var canReachMe = new Dictionary<Block, HashSet<Block>>();
-            impl.Blocks.Iter(b => canReachMe.Add(b, new HashSet<Block>()));
+            impl.Blocks.ForEach(b => canReachMe.Add(b, new HashSet<Block>()));
 
             foreach (var b in graph.TopologicalSort())
             {
@@ -2699,10 +2699,10 @@ namespace CoreLib
             foreach (var b in impl.Blocks)
             {
                 var from = new HashSet<int>();
-                canReachMe[b].Iter(p => from.UnionWith(blockToCalls[p]));
+                canReachMe[b].ForEach(p => from.UnionWith(blockToCalls[p]));
                 foreach (var tgt in blockToCalls[b])
                 {
-                    from.Iter(src => reachable.Add(Tuple.Create(src, tgt)));
+                    from.ForEach(src => reachable.Add(Tuple.Create(src, tgt)));
                 }
             }
 
@@ -2718,7 +2718,7 @@ namespace CoreLib
             str.WriteLine("digraph DAG {");
 
             graph.Nodes
-                .Iter(n => str.WriteLine("{0} [ label = \"{1}\" color=black shape=box];", n.UniqueId, n.Label));
+                .ForEach(n => str.WriteLine("{0} [ label = \"{1}\" color=black shape=box];", n.UniqueId, n.Label));
 
             foreach (var edge in graph.Edges)
                 str.WriteLine("{0} -> {1} [ label = \"{2}\"];", edge.Item1.UniqueId, edge.Item2.UniqueId, "");
@@ -2847,7 +2847,7 @@ namespace CoreLib
             RemoveUnreachableNodes();
 
             var ret = 0;
-            Nodes.Iter(node => ret += node.Size);
+            Nodes.ForEach(node => ret += node.Size);
             return ret;
         }
 
@@ -2909,7 +2909,7 @@ namespace CoreLib
             ComputeDagSizes(out nodeToTreeSize, out nodeToChildren);
 
             var ret = new Dictionary<DagNode, HashSet<DagNode>>();
-            Nodes.Iter(n => ret.Add(n, new HashSet<DagNode>()));
+            Nodes.ForEach(n => ret.Add(n, new HashSet<DagNode>()));
             AllDisjointNodesHelper(Root, ret, nodeToChildren);
             return ret;
         }
@@ -2990,7 +2990,7 @@ namespace CoreLib
             }
 
             // delete n2
-            todelete.Iter(DeleteEdge);
+            todelete.ForEach(DeleteEdge);
             DeleteNodeAndDecendants(n2);
         }
 
@@ -3002,7 +3002,7 @@ namespace CoreLib
             
             var impls = new Dictionary<string, Implementation>();
             program.TopLevelDeclarations.OfType<Implementation>()
-                .Iter(impl => impls.Add(impl.Name, impl));
+                .ForEach(impl => impls.Add(impl.Name, impl));
 
             var ep = program.TopLevelDeclarations.OfType<Implementation>()
                 .Where(impl => QKeyValue.FindBoolAttribute(impl.Attributes, "entrypoint"))
@@ -3010,7 +3010,7 @@ namespace CoreLib
             main = ep.Name;
 
             var impl2index = new Dictionary<string, int>();
-            impls.Iter(tup => impl2index.Add(tup.Key, impl2index.Count));
+            impls.ForEach(tup => impl2index.Add(tup.Key, impl2index.Count));
 
             var cg = BoogieUtil.GetCallGraph(program);
             var recursiveProcs = BoogieUtil.GetCyclicNodes<string>(cg);
@@ -3097,7 +3097,7 @@ namespace CoreLib
             // id -> #nodes with that id in the fully expanded tree 
             // (used for debugging)
             var id2numnodes = new Dictionary<string, int>();
-            idgraph.Nodes.Iter(s => id2numnodes.Add(s, 0));
+            idgraph.Nodes.ForEach(s => id2numnodes.Add(s, 0));
             id2numnodes[rootid] = 1;
 
             // Start with empty call dag
@@ -3106,7 +3106,7 @@ namespace CoreLib
 
             var impls = new Dictionary<string, Implementation>();
             program.TopLevelDeclarations.OfType<Implementation>()
-                .Iter(impl => impls.Add(impl.Name, impl));
+                .ForEach(impl => impls.Add(impl.Name, impl));
 
             // impl to its calls
             var implToCalls = new Dictionary<string, HashSet<Tuple<int, string>>>();
@@ -3133,7 +3133,7 @@ namespace CoreLib
                 var NodeToCalls = new Func<DagNode, List<Tuple<DagNode, int, string>>>(n =>
                     {
                         var r = new List<Tuple<DagNode, int, string>>();
-                        implToCalls[n.ImplName].Iter(t => r.Add(Tuple.Create(n, t.Item1, t.Item2)));
+                        implToCalls[n.ImplName].ForEach(t => r.Add(Tuple.Create(n, t.Item1, t.Item2)));
                         return r;
                     });
 
@@ -3248,7 +3248,7 @@ namespace CoreLib
             */            
 
             var ret = 0;
-            id2numnodes.Iter(tup => ret += tup.Value);
+            id2numnodes.ForEach(tup => ret += tup.Value);
             return ret;
         }
 
@@ -3315,7 +3315,7 @@ namespace CoreLib
                 graph = new Microsoft.Boogie.GraphUtil.Graph<DagNode>();
 
                 // Make sure all the nodes are inserted
-                IdToNodes[id].Iter(n => graph.AddSource(n));
+                IdToNodes[id].ForEach(n => graph.AddSource(n));
 
                 foreach (var n1 in IdToNodes[id])
                 {
@@ -3336,7 +3336,7 @@ namespace CoreLib
             {
                 // Gather the subset of the dag that we should look at
                 var ancestors = new HashSet<DagNode>();
-                IdToNodes[id].Iter(v => ancestors.UnionWith(Ancestors(v)));
+                IdToNodes[id].ForEach(v => ancestors.UnionWith(Ancestors(v)));
 
                 HashSet<DagNode> tt = null;
                 GetAdjacency(Root, id, out adj, out tt, ancestors);
@@ -3351,7 +3351,7 @@ namespace CoreLib
                 if (!s1.SetEquals(s2))
                 {
                     var ancestors = new HashSet<DagNode>();
-                    IdToNodes[id].Iter(v => ancestors.UnionWith(Ancestors(v)));
+                    IdToNodes[id].ForEach(v => ancestors.UnionWith(Ancestors(v)));
                     Dump("err.dot", ancestors);
                     Debug.Assert(false);
                 }
@@ -3520,7 +3520,7 @@ namespace CoreLib
                 consider.IntersectWith(Adj(n));
 
                 consider
-                    .Iter(s => neighborColors.Add(color[s]));
+                    .ForEach(s => neighborColors.Add(color[s]));
 
                 // find the least c that is not in neightColors
                 var c = 0;
@@ -3646,7 +3646,7 @@ namespace CoreLib
 
         public void DeleteNodeAndDecendants(DagNode node)
         {
-            Decendants(node).Iter(DeleteNode);
+            Decendants(node).ForEach(DeleteNode);
         }
 
         public static DagOracle ConstructCallDag(Program program, Dictionary<string, int> extraRecBound)
@@ -3655,7 +3655,7 @@ namespace CoreLib
 
             var impls = new Dictionary<string, Implementation>();
             program.TopLevelDeclarations.OfType<Implementation>()
-                .Iter(impl => impls.Add(impl.Name, impl));
+                .ForEach(impl => impls.Add(impl.Name, impl));
 
             var ep = program.TopLevelDeclarations.OfType<Implementation>()
                 .Where(impl => QKeyValue.FindBoolAttribute(impl.Attributes, "entrypoint"))
@@ -3678,7 +3678,7 @@ namespace CoreLib
             }
 
             var impl2index = new Dictionary<string, int>();
-            impls.Iter(tup => impl2index.Add(tup.Key, impl2index.Count));
+            impls.ForEach(tup => impl2index.Add(tup.Key, impl2index.Count));
 
             var cg = BoogieUtil.GetCallGraph(program);
             var recursiveProcs = BoogieUtil.GetCyclicNodes<string>(cg);
@@ -3775,7 +3775,7 @@ namespace CoreLib
 
             // First, let us color the out-going edges of n
             var graph = new Microsoft.Boogie.GraphUtil.Graph<DagNode>();
-            Children[node].Iter(e => graph.AddSource(e.Target));
+            Children[node].ForEach(e => graph.AddSource(e.Target));
 
             foreach (var e1 in Children[node])
             {
@@ -3795,7 +3795,7 @@ namespace CoreLib
             var colorToNodes = new Dictionary<int, HashSet<DagNode>>();
             for (int i = 0; i <= maxcolor; i++)
                 colorToNodes.Add(i, new HashSet<DagNode>());
-            coloring.Iter(tup => colorToNodes[tup.Value].Add(tup.Key));
+            coloring.ForEach(tup => colorToNodes[tup.Value].Add(tup.Key));
 
             // Node to its mincolor mapping
             var nodeToMinColorAvailable = new Dictionary<DagNode, Dictionary<string, int>>();
@@ -3941,7 +3941,7 @@ namespace CoreLib
 
             var delete = new HashSet<DagNode>(Nodes);
             delete.ExceptWith(reached);
-            delete.Iter(DeleteNode);
+            delete.ForEach(DeleteNode);
         }
 
         HashSet<DagNode> Decendants(DagNode node)
@@ -3951,8 +3951,8 @@ namespace CoreLib
             while (frontier.Any())
             {
                 var next = new HashSet<DagNode>();
-                frontier.Iter(n =>
-                    Children[n].Iter(e => next.Add(e.Target)));
+                frontier.ForEach(n =>
+                    Children[n].ForEach(e => next.Add(e.Target)));
                 next.ExceptWith(reached);
                 frontier = next;
                 reached.UnionWith(next);
@@ -3976,7 +3976,7 @@ namespace CoreLib
             str.WriteLine("digraph DAG {");
 
             nodes
-                .Iter(n => str.WriteLine("{0} [ label = \"{1}\" color=black shape=box];", n.uid, n.ImplName));
+                .ForEach(n => str.WriteLine("{0} [ label = \"{1}\" color=black shape=box];", n.uid, n.ImplName));
 
             foreach (var edge in Edges.Where(e => nodes.Contains(e.Source) && nodes.Contains(e.Target)))
                 str.WriteLine("{0} -> {1} [ label = \"{2}\"];", edge.Source.uid, edge.Target.uid, edge.CallSite);
@@ -4001,8 +4001,8 @@ namespace CoreLib
             var nodeToTreeSize = new Dictionary<DagNode, int>();
             var nodeToChildren = new Dictionary<DagNode, HashSet<DagNode>>();
 
-            Nodes.Iter(vc => nodeToTreeSize.Add(vc, 0));
-            Nodes.Iter(vc => nodeToChildren.Add(vc, new HashSet<DagNode>()));
+            Nodes.ForEach(vc => nodeToTreeSize.Add(vc, 0));
+            Nodes.ForEach(vc => nodeToChildren.Add(vc, new HashSet<DagNode>()));
 
             foreach (var n in sorted)
             {
@@ -4050,7 +4050,7 @@ namespace CoreLib
             if (largestnode != null)
             {
                 Console.WriteLine("Shared node size distribution");
-                hist.Iter(tup => Console.Write("{0}: {1}  ", tup.Key, tup.Value));
+                hist.ForEach(tup => Console.Write("{0}: {1}  ", tup.Key, tup.Value));
                 Console.WriteLine();
 
                 Console.WriteLine("Largest shared subtree has size {0}, tree size {1}, for proc {2}", largestsize,

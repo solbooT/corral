@@ -32,7 +32,7 @@ namespace PropInst
             var pruneFilePaths = new HashSet<string>();
             args
                 .Where(s => s.StartsWith("/pruneMethodsWithFilePathPrefix:"))
-                .Iter(s => pruneFilePaths.Add(s.Substring("/pruneMethodsWithFilePathPrefix:".Length)));
+                .ForEach(s => pruneFilePaths.Add(s.Substring("/pruneMethodsWithFilePathPrefix:".Length)));
 
 
             string cleanupPrefixString = null;
@@ -185,7 +185,7 @@ namespace PropInst
             var corralExtraInit = boogieProgram.Implementations.FirstOrDefault(x => x.Name == "corralExtraInit");
             if (corralExtraInit == null) return;
 
-            augProcs.Iter
+            augProcs.ForEach
                 (c =>
                 corralExtraInit.Blocks.First().Cmds.Add(new CallCmd(Token.NoToken, c.Name, new List<Expr>(), new List<IdentifierExpr>())));
         }
@@ -233,7 +233,7 @@ namespace PropInst
             //for procedures with an implementation we insert our code at the beginning of that
             program.TopLevelDeclarations
                 .OfType<Implementation>()
-                .Iter(iiap.Instrument);
+                .ForEach(iiap.Instrument);
 
             //for procedures without an implementation we add one and insert our code there
             //need to iterate separately, because this changes ToplevelDeclarations on a match
@@ -241,8 +241,8 @@ namespace PropInst
             program.TopLevelDeclarations
                 .OfType<Procedure>()
                 .Where(p => program.Implementations.All(i => i.Name != p.Name))
-                .Iter(stubs.Add);
-            stubs.Iter(iiap.Instrument);
+                .ForEach(stubs.Add);
+            stubs.ForEach(iiap.Instrument);
         }
 
         private void Instrument(DeclWithFormals dwf)
@@ -379,7 +379,7 @@ namespace PropInst
 
             program.TopLevelDeclarations
                 .OfType<Implementation>()
-                .Iter(im.Instrument);
+                .ForEach(im.Instrument);
         }
 
         private void Instrument(Implementation impl)
@@ -507,7 +507,7 @@ namespace PropInst
                 {
                     var hasImpl = false;
                     _prog.Implementations
-                        .Iter(i => 
+                        .ForEach(i => 
                         {
                             if (i.Name == cmd.Proc.Name) hasImpl = true;
                         });

@@ -253,7 +253,7 @@ namespace RunPar
             lock (log)
             {
                 log.WriteLine("Local client:");
-                outp.Iter(s => log.WriteLine("{0}", s));
+                outp.ForEach(s => log.WriteLine("{0}", s));
                 log.WriteLine("Found {0} *.db result files", fileresult.Count());
                 if(!ex) log.WriteLine("Did not find a results.txt file");
             }
@@ -297,7 +297,7 @@ namespace RunPar
             lock (log)
             {
                 log.WriteLine("Remote client {0}:", root);
-                outp.Iter(s => log.WriteLine("{0}", s));
+                outp.ForEach(s => log.WriteLine("{0}", s));
                 log.WriteLine("Found {0} *.db result files", fileresult.Count());
                 if (!ex) log.WriteLine("Did not find a results.txt file");
             }

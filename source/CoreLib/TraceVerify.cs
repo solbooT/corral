@@ -80,8 +80,8 @@ namespace cba
             // Gather the uninterpreted sorts
             var sorts = new Dictionary<string, Microsoft.Boogie.Type>(); 
             uvalueToConstants.Values
-                .Iter(s => s
-                    .Iter(c => sorts[c.TypedIdent.Type.AsCtor.Decl.Name] = c.TypedIdent.Type));
+                .ForEach(s => s
+                    .ForEach(c => sorts[c.TypedIdent.Type.AsCtor.Decl.Name] = c.TypedIdent.Type));
 
             foreach (var sort in sorts.Values)
             {
@@ -99,7 +99,7 @@ namespace cba
                     Expr expr = Expr.True;
                     var uconst = uvalueToUniqueConst[tup.Key];
                     tup.Value.Where(c => c.TypedIdent.Type.AsCtor.Decl.Name == sort.AsCtor.Decl.Name)
-                        .Iter(c => expr = Expr.And(expr, Expr.Eq(Expr.Ident(c), Expr.Ident(uconst))));
+                        .ForEach(c => expr = Expr.And(expr, Expr.Eq(Expr.Ident(c), Expr.Ident(uconst))));
                     if (expr != Expr.True)
                         output.AddTopLevelDeclaration(new Axiom(Token.NoToken, expr));
                 }

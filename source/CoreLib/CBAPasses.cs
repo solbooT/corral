@@ -738,8 +738,8 @@ namespace cba
             var graph = new Graph<string>();
             foreach (var impl in program.TopLevelDeclarations.OfType<Implementation>())
             {
-                impl.Blocks.Iter(block =>
-                    block.Cmds.OfType<CallCmd>().Iter(cmd =>
+                impl.Blocks.ForEach(block =>
+                    block.Cmds.OfType<CallCmd>().ForEach(cmd =>
                         graph.AddEdge(impl.Name, cmd.callee)));
             }
             graph.AddSource(program.mainProcName);
@@ -764,7 +764,7 @@ namespace cba
                 }
 
                 Console.Write("Considering SCC: ");
-                scc.Iter(s => Console.Write("{0} ", s));
+                scc.ForEach(s => Console.Write("{0} ", s));
                 Console.WriteLine();
 
                 foundRecursion = true;
@@ -972,7 +972,7 @@ namespace cba
             Debug.Assert(backedges != null);
             smallcutset = null;
 
-            //someCycles.Iter(c => Console.WriteLine("Cycle: {0}", c.Print()));
+            //someCycles.ForEach(c => Console.WriteLine("Cycle: {0}", c.Print()));
 
             // If small number of backedges, then done
             if (backedges.Count <= 2)
@@ -980,13 +980,13 @@ namespace cba
 
             var cutset = new HashSet<string>();
             var weight = new Dictionary<int, HashSet<string>>();
-            backedges.Iter(tup => cutset.Add(tup.Item2));
+            backedges.ForEach(tup => cutset.Add(tup.Item2));
  
             // how many cycles does s appear in?
             foreach (var s in cutset)
             {
                 var cnt = 0;
-                someCycles.Where(c => c.Contains(s)).Iter(c => cnt++);
+                someCycles.Where(c => c.Contains(s)).ForEach(c => cnt++);
                 if (!weight.ContainsKey(cnt))
                     weight.Add(cnt, new HashSet<string>());
                 weight[cnt].Add(s);
@@ -1164,10 +1164,10 @@ namespace cba
             }
 
             info = new Dictionary<string, Dictionary<string, string>>();
-            passInfo.Iter(kvp =>
+            passInfo.ForEach(kvp =>
                 {
                     info.Add(kvp.Key, new Dictionary<string, string>());
-                    kvp.Value.Iter(sb => info[kvp.Key].Add(sb.Key, sb.Value.Label));
+                    kvp.Value.ForEach(sb => info[kvp.Key].Add(sb.Key, sb.Value.Label));
                 });
             
             // Construct the set of procs in the original program

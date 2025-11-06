@@ -102,16 +102,16 @@ namespace TrainerDB
         public void Marshall()
         {
             table = new List<Tuple<string, string>>();
-            map.Iter(kvp =>
-                kvp.Value.Iter(v => table.Add(Tuple.Create(kvp.Key, v))));
+            map.ForEach(kvp =>
+                kvp.Value.ForEach(v => table.Add(Tuple.Create(kvp.Key, v))));
         }
 
         // table -> map
         public void DeMarshall()
         {
             map = new Dictionary<string, HashSet<string>>();
-            table.Iter(s => map[s.Item1] = new HashSet<string>());
-            table.Iter(s => map[s.Item1].Add(s.Item2));
+            table.ForEach(s => map[s.Item1] = new HashSet<string>());
+            table.ForEach(s => map[s.Item1].Add(s.Item2));
         }
 
         public void Print(string file)
@@ -120,7 +120,7 @@ namespace TrainerDB
             foreach (var kvp in map)
             {
                 fs.WriteLine("======= {0} =======", kvp.Key);
-                kvp.Value.Iter(s => fs.WriteLine("  {0}", s));
+                kvp.Value.ForEach(s => fs.WriteLine("  {0}", s));
             }
             fs.Close();
         }
@@ -131,7 +131,7 @@ namespace TrainerDB
             NumPreds = 0;
             if (map.ContainsKey(rule))
             {
-                map[rule].Iter(s => ret = ret + Environment.NewLine + "ensures " + s + ";");
+                map[rule].ForEach(s => ret = ret + Environment.NewLine + "ensures " + s + ";");
                 NumPreds = map[rule].Count;
             }
             return ret;
@@ -229,8 +229,8 @@ namespace TrainerDB
         public void Marshall()
         {
             table = new List<Tuple<string, string, string>>();
-            map.Iter(kvp =>
-                kvp.Value.Iter(v => table.Add(Tuple.Create(kvp.Key, v.Item1, v.Item2))));
+            map.ForEach(kvp =>
+                kvp.Value.ForEach(v => table.Add(Tuple.Create(kvp.Key, v.Item1, v.Item2))));
         }
 
         // table -> map
@@ -239,13 +239,13 @@ namespace TrainerDB
             map = new Dictionary<string, HashSet<Tuple<string, string>>>();
             if (TrustAnnotations)
             {
-                table.Iter(s => map[s.Item1] = new HashSet<Tuple<string, string>>());
-                table.Iter(s => map[s.Item1].Add(Tuple.Create(s.Item2, s.Item3)));
+                table.ForEach(s => map[s.Item1] = new HashSet<Tuple<string, string>>());
+                table.ForEach(s => map[s.Item1].Add(Tuple.Create(s.Item2, s.Item3)));
             }
             else
             {
                 CreateProver();
-                table.Iter(s => Add(s.Item1, s.Item2));
+                table.ForEach(s => Add(s.Item1, s.Item2));
                 CloseProver();
             }
         }
@@ -256,7 +256,7 @@ namespace TrainerDB
             foreach (var kvp in map)
             {
                 fs.WriteLine("======= {0} =======", kvp.Key);
-                kvp.Value.Iter(s => fs.WriteLine("  {0} {1}", s.Item1, s.Item2));
+                kvp.Value.ForEach(s => fs.WriteLine("  {0} {1}", s.Item1, s.Item2));
             }
             fs.Close();
         }
@@ -268,9 +268,9 @@ namespace TrainerDB
             if (map.ContainsKey(rule))
             {
                 if (Driver.useStubs)
-                    map[rule].Iter(s => ret = ret + Environment.NewLine + "ensures " + s.Item1 + " " + s.Item2 + ";");
+                    map[rule].ForEach(s => ret = ret + Environment.NewLine + "ensures " + s.Item1 + " " + s.Item2 + ";");
                 else
-                    map[rule].Iter(s => ret = ret + Environment.NewLine + "ensures " + s.Item1 + " " + s.Item2 + ";");
+                    map[rule].ForEach(s => ret = ret + Environment.NewLine + "ensures " + s.Item1 + " " + s.Item2 + ";");
                 NumPreds = map[rule].Count;
             }
             return ret;
@@ -638,7 +638,7 @@ namespace TrainerDB
         public void Marshall()
         {
             table = new List<Tuple<string, string, string>>();
-            map.Iter(tup => table.Add(tup));
+            map.ForEach(tup => table.Add(tup));
         }
 
         // table -> map
@@ -647,13 +647,13 @@ namespace TrainerDB
             map = new HashSet<Tuple<string, string, string>>();
             if (TrustAnnotations)
             {
-                table.Iter(s => map = new HashSet<Tuple<string, string, string>>());
-                table.Iter(s => map.Add(Tuple.Create(s.Item1, s.Item2, s.Item3)));
+                table.ForEach(s => map = new HashSet<Tuple<string, string, string>>());
+                table.ForEach(s => map.Add(Tuple.Create(s.Item1, s.Item2, s.Item3)));
             }
             else
             {
                 CreateProver(z3exe);
-                table.Iter(s => Add(s.Item2, s.Item3));
+                table.ForEach(s => Add(s.Item2, s.Item3));
                 CloseProver();
             }
         }
@@ -677,9 +677,9 @@ namespace TrainerDB
             NumPreds = 0;
 
             if (Driver.useStubs)
-                map.Iter(s => ret = ret + Environment.NewLine + "ensures " + s.Item1 + " " + s.Item2 + " " + s.Item3 + ";");
+                map.ForEach(s => ret = ret + Environment.NewLine + "ensures " + s.Item1 + " " + s.Item2 + " " + s.Item3 + ";");
             else
-                map.Iter(s => ret = ret + Environment.NewLine + "ensures " + s.Item1 + " " + s.Item3 + ";");
+                map.ForEach(s => ret = ret + Environment.NewLine + "ensures " + s.Item1 + " " + s.Item3 + ";");
             NumPreds = map.Count;
             return ret;
         }
@@ -978,7 +978,7 @@ namespace TrainerDB
         public static AtomDictionary Merge(IEnumerable<AtomDictionary> atoms)
         {
             var ret = new HashSet<string>();
-            atoms.Iter(atom => ret.UnionWith(atom.table));
+            atoms.ForEach(atom => ret.UnionWith(atom.table));
             var merged = new AtomDictionary();
             merged.table.AddRange(ret);
             return merged;
@@ -997,7 +997,7 @@ namespace TrainerDB
         public string DumpPredicates(out int NumAtoms)
         {
             string ret = "";
-            table.Iter(atom => ret = ret + Environment.NewLine + " ensures " + atom + ";");
+            table.ForEach(atom => ret = ret + Environment.NewLine + " ensures " + atom + ";");
 
             NumAtoms = table.Count;
             return ret;

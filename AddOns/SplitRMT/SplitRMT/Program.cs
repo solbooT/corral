@@ -103,7 +103,7 @@ namespace SplitRMT
                     continue;
 
                 var newens = new List<Ensures>();
-                impl.Proc.Ensures.Iter(ens => newens.Add(new Ensures(ens.tok, true, ens.Condition, ens.Comment)));
+                impl.Proc.Ensures.ForEach(ens => newens.Add(new Ensures(ens.tok, true, ens.Condition, ens.Comment)));
                 impl.Proc.Ensures = newens;
                 toremove.Add(impl);
             }
@@ -118,7 +118,7 @@ namespace SplitRMT
 
                 // make assumes
                 var newens = new List<Ensures>();
-                proccopy.Ensures.Iter(ens => newens.Add(new Ensures(ens.tok, true, ens.Condition, ens.Comment)));
+                proccopy.Ensures.ForEach(ens => newens.Add(new Ensures(ens.tok, true, ens.Condition, ens.Comment)));
                 proccopy.Ensures = newens;
 
                 foreach (var impl in program.TopLevelDeclarations.OfType<Implementation>())
@@ -144,11 +144,11 @@ namespace SplitRMT
         {
             // remove existing entrypoints
             program.TopLevelDeclarations.OfType<NamedDeclaration>()
-                .Iter(decl => decl.Attributes = BoogieUtil.removeAttr("entrypoint", decl.Attributes));
+                .ForEach(decl => decl.Attributes = BoogieUtil.removeAttr("entrypoint", decl.Attributes));
 
             program.TopLevelDeclarations.OfType<Implementation>()
                 .Where(impl => impl.Name == proc)
-                .Iter(impl => impl.Proc.AddAttribute("entrypoint"));
+                .ForEach(impl => impl.Proc.AddAttribute("entrypoint"));
         }
     }
 }

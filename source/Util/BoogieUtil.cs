@@ -150,10 +150,10 @@ namespace cba.Util
                 foreach (var blk in impl.Blocks)
                 {
                     blk.Cmds.OfType<CallCmd>()
-                        .Iter(ccmd => edges[impl.Name].Add(ccmd.callee));
+                        .ForEach(ccmd => edges[impl.Name].Add(ccmd.callee));
                     blk.Cmds.OfType<ParCallCmd>()
-                        .Iter(pcmd => pcmd.CallCmds
-                            .Iter(ccmd => edges[impl.Name].Add(ccmd.callee)));
+                        .ForEach(pcmd => pcmd.CallCmds
+                            .ForEach(ccmd => edges[impl.Name].Add(ccmd.callee)));
                 }
             }
             var reachable = new HashSet<string>();
@@ -197,10 +197,10 @@ namespace cba.Util
                 foreach (var blk in impl.Blocks)
                 {
                     blk.Cmds.OfType<CallCmd>()
-                        .Iter(ccmd => edges.InitAndAdd(ccmd.callee, impl.Name)); 
+                        .ForEach(ccmd => edges.InitAndAdd(ccmd.callee, impl.Name)); 
                     blk.Cmds.OfType<ParCallCmd>()
-                        .Iter(pcmd => pcmd.CallCmds
-                            .Iter(ccmd => edges.InitAndAdd(ccmd.callee, impl.Name)));
+                        .ForEach(pcmd => pcmd.CallCmds
+                            .ForEach(ccmd => edges.InitAndAdd(ccmd.callee, impl.Name)));
                     if (blk.Cmds.Any(c => pred(c)))
                         targets.Add(impl.Name);
                 }
@@ -227,15 +227,15 @@ namespace cba.Util
         {
             var graph = new Graph<string>();
             var impls = new HashSet<string>(program.TopLevelDeclarations.OfType<Implementation>().Select(impl => impl.Name));
-            impls.Iter(p => graph.Nodes.Add(p));
+            impls.ForEach(p => graph.Nodes.Add(p));
 
             foreach (var impl in program.TopLevelDeclarations.OfType<Implementation>())
             {
                 impl.Blocks
-                    .Iter(blk => blk.Cmds
+                    .ForEach(blk => blk.Cmds
                         .OfType<CallCmd>()
                         .Where(cc => impls.Contains(cc.callee))
-                        .Iter(cc => graph.AddEdge(impl.Name, cc.callee)));
+                        .ForEach(cc => graph.AddEdge(impl.Name, cc.callee)));
             }
             return graph;
         }
@@ -275,7 +275,7 @@ namespace cba.Util
             while (frontier.Count > 0)
             {
                 var next = new HashSet<Node>();
-                frontier.Iter(v => next.UnionWith(graph.Successors(v)));
+                frontier.ForEach(v => next.UnionWith(graph.Successors(v)));
                 next.ExceptWith(ret);
                 ret.UnionWith(next);
                 frontier = next;
@@ -525,14 +525,14 @@ namespace cba.Util
         public static HashSet<string> GetAllProcNames(Program p)
         {
             var ret = new HashSet<string>();
-            p.TopLevelDeclarations.OfType<Procedure>().Iter(x => ret.Add((x as Procedure).Name));
+            p.TopLevelDeclarations.OfType<Procedure>().ForEach(x => ret.Add((x as Procedure).Name));
             return ret;
         }
 
         public static HashSet<string> GetAllImplNames(Program p)
         {
             var ret = new HashSet<string>();
-            p.TopLevelDeclarations.OfType<Implementation>().Iter(x => ret.Add((x as Implementation).Name));
+            p.TopLevelDeclarations.OfType<Implementation>().ForEach(x => ret.Add((x as Implementation).Name));
             return ret;
         }
 
@@ -873,7 +873,7 @@ namespace cba.Util
         public static Expr MkExprAnd(params Expr[] e)
         {
             Expr ret = Expr.True;
-            e.Iter(expr => { ret = Expr.And(ret, expr); });
+            e.ForEach(expr => { ret = Expr.And(ret, expr); });
             return ret;
         }
 
@@ -1499,7 +1499,7 @@ namespace cba.Util
         {
             // name -> implementation required for getVarsModified
             HashSet<string> impl_names = new HashSet<string>();
-            program.TopLevelDeclarations.OfType<Implementation>().Iter(impl => impl_names.Add(impl.Name));
+            program.TopLevelDeclarations.OfType<Implementation>().ForEach(impl => impl_names.Add(impl.Name));
 
             // FixedDuplicator to keep a copy of the old expressions in the dictionaries built in each implementation
             FixedDuplicator dup = new FixedDuplicator();
@@ -1640,7 +1640,7 @@ namespace cba.Util
         {
             program.TopLevelDeclarations.OfType<Implementation>()
                 .Where(impl => !irreducible.Contains(impl.Name))
-                .Iter(SSARename);
+                .ForEach(SSARename);
 
             program.AddTopLevelDeclarations(phiProcsDecl);
         }
@@ -1676,7 +1676,7 @@ namespace cba.Util
             foreach (var blk in impl.Blocks.Where(blk => blk.TransferCmd is GotoCmd))
             {
                 var gc = blk.TransferCmd as GotoCmd;
-                gc.labelNames.OfType<string>().Iter(s => graph.AddEdge(blk, labelToBlock[s]));
+                gc.labelNames.OfType<string>().ForEach(s => graph.AddEdge(blk, labelToBlock[s]));
             }
             graph.AddSource(impl.Blocks[0]);
 
@@ -1695,8 +1695,8 @@ namespace cba.Util
             var DF = new Dictionary<Block, HashSet<Block>>();
             var idom = new Dictionary<Block, Block>();
 
-            impl.Blocks.Iter(blk => DF.Add(blk, new HashSet<Block>()));
-            impl.Blocks.Iter(blk => graph.ImmediatelyDominatedBy(blk).Iter(blk2 => idom[blk2] = blk));
+            impl.Blocks.ForEach(blk => DF.Add(blk, new HashSet<Block>()));
+            impl.Blocks.ForEach(blk => graph.ImmediatelyDominatedBy(blk).ForEach(blk2 => idom[blk2] = blk));
 
             foreach (var blk in impl.Blocks)
             {
@@ -1721,7 +1721,7 @@ namespace cba.Util
                     Console.WriteLine("    {0}", b.Label);
             }
 
-            DF.Values.Iter(hs => phiBlocks.UnionWith(hs));
+            DF.Values.ForEach(hs => phiBlocks.UnionWith(hs));
             */
 
             // Lets do reaching definitions on a DAG
@@ -1739,12 +1739,12 @@ namespace cba.Util
 
             // current max version
             var maxVersion = new Dictionary<Variable, int>();
-            variables.OfType<LocalVariable>().Iter(v => maxVersion[v] = 0);
-            variables.OfType<Formal>().Iter(v => maxVersion[v] = 1);
+            variables.OfType<LocalVariable>().ForEach(v => maxVersion[v] = 0);
+            variables.OfType<Formal>().ForEach(v => maxVersion[v] = 1);
 
             // block -> Variable -> [out-version, in-versions]
             var phiNodes = new Dictionary<Block, Dictionary<Variable, List<int>>>();
-            impl.Blocks.Iter(blk => phiNodes[blk] = new Dictionary<Variable, List<int>>());
+            impl.Blocks.ForEach(blk => phiNodes[blk] = new Dictionary<Variable, List<int>>());
 
             var newVars = new Dictionary<string, LocalVariable>();
 
@@ -1777,8 +1777,8 @@ namespace cba.Util
                     // entry block
                     reachDefIn[blk] = new Dictionary<Variable, int>();
     
-                    lvars.OfType<LocalVariable>().Iter(v => reachDefIn[blk].Add(v, 0));
-                    lvars.OfType<Formal>().Iter(v => reachDefIn[blk].Add(v, 1));
+                    lvars.OfType<LocalVariable>().ForEach(v => reachDefIn[blk].Add(v, 0));
+                    lvars.OfType<Formal>().ForEach(v => reachDefIn[blk].Add(v, 1));
                 }
                 else
                 {
@@ -1927,13 +1927,13 @@ namespace cba.Util
             if (cmd is AssignCmd)
             {
                 var acmd = cmd as AssignCmd;
-                acmd.Lhss.Iter(lhs => ret.Add(lhs.DeepAssignedVariable.Name));
+                acmd.Lhss.ForEach(lhs => ret.Add(lhs.DeepAssignedVariable.Name));
                 return ret;
             }
             else if (cmd is CallCmd)
             {
                 var ccmd = cmd as CallCmd;
-                ccmd.Outs.Iter(ie => ret.Add(ie.Name));
+                ccmd.Outs.ForEach(ie => ret.Add(ie.Name));
                 return ret;
             }
             else
@@ -1958,7 +1958,7 @@ namespace cba.Util
             phiProcsDecl.Add(proc);
 
             Expr expr = Expr.False;
-            inParams.Iter(i => expr = Expr.Or(expr, Expr.Eq(Expr.Ident(outParam), Expr.Ident(i))));
+            inParams.ForEach(i => expr = Expr.Or(expr, Expr.Eq(Expr.Ident(outParam), Expr.Ident(i))));
             proc.Ensures.Add(new Ensures(true, expr));
 
             var callCmd = new CallCmd(Token.NoToken, proc.Name, new List<Expr>(inVersionVars.Select(x => Expr.Ident(x)).ToArray()), new List<IdentifierExpr>(new IdentifierExpr[] { Expr.Ident(outV) }));
@@ -2291,7 +2291,7 @@ namespace cba.Util
         // Perform GVN
         private void DoGVN()
         {
-            program.TopLevelDeclarations.OfType<Implementation>().Iter(impl => impl_names.Add(impl.Name));
+            program.TopLevelDeclarations.OfType<Implementation>().ForEach(impl => impl_names.Add(impl.Name));
 
 
             foreach (Implementation impl in program.TopLevelDeclarations.OfType<Implementation>())
@@ -2421,7 +2421,7 @@ namespace cba.Util
                     if (dbg)
                     {
                         Console.WriteLine("HASH VALUES");
-                        hash_value[blk.Label].Keys.Iter(k => Console.WriteLine("{0} -> {1}", k, hash_value[blk.Label][k]));
+                        hash_value[blk.Label].Keys.ForEach(k => Console.WriteLine("{0} -> {1}", k, hash_value[blk.Label][k]));
                     }
 
                     // ProcessCmd

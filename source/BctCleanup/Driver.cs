@@ -247,7 +247,7 @@ namespace BctCleanup
             }
 
             var flags = FlagReader.read(rest);
-            flags.Iter(f => processFlag(f));
+            flags.ForEach(f => processFlag(f));
 
             return true;
         }

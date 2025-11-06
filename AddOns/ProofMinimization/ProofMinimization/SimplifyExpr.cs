@@ -82,7 +82,7 @@ namespace ProofMinimization
                     ret.Add(new Ensures(false, Expr.Imp(Expr.Ident(c), conj)));
                 }
             }
-            newConstants.Iter(c => CandidateConstants.Add(c.Name, c));
+            newConstants.ForEach(c => CandidateConstants.Add(c.Name, c));
             return ret;
         }
 
@@ -399,7 +399,7 @@ namespace ProofMinimization
         {
             var ret = new List<Expr>();
             var disj = GetExprDisjuncts(expr);
-            disj.Iter(d => ret.AddRange(GetExprConjunctions(d)));
+            disj.ForEach(d => ret.AddRange(GetExprConjunctions(d)));
             return ret;
         }
 

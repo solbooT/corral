@@ -112,7 +112,7 @@ namespace HoudiniLite
             var outcome = houdini.PerformHoudiniInference();
 
             var ret = new HashSet<string>();
-            outcome.assignment.Where(tup => tup.Value).Iter(tup => ret.Add(tup.Key));
+            outcome.assignment.Where(tup => tup.Value).ForEach(tup => ret.Add(tup.Key));
             return ret;
         }
     }

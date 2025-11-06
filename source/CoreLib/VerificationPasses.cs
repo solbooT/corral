@@ -86,7 +86,7 @@ namespace cba
             : this(cex)
         {
             this.varsToRecord = new HashSet<string>();
-            varsToRecord.Iter(s => this.varsToRecord.Add(s));
+            varsToRecord.ForEach(s => this.varsToRecord.Add(s));
             if (varsToRecord.Length != 0 && !WillGetModel)
                 Debug.Assert(false, "Model generation is turned off -- cannot record values");
 
@@ -207,13 +207,13 @@ namespace cba
 
             // Get the set of implementations in the program
             var impls = new HashSet<string>();
-            BoogieUtil.GetImplementations(program).Iter(impl => impls.Add(impl.Name));
+            BoogieUtil.GetImplementations(program).ForEach(impl => impls.Add(impl.Name));
 
             // Gather the set of constants whose values have to be recorded
             var constantsToRecord = new HashSet<Constant>();
             program.TopLevelDeclarations.OfType<Constant>()
                 .Where(g => varsToRecord.Contains(g.Name))
-                .Iter(g => constantsToRecord.Add(g as Constant));
+                .ForEach(g => constantsToRecord.Add(g as Constant));
 
             // Add the record call after every Cmd that modifies a variable
             foreach (var impl in program.TopLevelDeclarations.OfType<Implementation>())
@@ -643,7 +643,7 @@ namespace cba
 
                 var mods = new HashSet<string>();
                 proc.Modifies.OfType<IdentifierExpr>()
-                    .Iter(ie => mods.Add(ie.Name));
+                    .ForEach(ie => mods.Add(ie.Name));
 
                 if (!mustMod.IsSubsetOf(mods)) return false;
                 if (mustNotMod.Intersection(mods).Any()) return false;
@@ -715,7 +715,7 @@ namespace cba
 
             ExtractLoops = true;
             templateVarNames = new HashSet<string>();
-            templateVars.Iter(v => templateVarNames.Add(v.Name));
+            templateVars.ForEach(v => templateVarNames.Add(v.Name));
             staticAnalysisSummaries = new Dictionary<string, IEnumerable<Expr>>();
             staticAnalysisPreconditions = new Dictionary<string, IEnumerable<Expr>>();
             staticAnalysisConstants = new HashSet<string>();
@@ -741,7 +741,7 @@ namespace cba
 
             ExtractLoops = true;
             templateVarNames = new HashSet<string>();
-            templateVars.Iter(v => templateVarNames.Add(v.Name));
+            templateVars.ForEach(v => templateVarNames.Add(v.Name));
         }
 
         protected Expr UpdateVars(Expr expr, Dictionary<string, Variable> globals)
@@ -889,14 +889,14 @@ namespace cba
                 formals.Values
                     .Select(f => f as Formal)
                     .Where(f => f.InComing && f.Name.StartsWith("in_"))
-                    .Iter(f => inMap.Add(f, f.Name.Substring("in_".Length)));
+                    .ForEach(f => inMap.Add(f, f.Name.Substring("in_".Length)));
 
                 // for each formal Out out_v, map v -> out_v
                 var outMap = new Dictionary<string, Variable>();
                 formals.Values
                     .Select(f => f as Formal)
                     .Where(f => !f.InComing && f.Name.StartsWith("out_"))
-                    .Iter(f => outMap.Add(f.Name.Substring("out_".Length), f));
+                    .ForEach(f => outMap.Add(f.Name.Substring("out_".Length), f));
 
                 foreach (var tup in inMap)
                 {
@@ -963,10 +963,10 @@ namespace cba
             var globals = new Dictionary<string, Variable>();
             program.TopLevelDeclarations
                 .OfType<Variable>()
-                .Iter(c => globals.Add(c.Name, c));
+                .ForEach(c => globals.Add(c.Name, c));
 
             var funcs = new Dictionary<string, Function>();
-            program.TopLevelDeclarations.OfType<Function>().Iter(fn => funcs.Add(fn.Name, fn));
+            program.TopLevelDeclarations.OfType<Function>().ForEach(fn => funcs.Add(fn.Name, fn));
 
             var ret = new Dictionary<string, Dictionary<string, EExpr>>();
             var dup = new FixedDuplicator();
@@ -997,9 +997,9 @@ namespace cba
 
                     var formals = new Dictionary<string, Variable>();
                     proc.InParams.OfType<Formal>()
-                        .Iter(f => formals.Add(f.Name, f));
+                        .ForEach(f => formals.Add(f.Name, f));
                     proc.OutParams.OfType<Formal>()
-                        .Iter(f => formals.Add(f.Name, f));
+                        .ForEach(f => formals.Add(f.Name, f));
 
                     var allExprs = InstantiateTemplate(template.expr, globals, formals, funcs);
                     if (allExprs.Count == 0) continue;
@@ -1173,7 +1173,7 @@ namespace cba
 
             // drop entrypoint annotation from procedures
             program.TopLevelDeclarations.OfType<Procedure>()
-                .Iter(p => p.Attributes = BoogieUtil.removeAttr("entrypoint", p.Attributes));
+                .ForEach(p => p.Attributes = BoogieUtil.removeAttr("entrypoint", p.Attributes));
 
             // find the entrypoint
             var ep = program.TopLevelDeclarations.OfType<Implementation>()
@@ -1233,7 +1233,7 @@ namespace cba
                rhs.ComputePreconditions();
             program.TopLevelDeclarations
                 .OfType<Implementation>()
-                .Iter(impl =>
+                .ForEach(impl =>
                     {
                         var summary = rhs.GetSummary(impl.Name) as StaticAnalysis.ConstantProp;
                         staticAnalysisSummaries.Add(impl.Name, summary.ToExpr(true));
@@ -1276,16 +1276,16 @@ namespace cba
                 var globals = new Dictionary<string, Variable>();
                 program.TopLevelDeclarations
                     .OfType<Variable>()
-                    .Iter(c => globals.Add(c.Name, c));
+                    .ForEach(c => globals.Add(c.Name, c));
 
                 var funcs = new Dictionary<string, Function>();
-                program.TopLevelDeclarations.OfType<Function>().Iter(fn => funcs.Add(fn.Name, fn));
+                program.TopLevelDeclarations.OfType<Function>().ForEach(fn => funcs.Add(fn.Name, fn));
 
                 var formals = new Dictionary<string, Variable>();
                 proc.InParams.OfType<Formal>()
-                    .Iter(f => formals.Add(f.Name, f));
+                    .ForEach(f => formals.Add(f.Name, f));
                 proc.OutParams.OfType<Formal>()
-                    .Iter(f => formals.Add(f.Name, f));
+                    .ForEach(f => formals.Add(f.Name, f));
 
                 foreach (var eexpr in templates)
                 {
@@ -1329,7 +1329,7 @@ namespace cba
             {
                 // Guard assert with an existential Boolean
                 program.TopLevelDeclarations.OfType<Implementation>()
-                    .Iter(impl => impl.Blocks.Iter(blk =>
+                    .ForEach(impl => impl.Blocks.ForEach(blk =>
                 {
                     for (int i = 0; i < blk.Cmds.Count; i++)
                     {
@@ -1343,8 +1343,8 @@ namespace cba
             else
             {
                 program.TopLevelDeclarations.OfType<Implementation>()
-                    .Iter(impl => impl.Blocks
-                        .Iter(blk =>
+                    .ForEach(impl => impl.Blocks
+                        .ForEach(blk =>
                             {
                                 var ncmds = new List<Cmd>();
                                 foreach (var cmd in blk.Cmds)
@@ -1364,7 +1364,7 @@ namespace cba
             // Add old summaries
             var allGlobals = BoogieUtil.GetGlobalVariables(program);
             var globals = new Dictionary<string, Variable>();
-            allGlobals.Iter(g => globals.Add(g.Name, g));
+            allGlobals.ForEach(g => globals.Add(g.Name, g));
 
             foreach (var decl in program.TopLevelDeclarations)
             {
@@ -1397,7 +1397,7 @@ namespace cba
             var trueConstants = new HashSet<string>();
             var programProcs = new List<Procedure>();
             program.TopLevelDeclarations.OfType<Procedure>()
-                .Iter(proc => programProcs.Add(proc));
+                .ForEach(proc => programProcs.Add(proc));
 
             try
             {
@@ -1412,11 +1412,11 @@ namespace cba
                     // Turn off requires candidates
                     program.TopLevelDeclarations.OfType<Constant>()
                         .Where(c => QKeyValue.FindBoolAttribute(c.Attributes, "existential"))
-                        .Iter(c => allConstants.Add(c.Name));
+                        .ForEach(c => allConstants.Add(c.Name));
 
                     origProg = BoogieUtil.ReResolve(program);
                     program.TopLevelDeclarations.OfType<Procedure>()
-                        .Iter(proc =>
+                        .ForEach(proc =>
                         {
                             var uv = new VarsUsed();
                             uv.VisitRequiresSeq(proc.Requires);
@@ -1425,7 +1425,7 @@ namespace cba
                         });
                     program.TopLevelDeclarations.OfType<Constant>()
                         .Where(c => requiresConstants.Contains(c.Name))
-                        .Iter(c => c.Attributes = BoogieUtil.removeAttr("existential", c.Attributes));
+                        .ForEach(c => c.Attributes = BoogieUtil.removeAttr("existential", c.Attributes));
                 }
 
                 if(!runHoudiniLite)
@@ -1461,7 +1461,7 @@ namespace cba
 
                     if (!fastRequiresInference)
                     {
-                        outcome.assignment.Iter(kvp => { if (kvp.Value) trueConstants.Add(kvp.Key); });        
+                        outcome.assignment.ForEach(kvp => { if (kvp.Value) trueConstants.Add(kvp.Key); });        
                     }
                     houdini = null; // for gc
                 }
@@ -1494,9 +1494,9 @@ namespace cba
                     CommandLineOptions.Clo.ReverseHoudiniWorklist = false;
 
                     outcome.assignment.Where(kvp => !requiresConstants.Contains(kvp.Key))
-                        .Iter(kvp => { if (kvp.Value) trueConstants.Add(kvp.Key); });
+                        .ForEach(kvp => { if (kvp.Value) trueConstants.Add(kvp.Key); });
                     outcomeReq.assignment
-                        .Iter(kvp => { if (kvp.Value) trueConstants.Add(kvp.Key); });
+                        .ForEach(kvp => { if (kvp.Value) trueConstants.Add(kvp.Key); });
 
                     Console.WriteLine("Inferred {0} contracts", trueConstants.Count);
                     var time5 = DateTime.Now;
@@ -1510,7 +1510,7 @@ namespace cba
                 Console.WriteLine("Houdini ran out of memory; trusting static analysis");
                 trueConstants.UnionWith(staticAnalysisConstants);
                 program.TopLevelDeclarations.OfType<Implementation>()
-                    .Iter(impl =>
+                    .ForEach(impl =>
                     {
                         impl.Blocks = new List<Block>();
                         impl.OriginalBlocks = new List<Block>();
@@ -1820,7 +1820,7 @@ namespace cba
             var trueConstants = new HashSet<string>();
             var programProcs = new List<Procedure>();
             program.TopLevelDeclarations.OfType<Procedure>()
-                .Iter(proc => programProcs.Add(proc));
+                .ForEach(proc => programProcs.Add(proc));
 
             try
             {
@@ -1836,11 +1836,11 @@ namespace cba
                     // Turn off requires candidates
                     program.TopLevelDeclarations.OfType<Constant>()
                         .Where(c => QKeyValue.FindBoolAttribute(c.Attributes, "existential"))
-                        .Iter(c => allConstants.Add(c.Name));
+                        .ForEach(c => allConstants.Add(c.Name));
 
                     origProg = BoogieUtil.ReResolve(program);
                     program.TopLevelDeclarations.OfType<Procedure>()
-                        .Iter(proc =>
+                        .ForEach(proc =>
                         {
                             var uv = new VarsUsed();
                             uv.VisitRequiresSeq(proc.Requires);
@@ -1849,7 +1849,7 @@ namespace cba
                         });
                     program.TopLevelDeclarations.OfType<Constant>()
                         .Where(c => requiresConstants.Contains(c.Name))
-                        .Iter(c => c.Attributes = BoogieUtil.removeAttr("existential", c.Attributes));
+                        .ForEach(c => c.Attributes = BoogieUtil.removeAttr("existential", c.Attributes));
                 }
 
                 inline(program);
@@ -1872,7 +1872,7 @@ namespace cba
 
                     if (!fastRequiresInference)
                     {
-                        outcome.assignment.Iter(kvp => { if (kvp.Value) trueConstants.Add(kvp.Key); });
+                        outcome.assignment.ForEach(kvp => { if (kvp.Value) trueConstants.Add(kvp.Key); });
                         Console.WriteLine("Inferred {0} contracts", trueConstants.Count);
                     }
                     var time4 = DateTime.Now;
@@ -1903,9 +1903,9 @@ namespace cba
                     CommandLineOptions.Clo.ReverseHoudiniWorklist = false;
 
                     outcome.assignment.Where(kvp => !requiresConstants.Contains(kvp.Key))
-                        .Iter(kvp => { if (kvp.Value) trueConstants.Add(kvp.Key); });
+                        .ForEach(kvp => { if (kvp.Value) trueConstants.Add(kvp.Key); });
                     outcomeReq.assignment
-                        .Iter(kvp => { if (kvp.Value) trueConstants.Add(kvp.Key); });
+                        .ForEach(kvp => { if (kvp.Value) trueConstants.Add(kvp.Key); });
 
                     Console.WriteLine("Inferred {0} contracts", trueConstants.Count);
                     var time4 = DateTime.Now;
@@ -1918,7 +1918,7 @@ namespace cba
                 Console.WriteLine("Houdini ran out of memory; trusting static analysis");
                 trueConstants.UnionWith(staticAnalysisConstants);
                 program.TopLevelDeclarations.OfType<Implementation>()
-                    .Iter(impl =>
+                    .ForEach(impl =>
                     {
                         impl.Blocks = new List<Block>();
                         impl.OriginalBlocks = new List<Block>();
@@ -1960,7 +1960,7 @@ namespace cba
             // Record new summaries
             int cia = 0;
             candAsserts.Keys.Where(s => trueConstants.Contains(s))
-                .Iter(a =>
+                .ForEach(a =>
                 {
                     Console.WriteLine(string.Format("Inferred Assert: {0} in {1}", candAsserts[a].Item1, candAsserts[a].Item2));
                     inferred_asserts.Add(new KeyValuePair<string, string>(candAsserts[a].Item1.ToString(), candAsserts[a].Item2));
@@ -1985,7 +1985,7 @@ namespace cba
             foreach (var impl in program.TopLevelDeclarations.OfType<Implementation>())
             {
                 var proc = impl.Proc;
-                impl.Blocks.Iter(blk => // replace assert (e) by assert (CIC => e)
+                impl.Blocks.ForEach(blk => // replace assert (e) by assert (CIC => e)
                     {
                         for (int i = 0; i < blk.Cmds.Count; i++)
                         {
@@ -2039,7 +2039,7 @@ namespace cba
                     if (InImpOutNull)
                     {
                         // in == NULL => out == NULL
-                        requires.OfType<Expr>().Iter(req =>
+                        requires.OfType<Expr>().ForEach(req =>
                             {
                                 var expr = Expr.Imp(Expr.Not(req), Expr.Not(NonNull(r)));
                                 proc.Ensures.Add(CandidateEnsure(expr, candCons, ret[impl.Name]));
@@ -2177,7 +2177,7 @@ namespace cba
             if (RemoveUnreachable) BoogieUtil.pruneProcs(p, p.mainProcName);
 
             // normalize commands
-            if (normalizeStatements) p.TopLevelDeclarations.OfType<Implementation>().Iter(normalizeImpl);
+            if (normalizeStatements) p.TopLevelDeclarations.OfType<Implementation>().ForEach(normalizeImpl);
  
             // Re-do modset analysis
             BoogieUtil.DoModSetAnalysis(p);
@@ -2343,7 +2343,7 @@ namespace cba
         {
             // Prepare for stratified inlining with assertions
             var procsThatCannotReachAssert = new HashSet<string>();
-            program.TopLevelDeclarations.OfType<Procedure>().Iter(proc => procsThatCannotReachAssert.Add(proc.Name));
+            program.TopLevelDeclarations.OfType<Procedure>().ForEach(proc => procsThatCannotReachAssert.Add(proc.Name));
             procsThatCannotReachAssert.ExceptWith(SequentialInstrumentation.procsWithAsserts(program));
 
             if (procsThatCannotReachAssert.Contains(program.mainProcName))
@@ -2353,26 +2353,26 @@ namespace cba
             {
                 // loopy guys cannot reach asserts
                 program.TopLevelDeclarations.OfType<LoopProcedure>()
-                    .Iter(proc => procsThatCannotReachAssert.Add(proc.Name));
+                    .ForEach(proc => procsThatCannotReachAssert.Add(proc.Name));
 
                 program.TopLevelDeclarations.OfType<Procedure>()
                     .Where(proc => QKeyValue.FindBoolAttribute(proc.Attributes, "LoopProcedure"))
-                    .Iter(proc => procsThatCannotReachAssert.Add(proc.Name));
+                    .ForEach(proc => procsThatCannotReachAssert.Add(proc.Name));
             }
 
             // Make copies of all procedures that can reach assert
             var implCopy = new Dictionary<string, Implementation>();
             program.TopLevelDeclarations.OfType<Implementation>()
                 .Where(impl => !procsThatCannotReachAssert.Contains(impl.Name))
-                .Iter(impl => implCopy.Add(impl.Name,
+                .ForEach(impl => implCopy.Add(impl.Name,
                     (new FixedDuplicator(true)).VisitImplementation(impl)));
 
             procsIncludedInMain = implCopy.Count;
 
             // Disable assertions in the original procedures
             program.TopLevelDeclarations.OfType<Implementation>()
-                .Iter(impl =>
-                    impl.Blocks.Iter(blk =>
+                .ForEach(impl =>
+                    impl.Blocks.ForEach(blk =>
                     {
                         for (int i = 0; i < blk.Cmds.Count; i++)
                         {
@@ -2398,15 +2398,15 @@ namespace cba
             // rename stuff
             implCopy.Values
                 .Where(impl => impl.Name != mainName)
-                .Iter(impl => RenameImpl(impl));
+                .ForEach(impl => RenameImpl(impl));
 
             // Add all procedures to main
             var implToFirstBlock = new Dictionary<string, Block>();
             implCopy.Values
-                .Iter(impl => implToFirstBlock.Add(impl.Name, impl.Blocks[0]));
+                .ForEach(impl => implToFirstBlock.Add(impl.Name, impl.Blocks[0]));
 
             var mainCopy = implCopy[mainName];
-            mainCopy.Blocks.Iter(blk => blockToOrig.Add(blk.Label, Tuple.Create(blk.Label, origMain)));
+            mainCopy.Blocks.ForEach(blk => blockToOrig.Add(blk.Label, Tuple.Create(blk.Label, origMain)));
 
             mainCopy.AddAttribute("entrypoint");
 
@@ -2514,7 +2514,7 @@ namespace cba
             mainCopy.Blocks = newBlocks1;
             mainCopy.Blocks.AddRange(newBlocks2);
 
-            implToFirstBlock.Iter(kvp => firstBlockToImpl.Add(kvp.Value.Label, kvp.Key));
+            implToFirstBlock.ForEach(kvp => firstBlockToImpl.Add(kvp.Value.Label, kvp.Key));
 
             if (!disableLoops)
             {
@@ -2532,13 +2532,13 @@ namespace cba
                 // detect loops
                 l2b = BoogieUtil.labelBlockMapping(mainCopy);
                 var color = new Dictionary<Block, int>();
-                mainCopy.Blocks.Iter(b => color.Add(b, 0));
+                mainCopy.Blocks.ForEach(b => color.Add(b, 0));
                 var Succ = new Func<Block, IEnumerable<Block>>(b =>
                 {
                     var succ = new List<Block>();
                     var gc = b.TransferCmd as GotoCmd;
                     if (gc == null) return succ;
-                    gc.labelNames.Iter(s => succ.Add(l2b[s]));
+                    gc.labelNames.ForEach(s => succ.Add(l2b[s]));
                     return succ;
                 });
                 var parentTree = new Dictionary<Block, Block>();
@@ -2551,11 +2551,11 @@ namespace cba
                 catch (Exception)
                 {
                     var firstBlockToImpl = new Dictionary<string, string>();
-                    implToFirstBlock.Iter(kvp => firstBlockToImpl.Add(kvp.Value.Label, kvp.Key));
+                    implToFirstBlock.ForEach(kvp => firstBlockToImpl.Add(kvp.Value.Label, kvp.Key));
 
                     cycle.Reverse();
                     cycle.Where(b => firstBlockToImpl.ContainsKey(b.Label))
-                        .Iter(b => Console.WriteLine("{0}", firstBlockToImpl[b.Label]));
+                        .ForEach(b => Console.WriteLine("{0}", firstBlockToImpl[b.Label]));
                     throw;
                 }
             }
@@ -2621,23 +2621,23 @@ namespace cba
                 {
                     Debug.Assert(blockToOrig[currBlock.blockName].Item2 == ret.procName);
                     var blk = new ErrorTraceBlock(blockToOrig[currBlock.blockName].Item1);
-                    currBlock.Cmds.Iter(c => blk.Cmds.Add(c));
+                    currBlock.Cmds.ForEach(c => blk.Cmds.Add(c));
                     ret.Blocks.Add(blk);
                 }
                 else if (assertContinueBlocks.Contains(currBlock.blockName))
                 {
                     var blk = ret.Blocks.Last();
-                    currBlock.Cmds.Iter(c => blk.Cmds.Add(c));
+                    currBlock.Cmds.ForEach(c => blk.Cmds.Add(c));
                 }
                 else if (callContinueBlocks.Contains(currBlock.blockName))
                 {
                     var blk = ret.Blocks.Last();
-                    currBlock.Cmds.Iter(c => blk.Cmds.Add(c));
+                    currBlock.Cmds.ForEach(c => blk.Cmds.Add(c));
                 }
                 else if (exitBlocks.Contains(currBlock.blockName))
                 {
                     var blk = ret.Blocks.Last();
-                    currBlock.Cmds.Iter(c => blk.Cmds.Add(c));
+                    currBlock.Cmds.ForEach(c => blk.Cmds.Add(c));
                 }
                 else if (callInlinedBlocks.Contains(currBlock.blockName))
                 {
@@ -2741,7 +2741,7 @@ namespace cba
             if (newLocals.Count > 0)
             {
                 var ies = new List<IdentifierExpr>();
-                newLocals.Values.Iter(v => ies.Add(Expr.Ident(v)));
+                newLocals.Values.ForEach(v => ies.Add(Expr.Ident(v)));
                 impl.Blocks[0].Cmds.Insert(0, new HavocCmd(Token.NoToken, ies));
             }
              */
@@ -2784,11 +2784,11 @@ namespace cba
 
             // assert DA_assertVar
             main.Blocks.Where(blk => blk.TransferCmd is ReturnCmd)
-                .Iter(blk => blk.Cmds.Add(BoogieAstFactory.MkAssert(Expr.Ident(av))));
+                .ForEach(blk => blk.Cmds.Add(BoogieAstFactory.MkAssert(Expr.Ident(av))));
 
             program.AddTopLevelDeclaration(av);
             program.TopLevelDeclarations.OfType<Implementation>()
-                .Iter(impl => impl.Proc.Modifies.Add(Expr.Ident(av)));
+                .ForEach(impl => impl.Proc.Modifies.Add(Expr.Ident(av)));
 
             // Reflect the addition of a new global variable on
             // our refinement state
@@ -2853,7 +2853,7 @@ namespace cba
 
             // Prepare for stratified inlining with assertions
             var procsThatCannotReachAssert = new HashSet<string>();
-            program.TopLevelDeclarations.OfType<Procedure>().Iter(proc => procsThatCannotReachAssert.Add(proc.Name));
+            program.TopLevelDeclarations.OfType<Procedure>().ForEach(proc => procsThatCannotReachAssert.Add(proc.Name));
             procsThatCannotReachAssert.ExceptWith(procsThatCanSequentiallyReachAsserts(program));
 
             //if (procsThatCannotReachAssert.Contains(program.mainProcName))
@@ -2861,23 +2861,23 @@ namespace cba
 
             // loopy guys cannot reach asserts
             program.TopLevelDeclarations.OfType<LoopProcedure>()
-                .Iter(proc => procsThatCannotReachAssert.Add(proc.Name));
+                .ForEach(proc => procsThatCannotReachAssert.Add(proc.Name));
 
             program.TopLevelDeclarations.OfType<Procedure>()
                 .Where(proc => QKeyValue.FindBoolAttribute(proc.Attributes, "LoopProcedure"))
-                .Iter(proc => procsThatCannotReachAssert.Add(proc.Name));
+                .ForEach(proc => procsThatCannotReachAssert.Add(proc.Name));
 
             // Make copies of all procedures that can reach assert
             var implCopy = new Dictionary<string, Implementation>();
             program.TopLevelDeclarations.OfType<Implementation>()
                 .Where(impl => !procsThatCannotReachAssert.Contains(impl.Name))
-                .Iter(impl => implCopy.Add(impl.Name,
+                .ForEach(impl => implCopy.Add(impl.Name,
                     (new FixedDuplicator(true)).VisitImplementation(impl)));
 
             // Disable assertions in the original procedures
             program.TopLevelDeclarations.OfType<Implementation>()
-                .Iter(impl =>
-                    impl.Blocks.Iter(blk =>
+                .ForEach(impl =>
+                    impl.Blocks.ForEach(blk =>
                     {
                         for (int i = 0; i < blk.Cmds.Count; i++)
                         {
@@ -2890,10 +2890,10 @@ namespace cba
             // async procs
             var asyncProcs = new HashSet<string>();
             program.TopLevelDeclarations.OfType<Implementation>()
-                .Iter(impl => impl.Blocks
-                    .Iter(blk => blk.Cmds.OfType<CallCmd>()
+                .ForEach(impl => impl.Blocks
+                    .ForEach(blk => blk.Cmds.OfType<CallCmd>()
                         .Where(c => c.IsAsync)
-                        .Iter(c => asyncProcs.Add(c.callee))));
+                        .ForEach(c => asyncProcs.Add(c.callee))));
             asyncProcs.Add(main.Name);
 
             // flag
@@ -2952,12 +2952,12 @@ namespace cba
 
             // rename stuff
             implCopy.Values
-                .Iter(impl => RenameImpl(impl));
+                .ForEach(impl => RenameImpl(impl));
 
             // Add all procedures to main
             var implToFirstBlock = new Dictionary<string, Block>();
             implCopy.Values
-                .Iter(impl => implToFirstBlock.Add(impl.Name, impl.Blocks[0]));
+                .ForEach(impl => implToFirstBlock.Add(impl.Name, impl.Blocks[0]));
 
             // Merge impls
             foreach (var impl in implCopy.Values)
@@ -3031,7 +3031,7 @@ namespace cba
             newMainImpl.Blocks = newBlocks1;
             newMainImpl.Blocks.AddRange(newBlocks2);
 
-            implToFirstBlock.Iter(kvp => firstBlockToImpl.Add(kvp.Value.Label, kvp.Key));
+            implToFirstBlock.ForEach(kvp => firstBlockToImpl.Add(kvp.Value.Label, kvp.Key));
 
             // add preamble for the new main
             //   flag := 0
@@ -3157,13 +3157,13 @@ namespace cba
             // detect loops
             var l2b = BoogieUtil.labelBlockMapping(newMainImpl);
             var color = new Dictionary<Block, int>();
-            newMainImpl.Blocks.Iter(b => color.Add(b, 0));
+            newMainImpl.Blocks.ForEach(b => color.Add(b, 0));
             var Succ = new Func<Block, IEnumerable<Block>>(b =>
             {
                 var succ = new List<Block>();
                 var gc = b.TransferCmd as GotoCmd;
                 if (gc == null) return succ;
-                gc.labelNames.Iter(s => succ.Add(l2b[s]));
+                gc.labelNames.ForEach(s => succ.Add(l2b[s]));
                 return succ;
             });
             var parentTree = new Dictionary<Block, Block>();
@@ -3176,11 +3176,11 @@ namespace cba
             catch (Exception)
             {
                 var firstBlockToImpl = new Dictionary<string, string>();
-                implToFirstBlock.Iter(kvp => firstBlockToImpl.Add(kvp.Value.Label, kvp.Key));
+                implToFirstBlock.ForEach(kvp => firstBlockToImpl.Add(kvp.Value.Label, kvp.Key));
 
                 cycle.Reverse();
                 cycle.Where(b => firstBlockToImpl.ContainsKey(b.Label))
-                    .Iter(b => Console.WriteLine("{0}", firstBlockToImpl[b.Label]));
+                    .ForEach(b => Console.WriteLine("{0}", firstBlockToImpl[b.Label]));
                 throw;
             }
 
@@ -3188,7 +3188,7 @@ namespace cba
             newMainImpl.Blocks
                 .Where(blk => blk.Cmds.OfType<AssertCmd>()
                     .Any(c => !BoogieUtil.isAssertTrue(c)))
-                .Iter(blk => bwa.Add(blk));
+                .ForEach(blk => bwa.Add(blk));
             if (bwa.All(b => color[b] == 0))
             {
                 Console.WriteLine("Assert statically not reachable");
@@ -3260,7 +3260,7 @@ namespace cba
             // backward call graph
             var callGraph = new Dictionary<string, HashSet<string>>();
 
-            program.TopLevelDeclarations.OfType<Procedure>().Iter(
+            program.TopLevelDeclarations.OfType<Procedure>().ForEach(
                 proc => callGraph.Add(proc.Name, new HashSet<string>()));
 
             foreach (var impl in program.TopLevelDeclarations.OfType<Implementation>())
@@ -3387,7 +3387,7 @@ namespace cba
             if (newLocals.Count > 0)
             {
                 var ies = new List<IdentifierExpr>();
-                newLocals.Values.Iter(v => ies.Add(Expr.Ident(v)));
+                newLocals.Values.ForEach(v => ies.Add(Expr.Ident(v)));
                 impl.Blocks[0].Cmds.Insert(0, new HavocCmd(Token.NoToken, ies));
             }
              */

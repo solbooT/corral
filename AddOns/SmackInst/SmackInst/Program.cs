@@ -56,13 +56,13 @@ namespace SmackInst
                 replaceRoot = true;
 
             args.Where(a => a.StartsWith("/oldRoot:"))
-                .Iter(a => oldRoot = a.Substring("/oldRoot:".Length));
+                .ForEach(a => oldRoot = a.Substring("/oldRoot:".Length));
 
             args.Where(a => a.StartsWith("/newRoot:"))
-                .Iter(a => newRoot = a.Substring("/newRoot:".Length));
+                .ForEach(a => newRoot = a.Substring("/newRoot:".Length));
 
             args.Where(a => a.StartsWith("/chakraTypeConfusionFile:"))
-                .Iter(a => chakraTypeConfusionAnnotsFile = a.Substring("/chakraTypeConfusionFile:".Length));
+                .ForEach(a => chakraTypeConfusionAnnotsFile = a.Substring("/chakraTypeConfusionFile:".Length));
 
             if (args.Any(a => a == "/hackForSmackSdvTrace"))
                 hackForSmackSdvTrace = true;
@@ -274,10 +274,10 @@ namespace SmackInst
             {
                 depth++;
                 // print all edges from this level to next
-                worklist.Where(w => !Regex.IsMatch(w, @"^devirtbounce\d*$")).Iter(w => graph.Successors(w).Where(q => !Regex.IsMatch(q, @"^devirtbounce\d*$")).Iter(s => dotty.WriteLine(string.Format("  \"{0}\" -> \"{1}\";", w, s))));
+                worklist.Where(w => !Regex.IsMatch(w, @"^devirtbounce\d*$")).ForEach(w => graph.Successors(w).Where(q => !Regex.IsMatch(q, @"^devirtbounce\d*$")).ForEach(s => dotty.WriteLine(string.Format("  \"{0}\" -> \"{1}\";", w, s))));
                 // expand worklist to next level
                 var nl = new HashSet<string>();
-                worklist.Iter(w => nl.UnionWith(graph.Successors(w).Where(x => !Regex.IsMatch(x, @"^devirtbounce\d*$"))));
+                worklist.ForEach(w => nl.UnionWith(graph.Successors(w).Where(x => !Regex.IsMatch(x, @"^devirtbounce\d*$"))));
                 // break circle
                 worklist = nl.Difference(visited);
                 // add next level to visited
@@ -317,7 +317,7 @@ namespace SmackInst
             // add "allocator" to malloc
             program.TopLevelDeclarations.OfType<Procedure>()
                 .Where(p => MallocNames.Contains(p.Name))
-                .Iter(p => p.AddAttribute("allocator"));
+                .ForEach(p => p.AddAttribute("allocator"));
 
 			// inline functions
 			InlineFunctions(program);
@@ -439,7 +439,7 @@ namespace SmackInst
             // malloc ensures ret > alloc_init
             //program.TopLevelDeclarations.OfType<Procedure>()
             //    .Where(p => MallocNames.Contains(p.Name))
-            //    .Iter(p => p.Ensures.Add(new Ensures(false, Expr.Gt(Expr.Ident(p.OutParams[0]), Expr.Ident(allocinit)))));
+            //    .ForEach(p => p.Ensures.Add(new Ensures(false, Expr.Gt(Expr.Ident(p.OutParams[0]), Expr.Ident(allocinit)))));
 
             // forall x : int :: { M[x] } M[x] >= 0 && M[x] < alloc_init
             //var initM = new Func<Variable, Expr>(M =>
@@ -558,7 +558,7 @@ namespace SmackInst
             f.AddAttribute("ReachableStates");
             program.AddTopLevelDeclaration(f);
             // Then add function calls to the beginning and end of each non-stub procedure
-            program.Implementations.Iter(impl => VisitImplementation(impl));
+            program.Implementations.ForEach(impl => VisitImplementation(impl));
         }
 
         AssumeCmd getAssumeReach()
@@ -572,7 +572,7 @@ namespace SmackInst
             var blk = node.Blocks[0];
             blk.Cmds.Insert(0, getAssumeReach());
             returnCount = 0;
-            node.Blocks.Iter(b => VisitBlock(b));
+            node.Blocks.ForEach(b => VisitBlock(b));
             //Debug.Assert(returnCount <= 1, "Doesn't SMACK only has one return?");
             if (returnCount != 1)
                 Console.WriteLine(string.Format("Got a return function with not one exits: {0}:{1}", node.Proc.Name, returnCount));
@@ -625,7 +625,7 @@ namespace SmackInst
         public void Run(Program program)
         {
             program.Implementations.Where(impl => Regex.IsMatch(impl.Proc.Name, pattern))
-                .Iter(impl => VisitImplementation(impl));
+                .ForEach(impl => VisitImplementation(impl));
             program.AddTopLevelDeclarations(aliasQfuncs);
             if (specialPtrFunc != null)
                 program.AddTopLevelDeclaration(specialPtrFunc);
@@ -752,7 +752,7 @@ namespace SmackInst
             VisitProgram(program);
             Console.WriteLine("#Procs:" + program.Implementations.Count());
             Console.WriteLine("Unique line count: " + lines.Count);
-            files.Iter(f => Console.WriteLine(f));
+            files.ForEach(f => Console.WriteLine(f));
             Console.WriteLine("Line count of all files contained: " + OpenAndCount());
         }
 
@@ -1035,7 +1035,7 @@ namespace SmackInst
 
             program.TopLevelDeclarations
                 .OfType<Implementation>()
-                .Iter(im.Instrument);
+                .ForEach(im.Instrument);
 
             program.AddTopLevelDeclarations(im.aliasQfuncs);
         }
@@ -1087,7 +1087,7 @@ namespace SmackInst
             var ret = new List<Cmd>();
 
             var gm = new GatherMemAccesses();
-            cmd.Ins.Where(e => e != null).Iter(e => gm.VisitExpr(e));
+            cmd.Ins.Where(e => e != null).ForEach(e => gm.VisitExpr(e));
 
             foreach (var tup in gm.accesses)
             {
@@ -1118,8 +1118,8 @@ namespace SmackInst
 
             var reads = new GatherMemAccesses();
 
-			cmd.Lhss.Iter(e => reads.VisitExpr(e.AsExpr));
-			cmd.Rhss.Iter(e => reads.VisitExpr(e));
+			cmd.Lhss.ForEach(e => reads.VisitExpr(e.AsExpr));
+			cmd.Rhss.ForEach(e => reads.VisitExpr(e));
             foreach (var tup in reads.accesses)
             {
 				var ptr = tup.Item2;
@@ -1226,7 +1226,7 @@ namespace SmackInst
                     if (c is AssignCmd) {
                         var asnCmd = c as AssignCmd;
                         var reads = new GatherMemAccesses();
-                        asnCmd.Rhss.Iter(e => reads.VisitExpr(e));
+                        asnCmd.Rhss.ForEach(e => reads.VisitExpr(e));
                         foreach (var tup in reads.accesses)
                         {
                             var ptr = tup.Item2;

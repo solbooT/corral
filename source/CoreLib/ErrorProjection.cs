@@ -137,7 +137,7 @@ namespace cba
             
             foreach (var trace in verifier.traces)
             {
-                // trace.getProcs().Iter(s => ret.Add(s));
+                // trace.getProcs().ForEach(s => ret.Add(s));
                 ret.UnionWith(trace.getProcs());
             }
 

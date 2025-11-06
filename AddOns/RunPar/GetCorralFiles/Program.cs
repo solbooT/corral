@@ -114,13 +114,13 @@ namespace GetCorralFiles
             output.Flush();
 
 
-            //result1.Iter(s => output.WriteLine("{0}", s));
+            //result1.ForEach(s => output.WriteLine("{0}", s));
 
             var result2 =
                 Util.run(Environment.CurrentDirectory, wlimitexe,
                 string.Format("/w {0} {1} {2}", timeout, boogieexe, boogieflags_runDualityInitial));
 
-            result2.Iter(s => output.WriteLine("{0}", s));
+            result2.ForEach(s => output.WriteLine("{0}", s));
             string withoutSummaries = parseDualityOutput(result2);
 
             output.WriteLine("Running {0} /w {1} {2} {3}", wlimitexe, timeout, boogieexe, boogieflags_runCollectPredicates);
@@ -131,7 +131,7 @@ namespace GetCorralFiles
                 Util.run(Environment.CurrentDirectory, wlimitexe,
                 string.Format("/w {0} {1} {2}", timeout, boogieexe, boogieflags_runCollectPredicates));
 
-            result3.Iter(s => output.WriteLine("{0}", s));
+            result3.ForEach(s => output.WriteLine("{0}", s));
 
             output.WriteLine("Running {0} /w {1} {2} {3}", wlimitexe, timeout, boogieexe, boogieflags_runDualityWithSummaries);
 
@@ -141,16 +141,16 @@ namespace GetCorralFiles
                 Util.run(Environment.CurrentDirectory, wlimitexe,
                 string.Format("/w {0} {1} {2}", timeout, boogieexe, boogieflags_runDualityWithSummaries));
 
-            result4.Iter(s => output.WriteLine("{0}", s));
+            result4.ForEach(s => output.WriteLine("{0}", s));
             string withSummaries = parseDualityOutput(result4);
 
             StreamWriter f = new StreamWriter(GlobalConfig.util_result_file);
             f.WriteLine("Without Summaries");
-            result2.Iter(s => f.WriteLine("{0}", s));
+            result2.ForEach(s => f.WriteLine("{0}", s));
             f.WriteLine("Generating Summaries");
-            result3.Iter(s => f.WriteLine("{0}", s));
+            result3.ForEach(s => f.WriteLine("{0}", s));
             f.WriteLine("With Summaries");
-            result4.Iter(s => f.WriteLine("{0}", s));
+            result4.ForEach(s => f.WriteLine("{0}", s));
             f.Close();
 
             Console.WriteLine("{0} {1}", withoutSummaries, withSummaries);

@@ -130,7 +130,7 @@ namespace cba
             // Gather the set of implementations with "loop" inside their name
             var loopImpls = new List<Implementation>();
             p.TopLevelDeclarations.OfType<Implementation>()
-                .Iter(impl => { if (impl.Name.Contains("loop")) loopImpls.Add(impl); });
+                .ForEach(impl => { if (impl.Name.Contains("loop")) loopImpls.Add(impl); });
             
             // Filter definite NO
             loopImpls = loopImpls.Filter(impl => prevRunSummary(impl) != 0);
@@ -138,18 +138,18 @@ namespace cba
             // Construct the call graph
             p.TopLevelDeclarations
                 .OfType<Procedure>()
-                .Iter(proc => callGraph.Add(proc.Name, new HashSet<string>()));
+                .ForEach(proc => callGraph.Add(proc.Name, new HashSet<string>()));
 
             foreach (var impl in p.TopLevelDeclarations.OfType<Implementation>())
             {
                 impl.Blocks
-                    .Iter(blk =>
+                    .ForEach(blk =>
                         blk.Cmds.OfType<CallCmd>()
-                        .Iter(cc => callGraph[impl.Name].Add(cc.callee)));
+                        .ForEach(cc => callGraph[impl.Name].Add(cc.callee)));
             }
 
             // Sometimes loops have multiple backedges, hence multiple recursive calls: merge them
-            loopImpls.Iter(impl =>
+            loopImpls.ForEach(impl =>
                 {
                     var lb = LoopBound.mergeRecCalls(impl);
                     if(lb != null) mergedRecCallBlock.Add(impl.Name, lb);
@@ -168,7 +168,7 @@ namespace cba
             // Filter based on definite YES
             loopImpls
                 .Where(loop => prevRunSummary(loop) == 1)
-                .Iter(impl => cLoops.Add(impl.Name));
+                .ForEach(impl => cLoops.Add(impl.Name));
 
             loopImpls = loopImpls.Filter(loop => prevRunSummary(loop) != 1);
 
@@ -191,7 +191,7 @@ namespace cba
                 // Create copies of loopsImpls
                 var loopImplsCopy = new List<Implementation>();
                 var dup = new FixedDuplicator(true);
-                loopImpls.Iter(impl =>
+                loopImpls.ForEach(impl =>
                     {
                         var copy = dup.VisitImplementation(impl);
                         copy.Proc = impl.Proc;
@@ -205,7 +205,7 @@ namespace cba
                 }
 
                 // insert assertions
-                loopImplsCopy.Iter(impl => CheckIdempotence(impl));
+                loopImplsCopy.ForEach(impl => CheckIdempotence(impl));
 
                 // Populate the out program
                 PopulateOutProg(loopImplsCopy);
@@ -220,7 +220,7 @@ namespace cba
                 if (counterAbs)
                 {
                     var possibleLoops = new HashSet<string>();
-                    loopImpls.Iter(impl => possibleLoops.Add(impl.Name));
+                    loopImpls.ForEach(impl => possibleLoops.Add(impl.Name));
 
                     // We're told to treat some loops as idempotent?
                     annotated.UnionWith(
@@ -251,13 +251,13 @@ namespace cba
                 }
             }
 
-            cLoops.Iter(s =>
+            cLoops.ForEach(s =>
                 Log.WriteLine("CL: Constant loop {0} {1}", s, annotated.Contains(s) ? "(annotated)" : ""));
 
-            cLoops.Iter(c => PruneConstantLoops(c));
+            cLoops.ForEach(c => PruneConstantLoops(c));
 
             // For mapBack
-            cLoops.Iter(c => emptyLoopIter.Add(c, mkEmptyLoopIter(inProg, c)));
+            cLoops.ForEach(c => emptyLoopIter.Add(c, mkEmptyLoopIter(inProg, c)));
 
             var ret = new CBAProgram(inProg, p.mainProcName, p.contextBound);
 
@@ -276,7 +276,7 @@ namespace cba
             potentialBlocks.Add(impl.Blocks[0].Label);
             var gc = impl.Blocks[0].TransferCmd as GotoCmd;
             if(gc != null ) 
-                gc.labelNames.OfType<string>().Iter(s => potentialBlocks.Add(s));
+                gc.labelNames.OfType<string>().ForEach(s => potentialBlocks.Add(s));
 
             var label2Block = BoogieUtil.labelBlockMapping(impl);
             foreach (var b in potentialBlocks)
@@ -336,8 +336,8 @@ namespace cba
             {
                 outProg.TopLevelDeclarations
                     .OfType<Implementation>()
-                    .Iter(impl =>
-                        impl.Blocks.Iter(blk =>
+                    .ForEach(impl =>
+                        impl.Blocks.ForEach(blk =>
                             {
                                 for (int i = 0; i < blk.Cmds.Count; i++)
                                 {
@@ -375,7 +375,7 @@ namespace cba
                 depth++;
 
                 var next = new HashSet<string>();
-                frontier.Iter(s => next.UnionWith(callGraph[s]));
+                frontier.ForEach(s => next.UnionWith(callGraph[s]));
 
                 frontier = next.Difference(reachable);
                 reachable.UnionWith(next);
@@ -386,8 +386,8 @@ namespace cba
             var graph = new Graph<string>();
             callGraph
                 .Where(kvp => rset.Contains(kvp.Key))
-                .Iter(kvp =>
-                kvp.Value.Iter(tgt =>
+                .ForEach(kvp =>
+                kvp.Value.ForEach(tgt =>
                 {
                     if (kvp.Key != proc || tgt != proc)
                         graph.AddEdge(kvp.Key, tgt);
@@ -446,14 +446,14 @@ namespace cba
             BoogieVerify.Verify(outProg, true, out allErrors, out timeOuts);
 
             // Find all those impls that verified
-            candidates.Iter(impl => ret.Add(impl.Name));
-            allErrors.Iter(et => ret.Remove(et.impl.Name));
-            timeOuts.Iter(impl => ret.Remove(impl));
+            candidates.ForEach(impl => ret.Add(impl.Name));
+            allErrors.ForEach(et => ret.Remove(et.impl.Name));
+            timeOuts.ForEach(impl => ret.Remove(impl));
 
             if (timeOuts.Any())
             {
                 Console.Write("Timed out: ");
-                timeOuts.Iter(impl => Console.Write("{0} ", impl));
+                timeOuts.ForEach(impl => Console.Write("{0} ", impl));
                 Console.WriteLine();
             }
 
@@ -541,7 +541,7 @@ namespace cba
             // nondet counter
             string[] cntHelpers = { "a", "ac", "b", "c" };
             var cntVars = new Dictionary<string, Variable>();
-            cntHelpers.Iter(s => cntVars.Add(s, BoogieAstFactory.MkLocal("nondetCnt_cl_" + s, nonDetCounter.TypedIdent.Type)));
+            cntHelpers.ForEach(s => cntVars.Add(s, BoogieAstFactory.MkLocal("nondetCnt_cl_" + s, nonDetCounter.TypedIdent.Type)));
             var assumeCnt = new Func<string, AssumeCmd>(s => BoogieAstFactory.MkAssumeVarEqVar(nonDetCounter, cntVars[s]));
             var havocCnt = BoogieAstFactory.MkHavocVar(nonDetCounter);
 
@@ -551,20 +551,20 @@ namespace cba
 
             string[] allocHelpers = { "a1", "a2", "ac1", "ac2", "b1", "b2", "c1", "c2", "sp1", "sp2" };
             var allocVars = new Dictionary<string, Variable>();
-            allocHelpers.Iter(s => allocVars.Add(s, BoogieAstFactory.MkLocal("alloc_cl_" + s, alloc.TypedIdent.Type)));
+            allocHelpers.ForEach(s => allocVars.Add(s, BoogieAstFactory.MkLocal("alloc_cl_" + s, alloc.TypedIdent.Type)));
 
             var havocAlloc = BoogieAstFactory.MkHavocVar(alloc);
             var assumeAllocEq = new Func<string, AssumeCmd>(s => BoogieAstFactory.MkAssumeVarEqVar(alloc, allocVars[s]));
             var assumeAllocGt = new Func<string, AssumeCmd>(s => BoogieAstFactory.MkAssumeVarGtVar(alloc, allocVars[s]));
 
             var ieSeq = new List<IdentifierExpr>();
-            loopGlobals.Iter(v => ieSeq.Add(new IdentifierExpr(Token.NoToken, v)));
+            loopGlobals.ForEach(v => ieSeq.Add(new IdentifierExpr(Token.NoToken, v)));
             Cmd havocGlobals = new HavocCmd(Token.NoToken, ieSeq);
             if (ieSeq.Count == 0) havocGlobals = BoogieAstFactory.MkAssume(Expr.True);
 
             ieSeq = new List<IdentifierExpr>();
-            impl.LocVars.OfType<Variable>().Iter(v => ieSeq.Add(new IdentifierExpr(Token.NoToken, v)));
-            allFormals.Iter(v => ieSeq.Add(new IdentifierExpr(Token.NoToken, v)));
+            impl.LocVars.OfType<Variable>().ForEach(v => ieSeq.Add(new IdentifierExpr(Token.NoToken, v)));
+            allFormals.ForEach(v => ieSeq.Add(new IdentifierExpr(Token.NoToken, v)));
             Cmd havocLocals = new HavocCmd(Token.NoToken, ieSeq);
             if (ieSeq.Count == 0) havocLocals = BoogieAstFactory.MkAssume(Expr.True);
 
@@ -588,7 +588,7 @@ namespace cba
             impl.InParams
                 .OfType<Variable>()
                 .Zip(recCall.Ins, (v, e) => Tuple.Create(inFormalsCopy[v.Name], e))
-                .Iter(tup => assignInFormalsCopy.Add(BoogieAstFactory.MkVarEqExpr(tup.Item1, tup.Item2)));
+                .ForEach(tup => assignInFormalsCopy.Add(BoogieAstFactory.MkVarEqExpr(tup.Item1, tup.Item2)));
             
             // assume init
             var head0 = body0[loopBodyStartBlock[impl.Name]];
@@ -668,10 +668,10 @@ namespace cba
                 impl.LocVars.Add(varFinal2Copy[g.Name]);
                 varFinal2Copy.Remove(g.Name);
             }
-            allocVars.Values.Iter(v => impl.LocVars.Add(v));
-            cntVars.Values.Iter(v => impl.LocVars.Add(v));
+            allocVars.Values.ForEach(v => impl.LocVars.Add(v));
+            cntVars.Values.ForEach(v => impl.LocVars.Add(v));
 
-            inFormalsCopy.Values.Iter(v => impl.LocVars.Add(v));
+            inFormalsCopy.Values.ForEach(v => impl.LocVars.Add(v));
         }
 
         private Expr finalAssertExpr(IEnumerable<Variable> vars, Func<string, Variable> varsFinal, Variable sp)
@@ -710,16 +710,16 @@ namespace cba
                 .Where(b => b.Label != startBlockLabel && b.Label != exitBlockLabel);
 
             // copy
-            body.Iter(b => ret.Add(b.Label, dup.VisitBlock(b)));
+            body.ForEach(b => ret.Add(b.Label, dup.VisitBlock(b)));
 
             // rename labels
-            ret.Values.Iter(b => b.Label += suffix);
+            ret.Values.ForEach(b => b.Label += suffix);
 
             var renameLabels = new Action<GotoCmd>(gc =>
                 {
                     var nSeq = new List<String>();
                     gc.labelNames.OfType<string>()
-                        .Iter(s => nSeq.Add(s + suffix));
+                        .ForEach(s => nSeq.Add(s + suffix));
                     gc.labelNames = nSeq;
                     gc.labelTargets = new List<Block>();
                 });
@@ -728,7 +728,7 @@ namespace cba
             ret.Values
                 .Where(b => b.TransferCmd is GotoCmd)
                 .Select(b => b.TransferCmd as GotoCmd)
-                .Iter(gc => renameLabels.Invoke(gc));
+                .ForEach(gc => renameLabels.Invoke(gc));
 
             return ret;
         }
@@ -777,7 +777,7 @@ namespace cba
         {
             outProg = new Program();
             var loops = new Dictionary<string, Implementation>();
-            loopImpls.Iter(impl => loops.Add(impl.Name, impl));
+            loopImpls.ForEach(impl => loops.Add(impl.Name, impl));
             var dup = new FixedDuplicator();
 
             foreach (var decl in inProg.TopLevelDeclarations)
@@ -815,8 +815,8 @@ namespace cba
 
             // Entry points
             outProg.TopLevelDeclarations.OfType<Implementation>()
-                .Iter(impl => impl.Attributes = BoogieUtil.removeAttr("entrypoint", impl.Attributes));
-            loopImpls.Iter(impl => impl.AddAttribute("entrypoint"));
+                .ForEach(impl => impl.Attributes = BoogieUtil.removeAttr("entrypoint", impl.Attributes));
+            loopImpls.ForEach(impl => impl.AddAttribute("entrypoint"));
         }
 
         // Find the new "merged" block and absorb it into the previous block
@@ -824,11 +824,11 @@ namespace cba
         {
             // First, apply recursively
             trace.Blocks
-                .Iter(blk =>
+                .ForEach(blk =>
                     blk.Cmds
                     .OfType<CallInstr>()
                     .Where(ci => ci.calleeTrace != null)
-                    .Iter(ci => ci.SetErrorTrace(mapBackMergedRecCalls(ci.calleeTrace))));
+                    .ForEach(ci => ci.SetErrorTrace(mapBackMergedRecCalls(ci.calleeTrace))));
 
 
             if (!mergedRecCallBlock.ContainsKey(trace.procName)) return trace;
@@ -899,7 +899,7 @@ namespace cba
 
             // callers
             var callers = new HashSet<string>();
-            callGraph.Iter(kvp =>
+            callGraph.ForEach(kvp =>
             { if (kvp.Value.Contains(impl.Name)) callers.Add(kvp.Key); });
             callers.Remove(impl.Name);
 
@@ -1005,18 +1005,18 @@ namespace cba
             var formals = new Dictionary<string, Variable>();
             impl.OutParams.OfType<Variable>()
                 .Where(v => v.TypedIdent.Type.IsInt)
-                .Iter(v => formals.Add(v.Name, v));
+                .ForEach(v => formals.Add(v.Name, v));
             var counters = new HashSet<string>();
             
             var depGraph = new Dictionary<string, HashSet<string>>();
             impl.LocVars.OfType<Variable>()
-                .Iter(v => depGraph.Add(v.Name, new HashSet<string>()));
+                .ForEach(v => depGraph.Add(v.Name, new HashSet<string>()));
             impl.InParams.OfType<Variable>()
-                .Iter(v => depGraph.Add(v.Name, new HashSet<string>()));
+                .ForEach(v => depGraph.Add(v.Name, new HashSet<string>()));
             impl.OutParams.OfType<Variable>()
-                .Iter(v => depGraph.Add(v.Name, new HashSet<string>()));
+                .ForEach(v => depGraph.Add(v.Name, new HashSet<string>()));
             program.TopLevelDeclarations.OfType<Variable>()
-                .Iter(v => depGraph.Add(v.Name, new HashSet<string>()));
+                .ForEach(v => depGraph.Add(v.Name, new HashSet<string>()));
 
             var first = true;
             foreach (var blk in impl.Blocks)
@@ -1033,7 +1033,7 @@ namespace cba
                     var read = new HashSet<string>();
                     var written = new HashSet<string>();
                     VarsReadAndWritten(new Cmd[] { cmd }, out read, out written);
-                    read.Iter(r =>
+                    read.ForEach(r =>
                         depGraph[r].UnionWith(written));
                 }
             }
@@ -1042,7 +1042,7 @@ namespace cba
             // TODO: Find cycles
             formals.Keys
                 .Where(f => depGraph[f].Contains(f))
-                .Iter(f => counters.Add(f));
+                .ForEach(f => counters.Add(f));
 
             if (counters.Count != 1)
             {
@@ -1078,8 +1078,8 @@ namespace cba
         {
             var body = new List<Cmd>();
 
-            impl.Blocks[0].Cmds.OfType<Cmd>().Iter(cmd => body.Add(cmd as Cmd));
-            impl.Blocks[1].Cmds.OfType<Cmd>().Iter(cmd => body.Add(cmd as Cmd));
+            impl.Blocks[0].Cmds.OfType<Cmd>().ForEach(cmd => body.Add(cmd as Cmd));
+            impl.Blocks[1].Cmds.OfType<Cmd>().ForEach(cmd => body.Add(cmd as Cmd));
 
             if(!body.Any()) return false;
 
@@ -1185,7 +1185,7 @@ namespace cba
                     continue;
                 }
 
-                acmd.Rhss.Iter(rhs => vused.Visit(rhs));
+                acmd.Rhss.ForEach(rhs => vused.Visit(rhs));
                 read.UnionWith(vused.varsUsed);
                 vused.reset();
 
@@ -1200,7 +1200,7 @@ namespace cba
                     {
                         var mlhs = lhs as MapAssignLhs;
                         written.Add(mlhs.DeepAssignedVariable.Name);
-                        mlhs.Indexes.Iter(e => vused.Visit(e));
+                        mlhs.Indexes.ForEach(e => vused.Visit(e));
                         read.UnionWith(vused.varsUsed);
                     }
                 }
@@ -1227,11 +1227,11 @@ namespace cba
         {
             // First, apply recursively
             trace.Blocks
-                .Iter(blk =>
+                .ForEach(blk =>
                     blk.Cmds
                     .OfType<CallInstr>()
                     .Where(ci => ci.calleeTrace != null)
-                    .Iter(ci => ci.SetErrorTrace(addEmptyLoopIter(ci.calleeTrace))));
+                    .ForEach(ci => ci.SetErrorTrace(addEmptyLoopIter(ci.calleeTrace))));
 
             // Find pruned rec calls
             if (!cLoops.Contains(trace.procName))
@@ -1267,7 +1267,7 @@ namespace cba
 
             impl.Blocks[0].Cmds
                 .OfType<Cmd>()
-                .Iter(c => blk1.Cmds.Add(new IntraInstr()));
+                .ForEach(c => blk1.Cmds.Add(new IntraInstr()));
 
             var ret = new ErrorTrace(procName);
             ret.addBlock(blk1);
@@ -1370,8 +1370,8 @@ namespace cba
 
             p.TopLevelDeclarations
                 .OfType<Implementation>()
-                .Iter(impl =>
-                    impl.Blocks.Iter(b => runPassBlock(impl.Name, b)));
+                .ForEach(impl =>
+                    impl.Blocks.ForEach(b => runPassBlock(impl.Name, b)));
         }
 
         private void runPassBlock(string impl, Block block)
@@ -1399,11 +1399,11 @@ namespace cba
         {
             // First, apply recursively
             trace.Blocks
-                .Iter(blk =>
+                .ForEach(blk =>
                     blk.Cmds
                     .OfType<CallInstr>()
                     .Where(ci => ci.calleeTrace != null)
-                    .Iter(ci => ci.SetErrorTrace(mapBackTrace(ci.calleeTrace))));
+                    .ForEach(ci => ci.SetErrorTrace(mapBackTrace(ci.calleeTrace))));
 
             foreach (var blk in trace.Blocks)
             {

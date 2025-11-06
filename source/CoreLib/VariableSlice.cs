@@ -509,7 +509,7 @@ namespace cba
             if (varsToHavoc.Count != 0)
             {
                 var ieseq = new List<IdentifierExpr>();
-                varsToHavoc.Iter(v => ieseq.Add(Expr.Ident(v)));
+                varsToHavoc.ForEach(v => ieseq.Add(Expr.Ident(v)));
                 newcmd.Add(new HavocCmd(Token.NoToken, ieseq));
             }
 

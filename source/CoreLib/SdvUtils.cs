@@ -39,8 +39,8 @@ namespace CoreLib
         {
             p.Typecheck();
 
-            p.TopLevelDeclarations.OfType<Procedure>().Iter(proc => procsWithoutBody.Add(proc.Name));
-            p.TopLevelDeclarations.OfType<Implementation>().Iter(impl => procsWithoutBody.Remove(impl.Name));
+            p.TopLevelDeclarations.OfType<Procedure>().ForEach(proc => procsWithoutBody.Add(proc.Name));
+            p.TopLevelDeclarations.OfType<Implementation>().ForEach(impl => procsWithoutBody.Remove(impl.Name));
 
             // remove malloc
             //procsWithoutBody.RemoveWhere(str => str.Contains("malloc"));
@@ -73,16 +73,16 @@ namespace CoreLib
                 ncmds.AddRange(impl.Blocks[0].Cmds);
                 impl.Blocks[0].Cmds = ncmds;
             }
-            typeToInitLocalsProc.Values.Iter(pr => procsWithoutBody.Add(pr.Name));
-            typeToInitLocalsProc.Values.Iter(pr => p.AddTopLevelDeclaration(pr));
+            typeToInitLocalsProc.Values.ForEach(pr => procsWithoutBody.Add(pr.Name));
+            typeToInitLocalsProc.Values.ForEach(pr => p.AddTopLevelDeclaration(pr));
 
             // save the current program
             var fd = new FixedDuplicator(true);
             var modInpProg = fd.VisitProgram(p);
 
             // Instrument to record stuff
-            p.TopLevelDeclarations.OfType<Implementation>().Iter(impl =>
-                impl.Blocks.Iter(b => instrument(b)));
+            p.TopLevelDeclarations.OfType<Implementation>().ForEach(impl =>
+                impl.Blocks.ForEach(b => instrument(b)));
 
             // Name clash if this assert fails
             Debug.Assert(BoogieUtil.findProcedureDecl(p.TopLevelDeclarations, recordProcNameInt) == null);
@@ -123,8 +123,8 @@ namespace CoreLib
 
             // Add symbolic constants for angelic map havocs
             var newDecls = new List<Constant>();
-            rtprog.TopLevelDeclarations.OfType<Implementation>().Iter(impl =>
-                impl.Blocks.Iter(b => instrumentMapHavocs(b, allocConstants, newDecls)));
+            rtprog.TopLevelDeclarations.OfType<Implementation>().ForEach(impl =>
+                impl.Blocks.ForEach(b => instrumentMapHavocs(b, allocConstants, newDecls)));
             rtprog.AddTopLevelDeclarations(newDecls);
 
             /*
@@ -142,7 +142,7 @@ namespace CoreLib
                 var vu = new VarsUsed();
                 vu.VisitImplementation(impl);
                 vu.varsUsed.Where(s => s.StartsWith("alloc_"))
-                    .Iter(s => allocConstants[s] = implName);
+                    .ForEach(s => allocConstants[s] = implName);
             }
             */
             BoogieUtil.findProcedureImpl(rtprog.TopLevelDeclarations, rt.getFirstNameInstance(p.mainProcName))
@@ -379,9 +379,9 @@ namespace CoreLib
                 if (addSlicAnnotations)
                 {
                     // Insert "slic" annotation
-                    impl.Blocks.Iter(blk =>
+                    impl.Blocks.ForEach(blk =>
                         blk.Cmds.OfType<AssumeCmd>()
-                        .Iter(cmd => tagAssume(cmd, impl)));
+                        .ForEach(cmd => tagAssume(cmd, impl)));
                 }
 
                 // Insert "indirect" annotation
@@ -450,30 +450,30 @@ namespace CoreLib
             program.TopLevelDeclarations
                 .OfType<GlobalVariable>()
                 .Where(g => g.TypedIdent.Type.IsMap && (g.TypedIdent.Type as MapType).Result.IsInt)
-                .Iter(g => AllMaps.Add(g.Name));
+                .ForEach(g => AllMaps.Add(g.Name));
 
             // Fix Cmds
             program.TopLevelDeclarations
                 .OfType<Implementation>()
-                .Iter(impl =>
-                    impl.Blocks.Iter(block =>
+                .ForEach(impl =>
+                    impl.Blocks.ForEach(block =>
                         block.Cmds
-                        .OfType<Cmd>().Iter(cmd => Visit(cmd))));
+                        .OfType<Cmd>().ForEach(cmd => Visit(cmd))));
 
             program.TopLevelDeclarations.OfType<Procedure>()
-                .Iter(p => VisitEnsuresSeq(p.Ensures));
+                .ForEach(p => VisitEnsuresSeq(p.Ensures));
             program.TopLevelDeclarations.OfType<Procedure>()
-                .Iter(p => VisitRequiresSeq(p.Requires));
+                .ForEach(p => VisitRequiresSeq(p.Requires));
             
             var impls = new HashSet<string>();
             program.TopLevelDeclarations.OfType<Implementation>()
-                .Iter(impl => impls.Add(impl.Name));
+                .ForEach(impl => impls.Add(impl.Name));
             
             program.TopLevelDeclarations.OfType<Procedure>()
                 .Where(p => impls.Contains(p.Name))
-                .Iter(p => p.Modifies = new List<IdentifierExpr>());
+                .ForEach(p => p.Modifies = new List<IdentifierExpr>());
             program.TopLevelDeclarations.OfType<Procedure>()
-                .Iter(p => VisitIdentifierExprSeq(p.Modifies));
+                .ForEach(p => VisitIdentifierExprSeq(p.Modifies));
 
             // Remove globals
             var newDecls = new List<Declaration>();
@@ -542,11 +542,11 @@ namespace CoreLib
             program.TopLevelDeclarations
                 .OfType<GlobalVariable>()
                 .Where(g => scalars.Contains(g.Name))
-                .Iter(g => scalarGlobals.Add(g.Name));
+                .ForEach(g => scalarGlobals.Add(g.Name));
 
             program.TopLevelDeclarations
                 .OfType<Implementation>()
-                .Iter(Instrument);
+                .ForEach(Instrument);
 
             var decl = BoogieAstFactory.MkProc(recordProc, new List<Variable>(new Variable[] { BoogieAstFactory.MkFormal("address", Microsoft.Boogie.Type.Int, true) }), new List<Variable>());
             program.AddTopLevelDeclaration(decl);
@@ -594,7 +594,7 @@ namespace CoreLib
                     else newcmds.Add(cmd);
                 }
                 block.Cmds = new List<Cmd>();
-                newcmds.Iter(cmd => block.Cmds.Add(cmd));
+                newcmds.ForEach(cmd => block.Cmds.Add(cmd));
             }
 
         }
@@ -604,7 +604,7 @@ namespace CoreLib
             var ret = new List<Cmd>();
 
             var gm = new GatherMemAccesses();
-            cmd.Ins.Where(e => e != null).Iter(e => gm.VisitExpr(e));
+            cmd.Ins.Where(e => e != null).ForEach(e => gm.VisitExpr(e));
 
             foreach (var tup in gm.accesses)
             {
@@ -614,7 +614,7 @@ namespace CoreLib
             ret.Add(cmd);
 
             cmd.Outs.Where(ie => ie != null && scalarGlobals.Contains(ie.Name))
-                .Iter(ie => ret.Add(RecordScalar(ie.Decl)));
+                .ForEach(ie => ret.Add(RecordScalar(ie.Decl)));
 
             return ret;
         }
@@ -646,24 +646,24 @@ namespace CoreLib
                 if (lhs is MapAssignLhs)
                 {
                     var ma = lhs as MapAssignLhs;
-                    ma.Indexes.Iter(e => writes.Add(Tuple.Create(ma.DeepAssignedVariable, e)));
-                    ma.Indexes.Iter(e => reads.VisitExpr(e));
+                    ma.Indexes.ForEach(e => writes.Add(Tuple.Create(ma.DeepAssignedVariable, e)));
+                    ma.Indexes.ForEach(e => reads.VisitExpr(e));
                 }
                 else if (lhs is SimpleAssignLhs && scalarGlobals.Contains(lhs.DeepAssignedVariable.Name))
                 {
                     scalars.Add(lhs.DeepAssignedVariable);
                 }
             }
-            cmd.Rhss.Iter(e => reads.VisitExpr(e));
+            cmd.Rhss.ForEach(e => reads.VisitExpr(e));
 
-            writes.Iter(tup =>
+            writes.ForEach(tup =>
                 {
                     ret.Add(BoogieAstFactory.MkVarEqExpr(memAccess, tup.Item2));
                     ret.Add(Write(tup.Item1));
                 });
 
 
-            reads.accesses.Iter(tup =>
+            reads.accesses.ForEach(tup =>
             {
                 ret.Add(BoogieAstFactory.MkVarEqExpr(memAccess, tup.Item2));
                 ret.Add(Read(tup.Item1));
@@ -672,7 +672,7 @@ namespace CoreLib
 
             ret.Add(cmd);
 
-            scalars.Iter(v => ret.Add(RecordScalar(v)));
+            scalars.ForEach(v => ret.Add(RecordScalar(v)));
 
             return ret;
         }

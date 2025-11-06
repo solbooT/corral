@@ -82,7 +82,7 @@ namespace Trainer
         public static TemplateDictionarySerializable Merge(IEnumerable<TemplateDictionarySerializable> atoms)
         {
             var ret = new HashSet<RuleAsString>();
-            atoms.Iter(atom => ret.UnionWith(atom.table));
+            atoms.ForEach(atom => ret.UnionWith(atom.table));
             var merged = new TemplateDictionarySerializable();
             merged.table.AddRange(ret);
             return merged;
@@ -101,7 +101,7 @@ namespace Trainer
         public string DumpPredicates(out int NumAtoms)
         {
             string ret = "";
-            table.Iter(atom => ret = ret + Environment.NewLine + " ensures " + atom + ";");
+            table.ForEach(atom => ret = ret + Environment.NewLine + " ensures " + atom + ";");
 
             NumAtoms = table.Count;
             return ret;
@@ -175,7 +175,7 @@ namespace Trainer
                 {
                     // merge atoms.db
                     var dbs = new List<TemplateDictionarySerializable>();
-                    files.Iter(f => dbs.Add(TemplateDictionarySerializable.ReadTemplateDictionary(f)));
+                    files.ForEach(f => dbs.Add(TemplateDictionarySerializable.ReadTemplateDictionary(f)));
                     TemplateDictionarySerializable.WriteTemplateDictionary(
                         TemplateDictionarySerializable.Merge(dbs), CommonLib.GlobalConfig.util_result_file);
                 }
@@ -183,7 +183,7 @@ namespace Trainer
                 {
                     // merge candidates db
                     var dbs = new List<StubAnnotatedSummaryDictionary>();
-                    files.Iter(f => dbs.Add(TrainerDB.Driver.ReadCandidateDB(f)));
+                    files.ForEach(f => dbs.Add(TrainerDB.Driver.ReadCandidateDB(f)));
                     TrainerDB.Driver.WriteDB(
                         StubAnnotatedSummaryDictionary.Merge(dbs), CommonLib.GlobalConfig.util_result_file);
                 }
@@ -474,7 +474,7 @@ namespace Trainer
 
                 // (2) Run vanilla Corral+SI WITHOUT manual summaries
                 string corralFlagsNoHoudini = "";
-                corralflags.Split(' ').Iter<string>(n => { if (!n.StartsWith("/runHoudini")) corralFlagsNoHoudini += n + " "; });
+                corralflags.Split(' ').ForEach<string>(n => { if (!n.StartsWith("/runHoudini")) corralFlagsNoHoudini += n + " "; });
                 string output2 = runCorral(bplfile, corralFlagsNoHoudini, false);
 
                 // (3) Run vanilla Corral+Duality WITH manual summaries
@@ -591,7 +591,7 @@ namespace Trainer
             var testBpl = BoogieUtil.ParseProgram(filename);
             testBpl.TopLevelDeclarations.OfType<Variable>()
                 .Where(g => QKeyValue.FindBoolAttribute(g.Attributes, "environment"))
-                .Iter(g => slicVars.Add(g.Name));
+                .ForEach(g => slicVars.Add(g.Name));
 
             var outatoms = new HashSet<string>();
             var summaries = new AtomDictionary();
@@ -640,7 +640,7 @@ namespace Trainer
                 });
 
                 literals.Select(l => GetAtomFromLiteral(l))
-                    .Iter(t =>
+                    .ForEach(t =>
                     {
                         summaries.Add(t.Item1, t.Item2);
                         outatoms.Add(t.Item1 + " " + t.Item2);
@@ -695,10 +695,10 @@ namespace Trainer
             var summaries = new StubAnnotatedSummaryDictionary();
             StubAnnotatedSummaryDictionary.CreateProver(z3exe);
             if (useStubs)
-                predWithStubs.Iter(tup => summaries.Add(tup.Item1, tup.Item2));
+                predWithStubs.ForEach(tup => summaries.Add(tup.Item1, tup.Item2));
             else
-                predWithStubs.Iter(tup => summaries.Add("", tup.Item2));
-            //predicates.Iter(pred => summaries.Add(property, pred));
+                predWithStubs.ForEach(tup => summaries.Add("", tup.Item2));
+            //predicates.ForEach(pred => summaries.Add(property, pred));
             //summaries.Print(databaseTxt);
             StubAnnotatedSummaryDictionary.CloseProver();
             summaries.Marshall();
@@ -755,10 +755,10 @@ namespace Trainer
             var summaries = new StubAnnotatedSummaryDictionary();
             StubAnnotatedSummaryDictionary.CreateProver(z3exe);
             if (useStubs)
-                predWithStubs.Iter(tup => summaries.Add(tup.Item1, tup.Item2));
+                predWithStubs.ForEach(tup => summaries.Add(tup.Item1, tup.Item2));
             else
-                predWithStubs.Iter(tup => summaries.Add("", tup.Item2));
-            //predicates.Iter(pred => summaries.Add(property, pred));
+                predWithStubs.ForEach(tup => summaries.Add("", tup.Item2));
+            //predicates.ForEach(pred => summaries.Add(property, pred));
             //summaries.Print(databaseTxt);
             StubAnnotatedSummaryDictionary.CloseProver();
             summaries.Marshall();

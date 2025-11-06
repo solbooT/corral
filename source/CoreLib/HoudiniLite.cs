@@ -85,14 +85,14 @@ namespace CoreLib
             var CandidateConstants = new Dictionary<string, Constant>();
             program.TopLevelDeclarations.OfType<Constant>()
                 .Where(c => QKeyValue.FindBoolAttribute(c.Attributes, "existential"))
-                .Iter(c => CandidateConstants.Add(c.Name, c));
+                .ForEach(c => CandidateConstants.Add(c.Name, c));
 
             // Create a function, one for each impl, for book-keeping
             var CandidateFuncsAssumed = new Dictionary<string, Function>();
             var CandidateFuncsAsserted = new Dictionary<string, Function>();
             var AssumeToAssert = new Dictionary<Function, Function>();
             program.TopLevelDeclarations.OfType<Implementation>()
-                .Iter(impl =>
+                .ForEach(impl =>
                 {
                     var fassumed = GetCandidateFunc(CandidateFuncPrefix, impl.Name);
                     var fasserted = GetCandidateFunc(CandidateFuncAssertedPrefix, impl.Name);
@@ -104,7 +104,7 @@ namespace CoreLib
 
             // Tag the ensures so we can keep track of them
             var iterimpls = program.TopLevelDeclarations.OfType<Implementation>().ToList();
-            iterimpls.Iter(impl => InstrumentEnsures(program, impl, CandidateFuncsAssumed[impl.Name], CandidateConstants));
+            iterimpls.ForEach(impl => InstrumentEnsures(program, impl, CandidateFuncsAssumed[impl.Name], CandidateConstants));
 
             //BoogieUtil.PrintProgram(program, "h2.bpl");
 
@@ -155,7 +155,7 @@ namespace CoreLib
             HoudiniStats.Stop("VCGen");
 
             var worklist = new SortedSet<Tuple<int, string>>();
-            impl2Priority.Iter(tup => worklist.Add(Tuple.Create(tup.Value, tup.Key)));
+            impl2Priority.ForEach(tup => worklist.Add(Tuple.Create(tup.Value, tup.Key)));
 
             // Current assignment: set of true constants
             // Initially: everything is true
@@ -267,7 +267,7 @@ namespace CoreLib
             var CandidateConstants = new Dictionary<string, Constant>();
             program.TopLevelDeclarations.OfType<Constant>()
                 .Where(c => QKeyValue.FindBoolAttribute(c.Attributes, "existential"))
-                .Iter(c => CandidateConstants.Add(c.Name, c));
+                .ForEach(c => CandidateConstants.Add(c.Name, c));
 
             // Instrument the ensures
             foreach (var impl in program.TopLevelDeclarations.OfType<Implementation>())
@@ -371,7 +371,7 @@ namespace CoreLib
                     foreach (var tup in callSiteVarToConstantToExpr)
                     {
                         var expr = VCExpressionGenerator.False;
-                        tup.Value.Values.Iter(e => expr = prover.VCExprGen.Or(expr, e));
+                        tup.Value.Values.ForEach(e => expr = prover.VCExprGen.Or(expr, e));
                         prover.Assert(prover.VCExprGen.Implies(nameToCallSiteVar[tup.Key], expr), true);
                     }
 
@@ -464,7 +464,7 @@ namespace CoreLib
         {
             var impls = new HashSet<string>();
             program.TopLevelDeclarations.OfType<Implementation>()
-                .Iter(impl => impls.Add(impl.Name));
+                .ForEach(impl => impls.Add(impl.Name));
 
             var sccs = new StronglyConnectedComponents<string>(callgraph.Nodes,
                 new Adjacency<string>(n => DualHoudini ? callgraph.Successors(n) : callgraph.Predecessors(n)),

@@ -57,10 +57,10 @@ namespace CoreLib {
 
             // Create all VCs
             impls
-                .Iter(attachEnsures);
+                .ForEach(attachEnsures);
 
             impls
-                .Iter(GenVC);
+                .ForEach(GenVC);
 
         }
 
@@ -77,13 +77,13 @@ namespace CoreLib {
 
             program.TopLevelDeclarations
                 .OfType<Implementation>()
-                .Iter(impl => impl2Summary.Add(impl.Name, summaryClass.GetFlaseSummary(program, impl)));
+                .ForEach(impl => impl2Summary.Add(impl.Name, summaryClass.GetFlaseSummary(program, impl)));
 
             // Build call graph
             var Succ = new Dictionary<Implementation, HashSet<Implementation>>();
             var Pred = new Dictionary<Implementation, HashSet<Implementation>>();
-            name2Impl.Values.Iter(impl => Succ.Add(impl, new HashSet<Implementation>()));
-            name2Impl.Values.Iter(impl => Pred.Add(impl, new HashSet<Implementation>()));
+            name2Impl.Values.ForEach(impl => Succ.Add(impl, new HashSet<Implementation>()));
+            name2Impl.Values.ForEach(impl => Pred.Add(impl, new HashSet<Implementation>()));
 
             foreach (var impl in program.TopLevelDeclarations.OfType<Implementation>())
             {
@@ -109,13 +109,13 @@ namespace CoreLib {
             int p = 0;
             foreach (var scc in sccs)
             {
-                scc.Iter(n => impl2Priority.Add(n.Name, p));
+                scc.ForEach(n => impl2Priority.Add(n.Name, p));
                 p++;
             }
 
             var worklist = new SortedSet<Tuple<int, Implementation>>();
             name2Impl.Values
-                .Iter(impl => worklist.Add(Tuple.Create(impl2Priority[impl.Name], impl)));
+                .ForEach(impl => worklist.Add(Tuple.Create(impl2Priority[impl.Name], impl)));
 
             while (worklist.Any())
             {
@@ -126,7 +126,7 @@ namespace CoreLib {
 
                 if (changed)
                 {
-                    Pred[impl].Iter(pred => worklist.Add(Tuple.Create(impl2Priority[pred.Name], pred)));
+                    Pred[impl].ForEach(pred => worklist.Add(Tuple.Create(impl2Priority[pred.Name], pred)));
                 }
             }
 
@@ -346,7 +346,7 @@ namespace CoreLib {
                     Debug.Assert(!found);
                     found = true;
                     nary.Args.OfType<Expr>()
-                        .Iter(expr => impl2EndStateVars[impl.Name].Add(prover.Context.BoogieExprTranslator.Translate(expr)));
+                        .ForEach(expr => impl2EndStateVars[impl.Name].Add(prover.Context.BoogieExprTranslator.Translate(expr)));
                 }
             }
             Debug.Assert(found);
@@ -356,7 +356,7 @@ namespace CoreLib {
             visitor.Mutate(vcexpr, true);
 
             impl2CalleeSummaries.Add(impl.Name, new List<Tuple<string, VCExprNAry>>());
-            visitor.summaryPreds.Iter(tup => impl2CalleeSummaries[impl.Name].Add(tup));
+            visitor.summaryPreds.ForEach(tup => impl2CalleeSummaries[impl.Name].Add(tup));
         }
     }
 
@@ -396,12 +396,12 @@ namespace CoreLib {
                 .OfType<IdentifierExpr>()
                 .Select(ie => ie.Decl)
                 .Where(v => v.TypedIdent.Type.IsInt)
-                .Iter(v => vars.Add(v));
+                .ForEach(v => vars.Add(v));
             impl.OutParams.OfType<Variable>()
                 .Where(v => v.TypedIdent.Type.IsInt)
-                .Iter(v => vars.Add(v));
+                .ForEach(v => vars.Add(v));
 
-            vars.Iter(v => val.Add(v.Name, null));
+            vars.ForEach(v => val.Add(v.Name, null));
         }
 
 
@@ -443,7 +443,7 @@ namespace CoreLib {
                     continue;
 
                 var vexpr = VCExpressionGenerator.False;
-                consts.Iter(c => vexpr = gen.OrSimp(vexpr, gen.Eq(incarnations[v.Name], gen.Integer(Microsoft.BaseTypes.BigNum.FromInt(c)))));
+                consts.ForEach(c => vexpr = gen.OrSimp(vexpr, gen.Eq(incarnations[v.Name], gen.Integer(Microsoft.BaseTypes.BigNum.FromInt(c)))));
                 ret = gen.AndSimp(ret, vexpr);
             }
 
@@ -465,7 +465,7 @@ namespace CoreLib {
                     continue;
 
                 var vexpr = "false";
-                consts.Iter(c => vexpr = 
+                consts.ForEach(c => vexpr = 
                     string.Format("{0} OR ({1} == {2})", vexpr, v.Name, c));
 
                 ret = string.Format("{0} AND ({1})", ret, vexpr);

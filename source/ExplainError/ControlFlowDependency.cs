@@ -33,11 +33,11 @@ namespace ExplainError
         {
             Console.WriteLine("Performing ControlFlowDependencyPrePass.....\n");
             (new ModSetCollector()).DoModSetAnalysis(prog);
-            prog.Implementations.Iter(impl => (new SplitBranchBlocks(impl)).Run());
-            prog.Implementations.Iter(impl => (new IntraProcModSetComputerPerImpl(this, impl)).Run());
+            prog.Implementations.ForEach(impl => (new SplitBranchBlocks(impl)).Run());
+            prog.Implementations.ForEach(impl => (new IntraProcModSetComputerPerImpl(this, impl)).Run());
             // Add place holders for variables/blocks
             prog.TopLevelDeclarations.OfType<Implementation>()
-                .Iter(InstrumentImplementation);
+                .ForEach(InstrumentImplementation);
         }
 
         /// <summary>
@@ -156,7 +156,7 @@ namespace ExplainError
             {
                 impl.ComputePredecessorsForBlocks();
                 //Perform fine grained block level analysis
-                impl.Blocks.Iter
+                impl.Blocks.ForEach
                     (b =>
                     {
                         successorBlocks[b] = new HashSet<Block>();
@@ -173,7 +173,7 @@ namespace ExplainError
                 //find the (branch,join) pairs
                 FindBranchJoinPairs();
                 branchJoinPairs
-                    .Iter(x => parent.branchJoinPairModSet[impl.Name]
+                    .ForEach(x => parent.branchJoinPairModSet[impl.Name]
                         .Add(Tuple.Create(x.Item1.ToString(), ReturnNodeString(x.Item2),
                         intraProcPairBlockModSet[x])));
             }
@@ -215,7 +215,7 @@ namespace ExplainError
                         Debug.Assert(!allJoinNodes.Contains(node), string.Format("ERROR!! Multiple branch nodes for the same join node {0} in {1}", node, impl.Name));
                         allJoinNodes.Add(node);
                     }
-                    joinNodes.Iter(j => branchJoinPairs.Add(Tuple.Create(branchNode, j)));
+                    joinNodes.ForEach(j => branchJoinPairs.Add(Tuple.Create(branchNode, j)));
                 }
                 //TODO: remove all entries (b1,n), (b2,n), (b3, n) .. with the same join node
             }
@@ -229,7 +229,7 @@ namespace ExplainError
                         if (cmd is AssignCmd)
                         {
                             var ac = cmd as AssignCmd;
-                            ac.Lhss.Iter(x => modVars.Add(x.DeepAssignedVariable));
+                            ac.Lhss.ForEach(x => modVars.Add(x.DeepAssignedVariable));
                         }
                         if (cmd is HavocCmd)
                         {
@@ -246,7 +246,7 @@ namespace ExplainError
                     return modVars;
                 });
 
-                impl.Blocks.Iter
+                impl.Blocks.ForEach
                     (b =>
                     {
                         HashSet<Variable> modBl = ModSetOfABlock(b);
@@ -279,7 +279,7 @@ namespace ExplainError
                         //comress any chain block
                         while(chainBlocks.Contains(b2))
                         {
-                            modSetBlock[b2].Iter(x => mods.Add(x));
+                            modSetBlock[b2].ForEach(x => mods.Add(x));
                             b2 = successorBlocks[b2].ToArray()[0]; //guaranteed by chainBlocks definition
                         }
                         //both b and b2 are not chainBlocks
@@ -288,7 +288,7 @@ namespace ExplainError
                         workList.Add(bb2);
                         if (!intraProcPairBlockModSet.ContainsKey(bb2))
                             intraProcPairBlockModSet[bb2] = new HashSet<Variable>();
-                        mods.Iter(x => intraProcPairBlockModSet[bb2].Add(x)); //union existing mod set from other edges
+                        mods.ForEach(x => intraProcPairBlockModSet[bb2].Add(x)); //union existing mod set from other edges
                     }
                 }
             }
@@ -310,10 +310,10 @@ namespace ExplainError
                         else
                             intraProcPairBlockModSet[b1b3] = new HashSet<Variable>();
                         var newvs = new HashSet<Variable>();
-                        vs.Union(intraProcPairBlockModSet[b1b3]).Iter(x => newvs.Add(x));
+                        vs.Union(intraProcPairBlockModSet[b1b3]).ForEach(x => newvs.Add(x));
                         if (newvs.Count > prevCount) //add if previously not present or weight has changed
                         {
-                            newvs.Iter(x => intraProcPairBlockModSet[b1b3].Add(x));
+                            newvs.ForEach(x => intraProcPairBlockModSet[b1b3].Add(x));
                             if (!workList.Contains(b1b3)) workList.Add(b1b3);
                         }
                     }
@@ -346,14 +346,14 @@ namespace ExplainError
                                 predStart[start].Add(succ.Key);
                             //start->end + end->d      --> start->d
                             if (succ.Key == end && addSuccEnd)
-                                succ.Value.Iter(d => succEnd[end].Add(d));
+                                succ.Value.ForEach(d => succEnd[end].Add(d));
                         }
                     } else
                     {
                         skippedCount++; //we are able to skip the expensive construction of succ/pred relation
                     }
-                    predStart[start].Iter(x => UpdateTransitiveEdge(x, start, end));
-                    succEnd[end].Iter(x => UpdateTransitiveEdge(start, end, x));
+                    predStart[start].ForEach(x => UpdateTransitiveEdge(x, start, end));
+                    succEnd[end].ForEach(x => UpdateTransitiveEdge(start, end, x));
                     i++;
                 }
                 //Console.WriteLine("|WL| = {0}, |succBlocks| = {1}, SkippedCount = {2}", i, successorBlocks.Count, skippedCount);
@@ -379,7 +379,7 @@ namespace ExplainError
                 Console.WriteLine("---- Implementation  {0} ------", impl.Name);
                 //intraProcPairBlockModSet
                 //    .Keys
-                //    .Iter(x => Console.WriteLine(printModSetBtwn(x)));
+                //    .ForEach(x => Console.WriteLine(printModSetBtwn(x)));
                 //Console.WriteLine("--- Branch/Join pairs and their modsets ---\n\n{0}\n\n",
                 //    string.Join("\n", branchJoinPairs.Select(x => printModSetBtwn(x))));
                 Console.WriteLine("---Branch/Join pairs and modsets ---\n\n{0}\n\n",
@@ -414,7 +414,7 @@ namespace ExplainError
                     string.Join(",", matches.Select(x => x.Item1))));
                 branchBlockName = matches.First().Item1.ToString();
                 var tmpSet = new HashSet<string>();
-                matches.First().Item3.Select(x => x.ToString()).Iter(y => tmpSet.Add(y));
+                matches.First().Item3.Select(x => x.ToString()).ForEach(y => tmpSet.Add(y));
                 modSet = tmpSet;
                 return true;
             }

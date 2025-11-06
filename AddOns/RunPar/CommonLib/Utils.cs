@@ -62,7 +62,7 @@ namespace CommonLib
 
                 var map1 = new Dictionary<string, string>();
                 files.Where(s => !negativeFiles.Contains(s))
-                    .Iter(s => map1.Add(System.IO.Path.GetFileName(s), s));
+                    .ForEach(s => map1.Add(System.IO.Path.GetFileName(s), s));
 
                 // find the file_map.txt
                 var d = System.IO.Path.Combine(config.root, f.value);

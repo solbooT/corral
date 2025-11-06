@@ -289,7 +289,7 @@ namespace cba
                 if (d is GlobalVariable)
                 {
                     var ls = instrument((GlobalVariable)d);
-                    ls.Iterate(x => ret.Add((Declaration)x));
+                    ls.ForEachate(x => ret.Add((Declaration)x));
                 }
                 else if (d is Procedure)
                 {
@@ -409,7 +409,7 @@ namespace cba
                 }
 
                 var newg = mgr.duplicateGlobalVar(gbl, dup);
-                newg.Iterate(x => mods.Add(new IdentifierExpr(gbl.tok, x)));
+                newg.ForEachate(x => mods.Add(new IdentifierExpr(gbl.tok, x)));
                 copies.Add(gbl.Name, newg);
             }
 
@@ -1545,7 +1545,7 @@ namespace cba
 
             // build an inverted block map for the implementation
             var preds = new Dictionary<string, HashSet<string>>();
-            blockMap.Keys.Iter(st => preds.Add(st, new HashSet<string>()));
+            blockMap.Keys.ForEach(st => preds.Add(st, new HashSet<string>()));
 
             foreach (var blk in impl.Blocks)
             {
@@ -2098,7 +2098,7 @@ namespace cba
             implName = node.Name;
             localsToAdd = new List<LocalVariable>();
             node = base.VisitImplementation(node);
-            localsToAdd.Iterate(x => node.LocVars.Add((Variable)x));
+            localsToAdd.ForEachate(x => node.LocVars.Add((Variable)x));
 
             return node;
         }
@@ -2818,7 +2818,7 @@ namespace cba
             // backward call graph
             var callGraph = new Dictionary<string, HashSet<string>>();
             
-            program.TopLevelDeclarations.OfType<Procedure>().Iter(
+            program.TopLevelDeclarations.OfType<Procedure>().ForEach(
                 proc => callGraph.Add(proc.Name, new HashSet<string>()));
 
             foreach (var impl in program.TopLevelDeclarations.OfType<Implementation>())

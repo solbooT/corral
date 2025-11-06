@@ -268,7 +268,7 @@ namespace RunParClient
                         lock (log)
                         {
                             log.WriteLine("Thread {0} output:", id);
-                            output.Iter(s => log.WriteLine("{0}", s));
+                            output.ForEach(s => log.WriteLine("{0}", s));
                             if (!ex) log.WriteLine("Did not find a results file");
                         }
 

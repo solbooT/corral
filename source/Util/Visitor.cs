@@ -1144,7 +1144,7 @@ namespace cba.Util
 
             // Find declared globals
             program.TopLevelDeclarations.OfType<Variable>()
-                .Iter(v => rv.globals.Add(v.Name));
+                .ForEach(v => rv.globals.Add(v.Name));
             rv.declared = rv.globals;
 
             rv.VisitProgram(program);
@@ -1168,7 +1168,7 @@ namespace cba.Util
         public override Implementation VisitImplementation(Implementation node)
         {
             locals = new HashSet<string>();
-            node.LocVars.Iter(v => locals.Add(v.Name));
+            node.LocVars.ForEach(v => locals.Add(v.Name));
             
             declared = new HashSet<string>(globals);
             declared.UnionWith(locals);
@@ -1198,7 +1198,7 @@ namespace cba.Util
         {
             if (attr == null) return null;
             var vu = new VarsUsed();
-            attr.Params.Where(e => e is Expr).Iter(e => vu.VisitExpr(e as Expr));
+            attr.Params.Where(e => e is Expr).ForEach(e => vu.VisitExpr(e as Expr));
             if (!vu.varsUsed.IsSubsetOf(vars))
                 return attr.Next;
             attr.Next = Remove(attr.Next, vars);
@@ -1262,7 +1262,7 @@ namespace cba.Util
                 _anyExprMode = true;
 
                 _toConsume.Pop();
-                ((NAryExpr)_toConsume.Peek()).Args.Reverse().Iter(arg => _toConsume.Push(arg));
+                ((NAryExpr)_toConsume.Peek()).Args.Reverse().ForEach(arg => _toConsume.Push(arg));
                 var result = VisitNAryExpr(node);
 
                 _anyExprMode = false;
@@ -1299,7 +1299,7 @@ namespace cba.Util
             if (naeToConsume.Fun.FunctionName == node.Fun.FunctionName)
             {
                 _toConsume.Pop();
-                naeToConsume.Args.Reverse().Iter(arg => _toConsume.Push(arg));
+                naeToConsume.Args.Reverse().ForEach(arg => _toConsume.Push(arg));
                 return base.VisitNAryExpr(node);
             }
             // the function in toConsume has a declaration in TemplateVariables
@@ -1337,7 +1337,7 @@ namespace cba.Util
                 FunctionSubstitution.Add(naeToConsume.Fun.FunctionName, node.Fun);
 
                 _toConsume.Pop();
-                naeToConsume.Args.Reverse().Iter(arg => _toConsume.Push(arg));
+                naeToConsume.Args.Reverse().ForEach(arg => _toConsume.Push(arg));
                 return base.VisitNAryExpr(node);
             }
             Matches = false;
@@ -1361,7 +1361,7 @@ namespace cba.Util
                 _anyExprMode = true;
 
                 _toConsume.Pop();
-                ((NAryExpr)_toConsume.Peek()).Args.Iter(arg => _toConsume.Push(arg));
+                ((NAryExpr)_toConsume.Peek()).Args.ForEach(arg => _toConsume.Push(arg));
                 var result = VisitIdentifierExpr(node);
 
                 _anyExprMode = false;
@@ -1417,7 +1417,7 @@ namespace cba.Util
                 _anyExprMode = true;
 
                 _toConsume.Pop();
-                ((NAryExpr)_toConsume.Peek()).Args.Iter(arg => _toConsume.Push(arg));
+                ((NAryExpr)_toConsume.Peek()).Args.ForEach(arg => _toConsume.Push(arg));
                 var result = VisitLiteralExpr(node);
 
                 _anyExprMode = false;

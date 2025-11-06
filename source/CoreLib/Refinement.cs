@@ -89,7 +89,7 @@ namespace cba
             var elim = new UnReadVarEliminator();
             prog = elim.run(prog);
             var globalsRead = new HashSet<string>();
-            BoogieUtil.GetGlobalVariables(prog).Iter(v => globalsRead.Add(v.Name));
+            BoogieUtil.GetGlobalVariables(prog).ForEach(v => globalsRead.Add(v.Name));
 
             BoogieUtil.DoModSetAnalysis(prog);
             HashSet<string> globalsModified = new HashSet<string>();
@@ -824,7 +824,7 @@ namespace cba
 
             program.TopLevelDeclarations
                 .OfType<Implementation>()
-                .Iter(pruneFalseBlocks);
+                .ForEach(pruneFalseBlocks);
 
             return new PersistentProgram(program);
         }
@@ -836,13 +836,13 @@ namespace cba
                 .Where(blk => blk != impl.Blocks[0] && blk.Cmds.Count > 0 && BoogieUtil.isAssumeFalse(blk.Cmds[0]));
 
             var toPrune = new HashSet<string>();
-            blocks.Iter(blk => toPrune.Add(blk.Label));
+            blocks.ForEach(blk => toPrune.Add(blk.Label));
 
             // Prune
             var newBlocks = new List<Block>();
             impl.Blocks
                 .Filter(blk => !toPrune.Contains(blk.Label))
-                .Iter(blk => newBlocks.Add(blk));
+                .ForEach(blk => newBlocks.Add(blk));
 
             Debug.Assert(newBlocks[0] == impl.Blocks[0]);
 
@@ -857,7 +857,7 @@ namespace cba
                 gc.labelNames
                     .OfType<string>()
                     .Where(l => !toPrune.Contains(l))
-                    .Iter(l => ss.Add(l));
+                    .ForEach(l => ss.Add(l));
 
                 gc.labelNames = ss;
             }
@@ -1113,7 +1113,7 @@ namespace cba
                         if (lhs is MapAssignLhs)
                         {
                             varsUsed = new VarsUsed();
-                            (lhs as MapAssignLhs).Indexes.Iter(e => varsUsed.Visit(e));
+                            (lhs as MapAssignLhs).Indexes.ForEach(e => varsUsed.Visit(e));
                             var choice2 = getAllTrackedExpr(varsUsed.globalsUsed, impl.Name);
                             addChoice2(ref newBlocks, acmd, choice2, ref currLabel, ref currCmds, endLabel);
                         }
@@ -1334,8 +1334,8 @@ namespace cba
             var procs = BoogieUtil.GetProcedures(instrumentedProg);
             mainProcName = (inst.input as PersistentCBAProgram).mainProcName;
 
-            globals.Iter(g => allVars.Add(g.Name));
-            procs.Iter(p => allProcs.Add(p.Name));
+            globals.ForEach(g => allVars.Add(g.Name));
+            procs.ForEach(p => allProcs.Add(p.Name));
 
             newProcsAdded = inst.getInstrumentedProcedures();
 
@@ -1475,9 +1475,9 @@ namespace cba
             // Get hold of variables that were deleted
             var outProg = cp.output.getProgram();
             var inGlobals = new HashSet<string>();
-            BoogieUtil.GetGlobalVariables(inProg).Iter(g => inGlobals.Add(g.Name));
+            BoogieUtil.GetGlobalVariables(inProg).ForEach(g => inGlobals.Add(g.Name));
             var outGlobals = new HashSet<string>();
-            BoogieUtil.GetGlobalVariables(outProg).Iter(g => outGlobals.Add(g.Name));
+            BoogieUtil.GetGlobalVariables(outProg).ForEach(g => outGlobals.Add(g.Name));
             varsDeleted = inGlobals.Difference(outGlobals);
            
         }

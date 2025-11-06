@@ -105,7 +105,7 @@ namespace BctMemInst
 
             program.TopLevelDeclarations
                 .OfType<Implementation>()
-                .Iter(im.Instrument);
+                .ForEach(im.Instrument);
         }
 
         void Instrument(Implementation impl)
@@ -147,7 +147,7 @@ namespace BctMemInst
             var ret = new List<Cmd>();
 
             var gm = new GatherMemAccesses();
-            cmd.Ins.Where(e => e != null).Iter(e => gm.VisitExpr(e));
+            cmd.Ins.Where(e => e != null).ForEach(e => gm.VisitExpr(e));
 
             foreach (var tup in gm.accesses)
             {
@@ -178,8 +178,8 @@ namespace BctMemInst
 
             var reads = new GatherMemAccesses();
 
-            cmd.Lhss.Iter(e => reads.VisitExpr(e.AsExpr));
-            cmd.Rhss.Iter(e => reads.VisitExpr(e));
+            cmd.Lhss.ForEach(e => reads.VisitExpr(e.AsExpr));
+            cmd.Rhss.ForEach(e => reads.VisitExpr(e));
             foreach (var tup in reads.accesses)
             {
                 ret.AddRange(MkAssert(tup.Item2));

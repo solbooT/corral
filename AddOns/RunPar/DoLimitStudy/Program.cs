@@ -29,8 +29,8 @@ namespace Microsoft.Boogie
             this.preSet.UnionWith(preSet);
             this.postSet.UnionWith(postSet);
 
-            preSet.Iter<Expr>(n => preSetStr.Add(n.ToString()));
-            postSet.Iter<Expr>(n => postSetStr.Add(n.ToString()));
+            preSet.ForEach<Expr>(n => preSetStr.Add(n.ToString()));
+            postSet.ForEach<Expr>(n => postSetStr.Add(n.ToString()));
         }
 
         public override int GetHashCode()
@@ -431,7 +431,7 @@ namespace Microsoft.Boogie
             //prover = ProverInterface.CreateProver(summariesProgram, "log.txt", true, CommandLineOptions.Clo.ProverKillTime);
 
             List<Procedure> procList = new List<Procedure>();
-            freshProgram.TopLevelDeclarations.Iter<Declaration>(n => { if (n is Procedure) procList.Add(n as Procedure); });
+            freshProgram.TopLevelDeclarations.ForEach<Declaration>(n => { if (n is Procedure) procList.Add(n as Procedure); });
 
             Dictionary<string, Expr> recExprDict = new Dictionary<string, Expr>();
 
@@ -585,7 +585,7 @@ namespace Microsoft.Boogie
                         {
                             List<Expr> exps = houdiniOutSummaries[procname];
 
-                            exps.Iter<Expr>(n => proc.Ensures.Add(new Ensures(Token.NoToken, true, n, "from_proof", new QKeyValue(Token.NoToken, "from_proof", new List<object>(), null))));
+                            exps.ForEach<Expr>(n => proc.Ensures.Add(new Ensures(Token.NoToken, true, n, "from_proof", new QKeyValue(Token.NoToken, "from_proof", new List<object>(), null))));
                         }
                     }
                 }
@@ -600,7 +600,7 @@ namespace Microsoft.Boogie
             {
                 Dictionary<string, HashSet<Clause>> abstractSummaryDictClauseSet;
                 Dictionary<string, VCExpr> proc2abs = DoPredAbsUsingEnv(prover, environmentVariables, out abstractSummaryDictClauseSet);
-                abstractSummaryDictClauseSet.Keys.Iter<string>(n => RuleTemplateDB.RecordTemplates(n, abstractSummaryDictClauseSet[n], oldExprBindings));
+                abstractSummaryDictClauseSet.Keys.ForEach<string>(n => RuleTemplateDB.RecordTemplates(n, abstractSummaryDictClauseSet[n], oldExprBindings));
                 RuleTemplateDB.dump();
 
                 newfreshProgram.Resolve();
@@ -618,7 +618,7 @@ namespace Microsoft.Boogie
                         {
                             List<Expr> exps = houdiniOutSummaries[procname];
 
-                            exps.Iter<Expr>(n => proc.Ensures.Add(new Ensures(Token.NoToken, true, n, "from_proof", new QKeyValue(Token.NoToken, "from_proof", new List<object>(), null))));
+                            exps.ForEach<Expr>(n => proc.Ensures.Add(new Ensures(Token.NoToken, true, n, "from_proof", new QKeyValue(Token.NoToken, "from_proof", new List<object>(), null))));
                         }
                     }
                 }
@@ -674,7 +674,7 @@ namespace Microsoft.Boogie
                 VCExprEnvSelector sel = new VCExprEnvSelector(prover, envVars);
                 HashSet<VCExpr> selectedPredicates = sel.Select(e, f);
                 HashSet<Expr> selectedPredicatesExpr = new HashSet<Expr>();
-                selectedPredicates.Iter<VCExpr>(n => selectedPredicatesExpr.Add(VCExpr2Expr.VCExprToExpr(n, bound)));
+                selectedPredicates.ForEach<VCExpr>(n => selectedPredicatesExpr.Add(VCExpr2Expr.VCExprToExpr(n, bound)));
 
                 if (selectedPredicatesExpr.Count > 0)
                 {
@@ -683,7 +683,7 @@ namespace Microsoft.Boogie
                     else if (insertedSummaryType == InsertedSummaryType.EnvVarsInductiveSummaryGlobalPredicates)
                     {
                         //predicateSet.UnionWith(selectedPredicatesExpr);
-                        selectedPredicatesExpr.Iter<Expr>(n => { if (!predicateSetStr.Contains(n.ToString())) { predicateSetStr.Add(n.ToString()); predicateSet.Add(n); } });
+                        selectedPredicatesExpr.ForEach<Expr>(n => { if (!predicateSetStr.Contains(n.ToString())) { predicateSetStr.Add(n.ToString()); predicateSet.Add(n); } });
                     }
                     else
                         Contract.Assert(false);
@@ -733,8 +733,8 @@ namespace Microsoft.Boogie
                 HashSet<Clause> nextFrontier = new HashSet<Clause>();
                 int count = selectedPredicates.Count;
 
-                selectedPredicates.Iter<VCExpr>(n => currentFrontier.Add(new Clause(null, n, null)));
-                selectedPredicates.Iter<VCExpr>(n => currentFrontier.Add(new Clause(null, null, n)));
+                selectedPredicates.ForEach<VCExpr>(n => currentFrontier.Add(new Clause(null, n, null)));
+                selectedPredicates.ForEach<VCExpr>(n => currentFrontier.Add(new Clause(null, null, n)));
 
                 do
                 {
@@ -862,8 +862,8 @@ namespace Microsoft.Boogie
         public VCExpr getVCExpr(VCExpressionGenerator gen)
         {
             VCExpr v = VCExpressionGenerator.False;
-            pos.Iter<VCExpr>(n => v = gen.OrSimp(v, n));
-            neg.Iter<VCExpr>(n => v = gen.OrSimp(v, gen.Not(n)));
+            pos.ForEach<VCExpr>(n => v = gen.OrSimp(v, n));
+            neg.ForEach<VCExpr>(n => v = gen.OrSimp(v, gen.Not(n)));
 
             return v;
         }
@@ -1113,7 +1113,7 @@ namespace Microsoft.Boogie
             {
                 var mods = new HashSet<string>();
                 proc.Modifies.OfType<IdentifierExpr>()
-                    .Iter(ie => mods.Add(ie.Name));
+                    .ForEach(ie => mods.Add(ie.Name));
 
                 if (!mustMod.IsSubsetOf(mods)) return false;
                 if (mustNotMod.Intersection(mods).Any()) return false;
@@ -1221,7 +1221,7 @@ namespace Microsoft.Boogie
             if (InductiveSummaries.useDirectedRules == InductiveSummaries.TemplateType.OnlyHeadFreeTail)
             {
                 func2post = new Dictionary<string, Expr>();
-                templateDict.Iter<RuleTemplate>(n => n.preSet.Iter<Expr>(k => prePredicates.AddModuloNegation(k)));
+                templateDict.ForEach<RuleTemplate>(n => n.preSet.ForEach<Expr>(k => prePredicates.AddModuloNegation(k)));
             }
             else if (InductiveSummaries.useDirectedRules == InductiveSummaries.TemplateType.OnlyHeadBoundedTail)
             {
@@ -1245,7 +1245,7 @@ namespace Microsoft.Boogie
                 HashSet<RuleTemplate> selectedTemplates = new HashSet<RuleTemplate>();
 
                 HashSet<string> modifies = new HashSet<string>();
-                proc.Modifies.Iter<IdentifierExpr>(n => modifies.Add(n.ToString()));
+                proc.Modifies.ForEach<IdentifierExpr>(n => modifies.Add(n.ToString()));
 
                 foreach (RuleTemplate t in templates)
                 {
@@ -1264,7 +1264,7 @@ namespace Microsoft.Boogie
                         InductiveSummaries.useDirectedRules == InductiveSummaries.TemplateType.ClausePredicates)
                     {
                         HashSet<string> varsInFuncModifies = new HashSet<string>();
-                        proc.Modifies.Iter<IdentifierExpr>(n => varsInFuncModifies.Add(n.Name));
+                        proc.Modifies.ForEach<IdentifierExpr>(n => varsInFuncModifies.Add(n.Name));
 
                         HashSet<string> varsInPostPredicates = new HashSet<string>();
 
@@ -1342,7 +1342,7 @@ namespace Microsoft.Boogie
 
                         // create head of the rule as disjunction of predicates
                         Expr predicate = null;
-                        t.postSet.Iter<Expr>(n => { predicate = (predicate == null) ? n : Expr.Or(predicate, n); });
+                        t.postSet.ForEach<Expr>(n => { predicate = (predicate == null) ? n : Expr.Or(predicate, n); });
 
                         if (predicate == null)  // no summary of just pre predicates
                             continue;
@@ -1373,7 +1373,7 @@ namespace Microsoft.Boogie
 
                         // create head of the rule as disjunction of predicates
                         Expr predicate = null;
-                        t.postSet.Iter<Expr>(n => { predicate = (predicate == null) ? n : Expr.Or(predicate, n); });
+                        t.postSet.ForEach<Expr>(n => { predicate = (predicate == null) ? n : Expr.Or(predicate, n); });
 
                         if (predicate == null)  // no summary of just pre predicates
                             continue;
@@ -1568,16 +1568,16 @@ namespace Microsoft.Boogie
             templates
                 .Where(ee => BoogieUtil.checkAttrExists("typestate", ee.annotations)
                     && BoogieUtil.checkAttrExists("post", ee.annotations))
-                .Iter(ee => typestatePost.Add(ee.expr.ToString()));
+                .ForEach(ee => typestatePost.Add(ee.expr.ToString()));
             predicates.ExceptWith(typestatePost);
 #endif
 
             // write out the predicates
             Console.WriteLine("Predicates:");
-            predicates.Iter(s => Console.WriteLine("  {0}", s));
+            predicates.ForEach(s => Console.WriteLine("  {0}", s));
             using (var fs = new System.IO.StreamWriter("corralPredicates.txt"))
             {
-                predicates.Iter(s => fs.WriteLine("{0}", s));
+                predicates.ForEach(s => fs.WriteLine("{0}", s));
             }
 
             return houdiniSummaryOut;
@@ -1692,17 +1692,17 @@ namespace Microsoft.Boogie
             templates
                 .Where(ee => BoogieUtil.checkAttrExists("typestate", ee.annotations)
                     && BoogieUtil.checkAttrExists("post", ee.annotations))
-                .Iter(ee => typestatePost.Add(ee.expr.ToString()));
+                .ForEach(ee => typestatePost.Add(ee.expr.ToString()));
             predicates.ExceptWith(typestatePost);
 #endif
 
 #if false
             // write out the predicates
             Console.WriteLine("Predicates:");
-            predicates.Iter(s => Console.WriteLine("  {0}", s));
+            predicates.ForEach(s => Console.WriteLine("  {0}", s));
             using (var fs = new System.IO.StreamWriter("corralPredicates.txt"))
             {
-                predicates.Iter(s => fs.WriteLine("{0}", s));
+                predicates.ForEach(s => fs.WriteLine("{0}", s));
             }
 #endif
         }
@@ -1777,7 +1777,7 @@ namespace Microsoft.Boogie
                         HashSet<Expr> post = new HashSet<Expr>();
 
                         HashSet<string> modifies = new HashSet<string>();
-                        proc.Modifies.Iter<IdentifierExpr>(n => modifies.Add(n.ToString()));
+                        proc.Modifies.ForEach<IdentifierExpr>(n => modifies.Add(n.ToString()));
 
                         foreach (Expr predicate in predicateSet)
                         {
@@ -1999,16 +1999,16 @@ namespace Microsoft.Boogie
             templates
                 .Where(ee => BoogieUtil.checkAttrExists("typestate", ee.annotations)
                     && BoogieUtil.checkAttrExists("post", ee.annotations))
-                .Iter(ee => typestatePost.Add(ee.expr.ToString()));
+                .ForEach(ee => typestatePost.Add(ee.expr.ToString()));
             predicates.ExceptWith(typestatePost);
 #endif
 
             // write out the predicates
             Console.WriteLine("Predicates:");
-            predicates.Iter(s => Console.WriteLine("  {0}", s));
+            predicates.ForEach(s => Console.WriteLine("  {0}", s));
             using (var fs = new System.IO.StreamWriter("corralPredicates.txt"))
             {
-                predicates.Iter(s => fs.WriteLine("{0}", s));
+                predicates.ForEach(s => fs.WriteLine("{0}", s));
             }
 
             return houdiniSummaryOut;

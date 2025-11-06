@@ -73,10 +73,10 @@ namespace FastAVN
                 Driver.useMemNotDisk = true;
 
             args.Where(s => s.StartsWith("/aopt:"))
-                .Iter(s => avnArgs += " /" + s.Substring("/aopt:".Length) + " ");
+                .ForEach(s => avnArgs += " /" + s.Substring("/aopt:".Length) + " ");
 
             args.Where(s => s.StartsWith("/hopt:"))
-                .Iter(s => avHarnessInstrArgs += " /" + s.Substring("/hopt:".Length) + " ");
+                .ForEach(s => avHarnessInstrArgs += " /" + s.Substring("/hopt:".Length) + " ");
 
             if (args.Any(s => s == "/createEntrypointBplsOnly"))
                 Driver.createEntryPointBplsOnly = true;
@@ -103,30 +103,30 @@ namespace FastAVN
             
             // user definded verbose level
             args.Where(s => s.StartsWith("/verbose:"))
-                .Iter(s => verbose = int.Parse(s.Substring("/verbose:".Length)));
+                .ForEach(s => verbose = int.Parse(s.Substring("/verbose:".Length)));
 
             // depth k used by implementation pruning
             args.Where(s => s.StartsWith("/angelicAfterDepth:"))
-                .Iter(s => approximationDepth = int.Parse(s.Substring("/angelicAfterDepth:".Length)));
+                .ForEach(s => approximationDepth = int.Parse(s.Substring("/angelicAfterDepth:".Length)));
 
             // depth k used by implementation pruning
             args.Where(s => s.StartsWith("/blockAfterDepth:"))
-                .Iter(s => blockingDepth = int.Parse(s.Substring("/blockAfterDepth:".Length)));
+                .ForEach(s => blockingDepth = int.Parse(s.Substring("/blockAfterDepth:".Length)));
 
             args.Where(s => s.StartsWith("/numThreads:"))
-                .Iter(s => numThreads = int.Parse(s.Substring("/numThreads:".Length)));
+                .ForEach(s => numThreads = int.Parse(s.Substring("/numThreads:".Length)));
 
             args.Where(s => s.StartsWith("/killAfter:"))
-                .Iter(s => deadline = int.Parse(s.Substring("/killAfter:".Length)));
+                .ForEach(s => deadline = int.Parse(s.Substring("/killAfter:".Length)));
 
             args.Where(s => s.StartsWith("/entryPointProc:"))
-                .Iter(s =>
+                .ForEach(s =>
                     {
                         if (entryPointProcs == null) { entryPointProcs = new HashSet<string>(); }
                         entryPointProcs.Add(s.Substring("/entryPointProc:".Length));
                     });
             args.Where(s => s.StartsWith("/entryPointExcludes:"))
-                .Iter(s =>
+                .ForEach(s =>
                 {
                     if (entryPointExcludes == null) { entryPointExcludes = new HashSet<string>(); }
                     entryPointExcludes.Add(s.Substring("/entryPointExcludes:".Length));
@@ -188,18 +188,18 @@ namespace FastAVN
                                     
                     if (entryPointProcs != null)
                     {
-                        entryPointProcs.Iter(s => avHarnessInstrArgs += string.Format("/entryPointProc:{0} ", s));
+                        entryPointProcs.ForEach(s => avHarnessInstrArgs += string.Format("/entryPointProc:{0} ", s));
                     }
                     if (entryPointExcludes != null)
                     {
-                        entryPointExcludes.Iter(s => avHarnessInstrArgs += string.Format("/entryPointExcludes:{0} ", s));
+                        entryPointExcludes.ForEach(s => avHarnessInstrArgs += string.Format("/entryPointExcludes:{0} ", s));
                     }
 
                     // Run harness instrumentation    
                     var resultfile = Path.Combine(Directory.GetCurrentDirectory(), "hinst.bpl");
                     var hinstOut = RemoteExec.run(Directory.GetCurrentDirectory(), avHarnessInstrPath, string.Format("{0} \"{1}\" {2}", inputfile, resultfile, avHarnessInstrArgs));                    
 
-                    hinstOut.Iter(s => Console.WriteLine("[hinst] {0}", s));
+                    hinstOut.ForEach(s => Console.WriteLine("[hinst] {0}", s));
 
                     if (!File.Exists(resultfile))
                         throw new Exception("Error running harness instrumentation");
@@ -217,7 +217,7 @@ namespace FastAVN
                     {
                         b.Cmds.OfType<CallCmd>()
                             .Where(cc => QKeyValue.FindBoolAttribute(cc.Attributes, AvUtil.AvnAnnotations.AvhEntryPointAttr))
-                            .Iter(cc => entrypoints.Add(cc.callee));
+                            .ForEach(cc => entrypoints.Add(cc.callee));
                     }
                 }
                 else
@@ -225,7 +225,7 @@ namespace FastAVN
                     program = BoogieUtil.ReadAndOnlyResolve(inputfile);
                     program.TopLevelDeclarations.OfType<Implementation>()
                         .Where(impl => !useProvidedEntryPoints || QKeyValue.FindBoolAttribute(impl.Attributes, "entrypoint") || QKeyValue.FindBoolAttribute(impl.Proc.Attributes, "entrypoint"))
-                        .Iter(impl => entrypoints.Add(impl.Name));
+                        .ForEach(impl => entrypoints.Add(impl.Name));
 
                     var mayReach = 
                         BoogieUtil.procsThatMaySatisfyPredicate(program, cmd => (cmd is AssertCmd && !BoogieUtil.isAssertTrue(cmd)));
@@ -394,14 +394,14 @@ namespace FastAVN
                 // function call graph
                 var funcCallGraph = new Microsoft.Boogie.GraphUtil.Graph<string>();
                 prog.TopLevelDeclarations.OfType<Function>()
-                    .Iter(f => funcCallGraph.Nodes.Add(f.Name));
+                    .ForEach(f => funcCallGraph.Nodes.Add(f.Name));
 
                 foreach(var func in prog.TopLevelDeclarations.OfType<Function>())
                 {
                     if (func.Body == null) continue;
                     var vu = new VarsUsed();
                     vu.VisitExpr(func.Body);
-                    vu.functionsUsed.Iter(used => funcCallGraph.AddEdge(func.Name, used));
+                    vu.functionsUsed.ForEach(used => funcCallGraph.AddEdge(func.Name, used));
                 }
 
                 DeclToFunctionsUsed = new Dictionary<Declaration, HashSet<string>>();
@@ -429,10 +429,10 @@ namespace FastAVN
                 nonRootImpls = new HashSet<string>();
                 if (!earlySplit)
                 {
-                    edges.Iter(x => x.Value.Iter(y => nonRootImpls.Add(y)));
+                    edges.ForEach(x => x.Value.ForEach(y => nonRootImpls.Add(y)));
                 }
                 else {
-                    CallGraph.Edges.Iter(x => nonRootImpls.Add(x.Item2));
+                    CallGraph.Edges.ForEach(x => nonRootImpls.Add(x.Item2));
                 }
             }
 
@@ -482,8 +482,8 @@ namespace FastAVN
                     threads.Add(new Thread(new ThreadStart(w.RunSplitAndAvhAndAv)));
             }
 
-            threads.Iter(t => t.Start());
-            threads.Iter(t => t.Join());
+            threads.ForEach(t => t.Start());
+            threads.ForEach(t => t.Join());
 
             if (Driver.createEntryPointBplsOnly)
             {
@@ -542,7 +542,7 @@ namespace FastAVN
                 this.program = program; 
                 this.impls = impls;
                 this.implNames = new HashSet<string>();
-                impls.Iter(im => implNames.Add(im.Name));
+                impls.ForEach(im => implNames.Add(im.Name));
             }
 
             public void RunSplitAndAv()
@@ -660,7 +660,7 @@ namespace FastAVN
                         if (initProc != null)
                         {
                             BoogieUtil.GetReachableNodes(initProc.Name, CallGraph)
-                                .Iter(s => pruneAway.Remove(s));
+                                .ForEach(s => pruneAway.Remove(s));
                         }
 
                         Debug.Assert(!pruneAway.Contains(impl.Name));
@@ -699,7 +699,7 @@ namespace FastAVN
                     var globalsUsed = new HashSet<string>();
                     var functionsUsed = new HashSet<string>();
                     newprogram.TopLevelDeclarations.Where(decl => !(decl is GlobalVariable) && !(decl is Function))
-                        .Iter(decl =>
+                        .ForEach(decl =>
                         {
                             if(DeclToGlobalsUsed.ContainsKey(decl))
                                 globalsUsed.UnionWith(DeclToGlobalsUsed[decl]);
@@ -802,7 +802,7 @@ namespace FastAVN
                     currdepth++;
 
                     var next = new HashSet<string>();
-                    frontier.Iter(s => next.UnionWith(CallGraph.Successors(s)));
+                    frontier.ForEach(s => next.UnionWith(CallGraph.Successors(s)));
 
                     frontier = next.Difference(reachable);
                     reachable.UnionWith(next);
@@ -827,7 +827,7 @@ namespace FastAVN
                     }
 
                     using (StreamWriter sw = new StreamWriter(Path.Combine(wd, "stdout.txt")))
-                        output.Iter(s => sw.WriteLine("{0}", s));
+                        output.ForEach(s => sw.WriteLine("{0}", s));
                 }
 
                 Console.WriteLine("Running entrypoint {0} }}", impl);
@@ -836,7 +836,7 @@ namespace FastAVN
                 {
                     // collect and merge bugs
                     var bugs = collectBugs(Path.Combine(wd, bugReportFileName));
-                    bugs.Iter(b =>
+                    bugs.ForEach(b =>
                     {
                         if (!mergedBugs.ContainsKey(b)) mergedBugs[b] = 0;
                         mergedBugs[b] += 1;
@@ -958,7 +958,7 @@ namespace FastAVN
                     inconsistencySetTraceInfo[tup.Item3].metric_value += tup.Item2;
                     inconsistencySetTraceInfo[tup.Item3].traces.Add(Tuple.Create(tup.Item4, tup.Item5));
                 }
-                inconsistencySetAsserts.Iter(tup => tup.Value.Sort());
+                inconsistencySetAsserts.ForEach(tup => tup.Value.Sort());
 
                 // merge non-inconsistency bugs
                 foreach (var tup in traces.Where(t => t.Item3 < 0))
@@ -1118,10 +1118,10 @@ namespace FastAVN
                 foreach (var blk in impl.Blocks)
                 {
                     blk.Cmds.OfType<CallCmd>()
-                        .Iter(ccmd => edges[impl.Name].Add(ccmd.callee));
+                        .ForEach(ccmd => edges[impl.Name].Add(ccmd.callee));
                     blk.Cmds.OfType<ParCallCmd>()
-                        .Iter(pcmd => pcmd.CallCmds
-                            .Iter(ccmd => edges[impl.Name].Add(ccmd.callee)));
+                        .ForEach(pcmd => pcmd.CallCmds
+                            .ForEach(ccmd => edges[impl.Name].Add(ccmd.callee)));
                 }
             }
             return edges;
