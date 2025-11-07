@@ -320,7 +320,7 @@ namespace ProofMinimization
         public static void RunOnce(PersistentProgram inprog, bool printcontracts)
         {
             var program = inprog.getProgram();
-            program.Typecheck();
+            program.Typecheck(null);
             BoogieUtil.PrintProgram(program, "hi_query.bpl");
 
             Console.WriteLine("Running HoudiniLite");
@@ -329,7 +329,7 @@ namespace ProofMinimization
 
             // Read the program again, add contracts
             program = inprog.getProgram();
-            program.Typecheck();
+            program.Typecheck(null);
 
             var contracts =
                 CoreLib.HoudiniInlining.InstrumentHoudiniAssignment(program, assignment);
@@ -627,7 +627,7 @@ namespace ProofMinimization
             IterCnt++;
 
             var program = inp.getProgram();
-            program.Typecheck();
+            program.Typecheck(null);
 
             // Remove non-candidates
             CoreLib.HoudiniInlining.InstrumentHoudiniAssignment(program, candidates, true);
@@ -642,7 +642,7 @@ namespace ProofMinimization
 
             // Read the program again, add contracts
             program = inp.getProgram();
-            program.Typecheck();
+            program.Typecheck(null);
 
             CoreLib.HoudiniInlining.InstrumentHoudiniAssignment(program, assignment);
 

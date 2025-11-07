@@ -481,7 +481,7 @@ namespace ExplainError
                     oldExpr.ToString().Contains("!="))) continue;
 
                 assumeCmd.Expr = Expr.Not(oldExpr);
-                prog.Resolve(); prog.Typecheck(); //TODO: perhaps move this inside MyVerifyImplementation?
+                prog.Resolve(); prog.Typecheck(null); //TODO: perhaps move this inside MyVerifyImplementation?
                 Console.WriteLine("Checking the assume {0} ", assumeCmd);
                 if (VCVerifier.MyVerifyImplementation(currImpl) == ConditionGeneration.Outcome.Correct)
                 {
@@ -1261,7 +1261,7 @@ namespace ExplainError
                 Console.WriteLine("WARNING: {0} name resolution errors in {1}", errCount, fname);
                 return false;
             }
-            errCount = prog.Typecheck();
+            errCount = prog.Typecheck(null);
             if (errCount > 0)
             {
                 Console.WriteLine("WARNING: {0} type checking errors in {1}", errCount, fname);
@@ -1336,12 +1336,12 @@ namespace ExplainError
                 prog.AddTopLevelDeclaration(i);
                 prog.AddTopLevelDeclaration(p);
                 prog.Resolve();
-                prog.Typecheck();
+                prog.Typecheck(null);
                 var result = (MyVerifyImplementation(i, ref cexList) == VC.ConditionGeneration.Outcome.Correct);
                 prog.RemoveTopLevelDeclaration(i);
                 prog.RemoveTopLevelDeclaration(p);
                 prog.Resolve();
-                prog.Typecheck();
+                prog.Typecheck(null);
                 Console.Write(".");
                 if (verbose) Console.WriteLine("CheckIfExprFalse: input {0}, output {1}", e.ToString(), result);
                 checkIfExprFalseCalled = true;

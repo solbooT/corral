@@ -596,7 +596,7 @@ namespace cba
             {
                 BoogieVerify.removeAsserts = false;
                 var err = new List<BoogieErrorTrace>();
-                init.Typecheck();
+                init.Typecheck(null);
 
                 BoogieVerify.options = new BoogieVerifyOptions();
                 BoogieVerify.options.NonUniformUnfolding = config.NonUniformUnfolding;

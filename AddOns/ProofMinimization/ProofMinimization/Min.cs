@@ -477,7 +477,7 @@ namespace ProofMinimization
             foreach (var file in PreviousRunFailures.Concat<string>(rest))
             {
                 var program = fileToProg[file].getProgram();
-                program.Typecheck();
+                program.Typecheck(null);
 
                 // all constants
                 var allconstants = new HashSet<string>(
@@ -522,7 +522,7 @@ namespace ProofMinimization
 
                 // Read the program again, add contracts
                 program = fileToProg[file].getProgram();
-                program.Typecheck();
+                program.Typecheck(null);
 
                 // Enforce the assignment back into the program
                 CoreLib.HoudiniInlining.InstrumentHoudiniAssignment(program, assignment);
@@ -571,7 +571,7 @@ namespace ProofMinimization
         static BoogieVerify.ReturnStatus PruneAndRun(PersistentProgram inp, HashSet<string> candidates, out HashSet<string> assignment, ref int inlined)
         {
             var program = inp.getProgram();
-            program.Typecheck();
+            program.Typecheck(null);
 
             program =  BoogieUtil.ReResolve(program);
 
@@ -591,7 +591,7 @@ namespace ProofMinimization
 
             // Read the program again, add contracts
             program = inp.getProgram();
-            program.Typecheck();
+            program.Typecheck(null);
 
             CoreLib.HoudiniInlining.InstrumentHoudiniAssignment(program, assignment);
             //BoogieUtil.PrintProgram(program, "si_query" + IterCnt + ".bpl");

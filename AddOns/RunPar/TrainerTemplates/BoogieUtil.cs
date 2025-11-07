@@ -51,7 +51,7 @@ namespace Microsoft.Boogie
 
         public static bool TypecheckProgram(Program p, string filename)
         {
-            int errorCount = p.Typecheck();
+            int errorCount = p.Typecheck(null);
             if (errorCount != 0)
             {
                 PrintProgram(p, "error.bpl");
