@@ -2126,13 +2126,6 @@ namespace cba
             }
         }
         
-        public override List<Block> DoInlineBlocks(List<Block> blocks, ref bool inlinedSomething)
-        {
-            var ret = base.DoInlineBlocks(blocks, ref inlinedSomething);
-            traceStack.Pop();
-            return ret;
-        }
-
         protected override int GetInlineCount(CallCmd callCmd, Implementation impl)
         {
             var id = QKeyValue.FindIntAttribute(callCmd.Attributes, "InlineToTraceUniqueId", -1);

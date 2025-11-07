@@ -7,7 +7,6 @@ using Microsoft.Boogie;
 using Microsoft.Boogie.VCExprAST;
 using cba.Util;
 using VC;
-using Outcome = VC.VCGen.Outcome;
 using Bpl = Microsoft.Boogie;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
@@ -35,7 +34,7 @@ namespace CoreLib {
         public static readonly string summaryPredSuffix = "SummaryPred";
 
         // Essentials: VCGen, Prover, and reporter
-        VCGen vcgen;
+        VerificationConditionGenerator vcgen;
         ProverInterface prover;
         AbstractHoudiniErrorReporter reporter;
 
