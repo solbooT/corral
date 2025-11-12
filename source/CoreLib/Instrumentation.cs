@@ -797,7 +797,7 @@ namespace cba
                 var acmd = blk.Cmds[0] as AssumeCmd;
                 if (acmd == null) continue;
 
-                if (!BoogieApiHelpers.FindBoolAttribute(acmd.Attributes, "do_re")) continue;
+                if (!QKeyValueExtensions.FindBoolAttribute(acmd.Attributes, "do_re")) continue;
 
                 if (!preds.ContainsKey(blk.Label)) continue;
                 if(preds[blk.Label].Count != 1) continue;
@@ -820,7 +820,7 @@ namespace cba
                 if (!checkNegation(acmd.Expr, acmd2.Expr)) continue;
 
                 // Remove attribute
-                Debug.Assert(BoogieApiHelpers.FindBoolAttribute(acmd2.Attributes, "do_re"));
+                Debug.Assert(QKeyValueExtensions.FindBoolAttribute(acmd2.Attributes, "do_re"));
                 Debug.Assert(acmd2.Attributes.Key == "do_re");
                 Debug.Assert(acmd.Attributes.Key == "do_re");
 
@@ -834,7 +834,7 @@ namespace cba
                 if (!blk.WidenBlock /* TODO: check if property exists */) continue;
                 if (blk.Cmds.Count == 0) continue;
                 var acmd = blk.Cmds[0] as AssumeCmd;
-                if (acmd == null || !BoogieApiHelpers.FindBoolAttribute(acmd.Attributes, "do_re")) continue;
+                if (acmd == null || !QKeyValueExtensions.FindBoolAttribute(acmd.Attributes, "do_re")) continue;
                 Debug.Assert(acmd.Attributes.Key == "do_re");
                 acmd.Attributes = acmd.Attributes.Next;
             }
@@ -1028,7 +1028,7 @@ namespace cba
 
                     // raise exception before blocking assumes
                     var assumecmd = cmd as AssumeCmd;
-                    if (assumecmd != null && BoogieApiHelpers.FindBoolAttribute(assumecmd.Attributes, "do_re") && !InstrumentationConfig.cooperativeYield)
+                    if (assumecmd != null && QKeyValueExtensions.FindBoolAttribute(assumecmd.Attributes, "do_re") && !InstrumentationConfig.cooperativeYield)
                     {
                         curr_label = addRaiseExceptionInstrumentation(instrumented, curr, curr_label, true);
                         curr = new List<Cmd>();

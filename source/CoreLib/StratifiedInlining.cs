@@ -50,7 +50,7 @@ namespace CoreLib
             var assertLocations = new List<Procedure>();
             foreach (var impl in node.TopLevelDeclarations.OfType<Implementation>())
             {
-                if (BoogieApiHelpers.FindBoolAttribute(impl.Attributes, "entrypoint"))
+                if (QKeyValueExtensions.FindBoolAttribute(impl.Attributes, "entrypoint"))
                     continue;
                 if (cba.Util.BoogieVerify.ignoreAssertMethods.Contains(impl.Name))
                     continue;
@@ -225,7 +225,7 @@ namespace CoreLib
             LocateAsserts locate = new LocateAsserts();
             assertMethods = locate.VisitIt(prog);
             mainProc = prog.TopLevelDeclarations.OfType<Implementation>()
-                .Where(impl => BoogieApiHelpers.FindBoolAttribute(impl.Attributes, "entrypoint"))
+                .Where(impl => QKeyValueExtensions.FindBoolAttribute(impl.Attributes, "entrypoint"))
                 .Select(impl => impl.Proc)
                 .FirstOrDefault();
 
@@ -1748,7 +1748,7 @@ namespace CoreLib
                 .ForEach(impl => impls.Add(impl.Name, impl));
 
             var ep = program.TopLevelDeclarations.OfType<Implementation>()
-                .Where(impl => BoogieApiHelpers.FindBoolAttribute(impl.Attributes, "entrypoint"))
+                .Where(impl => QKeyValueExtensions.FindBoolAttribute(impl.Attributes, "entrypoint"))
                 .FirstOrDefault();
             main = ep.Name;
 
@@ -2401,7 +2401,7 @@ namespace CoreLib
                 .ForEach(impl => impls.Add(impl.Name, impl));
 
             var ep = program.TopLevelDeclarations.OfType<Implementation>()
-                .Where(impl => BoogieApiHelpers.FindBoolAttribute(impl.Attributes, "entrypoint"))
+                .Where(impl => QKeyValueExtensions.FindBoolAttribute(impl.Attributes, "entrypoint"))
                 .FirstOrDefault();
 
             var implToCalls = new Dictionary<string, HashSet<Tuple<int, string>>>();

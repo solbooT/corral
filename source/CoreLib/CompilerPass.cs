@@ -665,7 +665,7 @@ namespace cba
         {
             foreach (var impl in p.TopLevelDeclarations.OfType<Implementation>())
             {
-                if (BoogieApiHelpers.FindBoolAttribute(impl.Attributes, "entrypoint"))
+                if (QKeyValueExtensions.FindBoolAttribute(impl.Attributes, "entrypoint"))
                     continue;
 
                 var proc = impl.Proc;

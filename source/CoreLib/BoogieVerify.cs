@@ -157,7 +157,7 @@ namespace cba.Util
             var mains = new List<Implementation>(
                 program.TopLevelDeclarations
                 .OfType<Implementation>()
-                .Where(impl => BoogieApiHelpers.FindBoolAttribute(impl.Attributes, "entrypoint")));
+                .Where(impl => QKeyValueExtensions.FindBoolAttribute(impl.Attributes, "entrypoint")));
 
 
             VerificationConditionGenerator vcgen = null;
@@ -399,7 +399,7 @@ namespace cba.Util
         {
             var mains = program.TopLevelDeclarations
                 .OfType<Implementation>()
-                .Where(impl => BoogieApiHelpers.FindBoolAttribute(impl.Attributes, "entrypoint"));
+                .Where(impl => QKeyValueExtensions.FindBoolAttribute(impl.Attributes, "entrypoint"));
 
             foreach (var main in mains)
             {
@@ -448,7 +448,7 @@ namespace cba.Util
         {
             var mains = program.TopLevelDeclarations
                 .OfType<Implementation>()
-                .Where(impl => BoogieApiHelpers.FindBoolAttribute(impl.Attributes, "entrypoint"));
+                .Where(impl => QKeyValueExtensions.FindBoolAttribute(impl.Attributes, "entrypoint"));
 
             foreach (var main in mains)
             {
@@ -457,7 +457,7 @@ namespace cba.Util
                     Debug.Assert(blk.Cmds.Count > 0);
                     var acmd = blk.Cmds.Last() as AssumeCmd;
                     Debug.Assert(acmd != null);
-                    Debug.Assert(BoogieApiHelpers.FindBoolAttribute(acmd.Attributes, "OldAssert"));
+                    Debug.Assert(QKeyValueExtensions.FindBoolAttribute(acmd.Attributes, "OldAssert"));
                     var expr = acmd.Expr as NAryExpr;
                     Debug.Assert(expr != null);
                     Debug.Assert(expr.Fun is UnaryOperator);
@@ -496,7 +496,7 @@ namespace cba.Util
 
             var mains = program.TopLevelDeclarations
                 .OfType<Implementation>()
-                .Where(impl => BoogieApiHelpers.FindBoolAttribute(impl.Attributes, "entrypoint"));
+                .Where(impl => QKeyValueExtensions.FindBoolAttribute(impl.Attributes, "entrypoint"));
 
             if (mains.Count() != 1)
                 throw new InternalError("Wrong number of entrypoints for FindLeastToverify");

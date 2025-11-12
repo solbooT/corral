@@ -2102,7 +2102,7 @@ namespace cba
             }
             var entry = 
             TopLevelDeclarations.OfType<Implementation>()
-                .Where(impl => BoogieApiHelpers.FindBoolAttribute(impl.Attributes, "entrypoint"));
+                .Where(impl => QKeyValueExtensions.FindBoolAttribute(impl.Attributes, "entrypoint"));
             if (entry.Count() != 1)
                 throw new InternalError("InlineToTrace requires a unique entry poiny");
             var entryPoint = entry.First();

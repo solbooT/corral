@@ -756,7 +756,7 @@ namespace cba
                 if (scc.Count == 1)
                 {
                     var onlyProc = scc.First();
-                    if (nameImplMap.ContainsKey(onlyProc) && BoogieApiHelpers.FindBoolAttribute(nameImplMap[onlyProc].Attributes, "LoopProcedure"))
+                    if (nameImplMap.ContainsKey(onlyProc) && QKeyValueExtensions.FindBoolAttribute(nameImplMap[onlyProc].Attributes, "LoopProcedure"))
                         continue;
 
                     if (graph.Successors(onlyProc).All(callee => callee != onlyProc))

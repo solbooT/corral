@@ -83,7 +83,7 @@ namespace CoreLib
             // Gather existential constants
             var CandidateConstants = new Dictionary<string, Constant>();
             program.TopLevelDeclarations.OfType<Constant>()
-                .Where(c => BoogieApiHelpers.FindBoolAttribute(c.Attributes, "existential"))
+                .Where(c => QKeyValueExtensions.FindBoolAttribute(c.Attributes, "existential"))
                 .ForEach(c => CandidateConstants.Add(c.Name, c));
 
             // Create a function, one for each impl, for book-keeping
@@ -126,7 +126,7 @@ namespace CoreLib
                         var acmd = blk.Cmds[i] as AssumeCmd;
                         if (acmd == null) continue;
 
-                        if (BoogieApiHelpers.FindBoolAttribute(acmd.Attributes, StratifiedVCGenBase.callSiteVarAttr))
+                        if (QKeyValueExtensions.FindBoolAttribute(acmd.Attributes, StratifiedVCGenBase.callSiteVarAttr))
                         {
                             cv = acmd.Expr;
                             continue;
@@ -265,7 +265,7 @@ namespace CoreLib
             // Gather existential constants
             var CandidateConstants = new Dictionary<string, Constant>();
             program.TopLevelDeclarations.OfType<Constant>()
-                .Where(c => BoogieApiHelpers.FindBoolAttribute(c.Attributes, "existential"))
+                .Where(c => QKeyValueExtensions.FindBoolAttribute(c.Attributes, "existential"))
                 .ForEach(c => CandidateConstants.Add(c.Name, c));
 
             // Instrument the ensures

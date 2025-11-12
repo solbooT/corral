@@ -637,8 +637,8 @@ namespace cba
 
             public bool Match(Procedure proc)
             {
-                if (BoogieApiHelpers.FindBoolAttribute(annotations, "loop") &&
-                    !BoogieApiHelpers.FindBoolAttribute(proc.Attributes, "LoopProcedure"))
+                if (QKeyValueExtensions.FindBoolAttribute(annotations, "loop") &&
+                    !QKeyValueExtensions.FindBoolAttribute(proc.Attributes, "LoopProcedure"))
                     return false;
 
                 var mods = new HashSet<string>();
@@ -648,7 +648,7 @@ namespace cba
                 if (!mustMod.IsSubsetOf(mods)) return false;
                 if (mustNotMod.Intersection(mods).Any()) return false;
 
-                if (BoogieApiHelpers.FindBoolAttribute(annotations, "mustfail"))
+                if (QKeyValueExtensions.FindBoolAttribute(annotations, "mustfail"))
                 {
                     Debug.Assert(procsThatFail != null);
                     return procsThatFail.Contains(proc.Name);
@@ -792,10 +792,10 @@ namespace cba
                 var tv = templateVars.First(v => v.Name == tvName);
                 matches.Add(tvName, new HashSet<Variable>());
 
-                var includeFormalIn = BoogieApiHelpers.FindBoolAttribute(tv.Attributes, "includeFormalIn");
-                var includeFormalOut = BoogieApiHelpers.FindBoolAttribute(tv.Attributes, "includeFormalOut");
-                var includeGlobals = BoogieApiHelpers.FindBoolAttribute(tv.Attributes, "includeGlobals");
-                var includeLoopLocals = BoogieApiHelpers.FindBoolAttribute(tv.Attributes, "includeLoopLocals");
+                var includeFormalIn = QKeyValueExtensions.FindBoolAttribute(tv.Attributes, "includeFormalIn");
+                var includeFormalOut = QKeyValueExtensions.FindBoolAttribute(tv.Attributes, "includeFormalOut");
+                var includeGlobals = QKeyValueExtensions.FindBoolAttribute(tv.Attributes, "includeGlobals");
+                var includeLoopLocals = QKeyValueExtensions.FindBoolAttribute(tv.Attributes, "includeLoopLocals");
 
                 if (!includeFormalIn && !includeFormalOut && !includeGlobals && !includeLoopLocals)
                 {
@@ -977,7 +977,7 @@ namespace cba
             var templateCounter = 0;
 
             // loop vars
-            var loopTemplateVars = new HashSet<string>(templateVars.Where(v => BoogieApiHelpers.FindBoolAttribute(v.Attributes, "includeLoopLocals")).Select(v => v.Name));
+            var loopTemplateVars = new HashSet<string>(templateVars.Where(v => QKeyValueExtensions.FindBoolAttribute(v.Attributes, "includeLoopLocals")).Select(v => v.Name));
 
             // Iterate over templates
             foreach (var template in templates)
@@ -988,10 +988,10 @@ namespace cba
                 foreach (var impl in program.TopLevelDeclarations.OfType<Implementation>())
                 {
                     var proc = impl.Proc;
-                    if (BoogieApiHelpers.FindBoolAttribute(impl.Attributes, "entrypoint")) continue;
-                    var nocandidates = BoogieApiHelpers.FindBoolAttribute(impl.Proc.Attributes, "nohoudini");
+                    if (QKeyValueExtensions.FindBoolAttribute(impl.Attributes, "entrypoint")) continue;
+                    var nocandidates = QKeyValueExtensions.FindBoolAttribute(impl.Proc.Attributes, "nohoudini");
                     if (!template.Match(proc)) continue;
-                    if (forLoopOnly && !BoogieApiHelpers.FindBoolAttribute(proc.Attributes, "LoopProcedure")) continue;
+                    if (forLoopOnly && !QKeyValueExtensions.FindBoolAttribute(proc.Attributes, "LoopProcedure")) continue;
 
                     if (!ret.ContainsKey(proc.Name)) ret.Add(proc.Name, new Dictionary<string, EExpr>());
 
@@ -1056,7 +1056,7 @@ namespace cba
             {
                 var impl = name2Impl[kvp.Key];
                 var proc = impl.Proc;
-                if (BoogieApiHelpers.FindBoolAttribute(impl.Attributes, "entrypoint")) continue;
+                if (QKeyValueExtensions.FindBoolAttribute(impl.Attributes, "entrypoint")) continue;
                 if (!ret.ContainsKey(proc.Name)) ret.Add(proc.Name, new Dictionary<string, EExpr>());
 
                 foreach (var expr in kvp.Value)
@@ -1089,7 +1089,7 @@ namespace cba
             {
                 var impl = name2Impl[kvp.Key];
                 var proc = impl.Proc;
-                if (BoogieApiHelpers.FindBoolAttribute(impl.Attributes, "entrypoint")) continue;
+                if (QKeyValueExtensions.FindBoolAttribute(impl.Attributes, "entrypoint")) continue;
                 if (!ret.ContainsKey(proc.Name)) ret.Add(proc.Name, new Dictionary<string, EExpr>());
 
                 foreach (var expr in kvp.Value)
@@ -1177,7 +1177,7 @@ namespace cba
 
             // find the entrypoint
             var ep = program.TopLevelDeclarations.OfType<Implementation>()
-                .Where(impl => BoogieApiHelpers.FindBoolAttribute(impl.Attributes, "entrypoint"))
+                .Where(impl => QKeyValueExtensions.FindBoolAttribute(impl.Attributes, "entrypoint"))
                 .FirstOrDefault();
 
             // convert assert to assume negation
@@ -1290,7 +1290,7 @@ namespace cba
                 foreach (var eexpr in templates)
                 {
                     if (!eexpr.IsFree) continue;
-                    if (BoogieApiHelpers.FindBoolAttribute(eexpr.annotations, "drop")) continue;
+                    if (QKeyValueExtensions.FindBoolAttribute(eexpr.annotations, "drop")) continue;
 
                     var allExprs = InstantiateTemplate(eexpr.expr, globals, formals, funcs);
 
@@ -1411,7 +1411,7 @@ namespace cba
                 {
                     // Turn off requires candidates
                     program.TopLevelDeclarations.OfType<Constant>()
-                        .Where(c => BoogieApiHelpers.FindBoolAttribute(c.Attributes, "existential"))
+                        .Where(c => QKeyValueExtensions.FindBoolAttribute(c.Attributes, "existential"))
                         .ForEach(c => allConstants.Add(c.Name));
 
                     origProg = BoogieUtil.ReResolve(program);
@@ -1661,7 +1661,7 @@ namespace cba
             protected override int GetInlineCount(CallCmd callCmd, Implementation impl)
             {
 
-                if (BoogieApiHelpers.FindBoolAttribute(callCmd.Attributes, "inlinecall"))
+                if (QKeyValueExtensions.FindBoolAttribute(callCmd.Attributes, "inlinecall"))
                 {
                     recursiveProcUnrollMap[impl.Name] = 1;
                     return 1;
@@ -1683,7 +1683,7 @@ namespace cba
 
             var ignoreImpl = new Predicate<Implementation>(impl =>
             {
-                bool r = BoogieApiHelpers.FindBoolAttribute(impl.Proc.Attributes, "nohoudini");
+                bool r = QKeyValueExtensions.FindBoolAttribute(impl.Proc.Attributes, "nohoudini");
                 return r;
             });
 
@@ -1836,7 +1836,7 @@ namespace cba
                 {
                     // Turn off requires candidates
                     program.TopLevelDeclarations.OfType<Constant>()
-                        .Where(c => BoogieApiHelpers.FindBoolAttribute(c.Attributes, "existential"))
+                        .Where(c => QKeyValueExtensions.FindBoolAttribute(c.Attributes, "existential"))
                         .ForEach(c => allConstants.Add(c.Name));
 
                     origProg = BoogieUtil.ReResolve(program);
@@ -2000,7 +2000,7 @@ namespace cba
                         }
                     });
 
-                if (BoogieApiHelpers.FindBoolAttribute(impl.Attributes, "entrypoint")) continue;
+                if (QKeyValueExtensions.FindBoolAttribute(impl.Attributes, "entrypoint")) continue;
                 if (!ret.ContainsKey(proc.Name)) ret.Add(proc.Name, new Dictionary<string, EExpr>());
 
                 List<Expr> requires = new List<Expr>();
@@ -2357,7 +2357,7 @@ namespace cba
                     .ForEach(proc => procsThatCannotReachAssert.Add(proc.Name));
 
                 program.TopLevelDeclarations.OfType<Procedure>()
-                    .Where(proc => BoogieApiHelpers.FindBoolAttribute(proc.Attributes, "LoopProcedure"))
+                    .Where(proc => QKeyValueExtensions.FindBoolAttribute(proc.Attributes, "LoopProcedure"))
                     .ForEach(proc => procsThatCannotReachAssert.Add(proc.Name));
             }
 
@@ -2384,7 +2384,7 @@ namespace cba
 
             // Identify main
             var main = program.TopLevelDeclarations.OfType<Implementation>()
-                .Where(impl => BoogieApiHelpers.FindBoolAttribute(impl.Attributes, "entrypoint"))
+                .Where(impl => QKeyValueExtensions.FindBoolAttribute(impl.Attributes, "entrypoint"))
                 .FirstOrDefault();
             if (main == null)
                 main = BoogieUtil.findProcedureImpl(program.TopLevelDeclarations, program.mainProcName);
@@ -2839,8 +2839,8 @@ namespace cba
         {
             // Identify main
             var main = program.TopLevelDeclarations.OfType<Implementation>()
-                .Where(impl => BoogieApiHelpers.FindBoolAttribute(impl.Attributes, "entrypoint") ||
-                    BoogieApiHelpers.FindBoolAttribute(impl.Proc.Attributes, "entrypoint"))
+                .Where(impl => QKeyValueExtensions.FindBoolAttribute(impl.Attributes, "entrypoint") ||
+                    QKeyValueExtensions.FindBoolAttribute(impl.Proc.Attributes, "entrypoint"))
                 .FirstOrDefault();
             if (main == null && program.mainProcName != null)
                 main = BoogieUtil.findProcedureImpl(program.TopLevelDeclarations, program.mainProcName);
@@ -2865,7 +2865,7 @@ namespace cba
                 .ForEach(proc => procsThatCannotReachAssert.Add(proc.Name));
 
             program.TopLevelDeclarations.OfType<Procedure>()
-                .Where(proc => BoogieApiHelpers.FindBoolAttribute(proc.Attributes, "LoopProcedure"))
+                .Where(proc => QKeyValueExtensions.FindBoolAttribute(proc.Attributes, "LoopProcedure"))
                 .ForEach(proc => procsThatCannotReachAssert.Add(proc.Name));
 
             // Make copies of all procedures that can reach assert

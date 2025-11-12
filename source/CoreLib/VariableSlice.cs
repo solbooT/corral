@@ -200,7 +200,7 @@ namespace cba
             // Check ensures annotations
             foreach (Ensures en in node.Ensures)
             {
-                if (BoogieApiHelpers.FindBoolAttribute(en.Attributes, "va_keep"))
+                if (QKeyValueExtensions.FindBoolAttribute(en.Attributes, "va_keep"))
                 {
                     abstracted_en.Add(en);
                     continue;
@@ -223,7 +223,7 @@ namespace cba
             // Check requires annotations
             foreach (Requires re in node.Requires)
             {
-                if (BoogieApiHelpers.FindBoolAttribute(re.Attributes, "va_keep"))
+                if (QKeyValueExtensions.FindBoolAttribute(re.Attributes, "va_keep"))
                 {
                     abstracted_req.Add(re);
                     continue;

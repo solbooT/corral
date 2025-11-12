@@ -69,7 +69,7 @@ namespace CoreLib {
 
             var main = program.TopLevelDeclarations
                 .OfType<Implementation>()
-                .Where(impl => BoogieApiHelpers.FindBoolAttribute(impl.Attributes, "entrypoint"))
+                .Where(impl => QKeyValueExtensions.FindBoolAttribute(impl.Attributes, "entrypoint"))
                 .FirstOrDefault();
 
             Debug.Assert(main != null);
@@ -504,9 +504,9 @@ namespace CoreLib {
                 if(!template.IsEnsures)
                     continue;
 
-                if(BoogieApiHelpers.FindBoolAttribute(template.annotations, "pre")) 
+                if(QKeyValueExtensions.FindBoolAttribute(template.annotations, "pre")) 
                     PrePreds.Add(template.getEnsures().Condition);
-                else if(BoogieApiHelpers.FindBoolAttribute(template.annotations, "post"))
+                else if(QKeyValueExtensions.FindBoolAttribute(template.annotations, "post"))
                     PostPreds.Add(template.getEnsures().Condition);
             }
         }
