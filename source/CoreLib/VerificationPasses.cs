@@ -6,6 +6,7 @@ using Microsoft.Boogie;
 using System.Diagnostics;
 using cba.Util;
 using Microsoft.Boogie.Houdini;
+using System.Threading.Tasks;
 
 namespace cba
 {
@@ -1307,7 +1308,7 @@ namespace cba
             }
         }
 
-        private void RunHoudini(CBAProgram program, Dictionary<string, Dictionary<string, EExpr>> info)
+        private async Task RunHoudini(CBAProgram program, Dictionary<string, Dictionary<string, EExpr>> info)
         {
             var runHoudiniLite = useHoudiniLite;
             if (checkAsserts || fastRequiresInference) runHoudiniLite = false;
@@ -1485,7 +1486,7 @@ namespace cba
                     Options.ReverseHoudiniWorklist = true;
                     var houdiniStats = new HoudiniSession.HoudiniStatistics();
                     Houdini houdini = new Houdini(origProg, houdiniStats);
-                    HoudiniOutcome outcomeReq = houdini.PerformHoudiniInference();
+                    HoudiniOutcome outcomeReq = await houdini.PerformHoudiniInference();
                     Debug.Assert(outcomeReq.ErrorCount == 0, "Something wrong with houdini");
                     Options.ReverseHoudiniWorklist = false;
 
@@ -1788,7 +1789,7 @@ namespace cba
 
 
         // simplified version of RunHoudini
-        private void RunHoudini(CBAProgram program)
+        private async Task RunHoudini(CBAProgram program)
         {
             inferred_asserts = new HashSet<KeyValuePair<string, string>>();
             Console.WriteLine("Running Houdini");
@@ -1858,7 +1859,7 @@ namespace cba
                 {
                     var houdiniStats = new HoudiniSession.HoudiniStatistics();
                     Houdini houdini = new Houdini(program, houdiniStats);
-                    outcome = houdini.PerformHoudiniInference( /* TODO: now returns Task */);
+                    outcome = await houdini.PerformHoudiniInference();
                     Debug.Assert(outcome.ErrorCount == 0, "Something wrong with houdini");
 
                     if (!fastRequiresInference)
@@ -1889,7 +1890,7 @@ namespace cba
                     ExecutionEngineOptions.Options.ReverseHoudiniWorklist = true;
                     var houdiniStats = new HoudiniSession.HoudiniStatistics();
                     Houdini houdini = new Houdini(origProg, houdiniStats);
-                    HoudiniOutcome outcomeReq = houdini.PerformHoudiniInference( /* TODO: now returns Task */);
+                    HoudiniOutcome outcomeReq = await houdini.PerformHoudiniInference();
                     Debug.Assert(outcomeReq.ErrorCount == 0, "Something wrong with houdini");
                     ExecutionEngineOptions.Options.ReverseHoudiniWorklist = false;
 
