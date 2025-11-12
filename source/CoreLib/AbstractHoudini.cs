@@ -47,8 +47,10 @@ namespace CoreLib {
             this.impl2Summary = new Dictionary<string, ISummaryElement>();
             this.name2Impl = BoogieUtil.nameImplMapping(program);
 
-            this.vcgen = new VerificationConditionGenerator(program, ExecutionEngineOptions.Options.ProverLogFilePath, ExecutionEngineOptions.Options.ProverLogFileAppend, new List<Checker>());
-            this.prover = ProverInterface.CreateProver(program, ExecutionEngineOptions.Options.ProverLogFilePath, ExecutionEngineOptions.Options.ProverLogFileAppend, ExecutionEngineOptions.Options.TimeLimit);
+            // TODO ExecutionEngineOptions.Options.ProverLogFilePath, ExecutionEngineOptions.Options.ProverLogFileAppend
+            this.vcgen = new VerificationConditionGenerator(program, new List<Checker>());
+            // TODO ExecutionEngineOptions.Options.ProverLogFilePath, ExecutionEngineOptions.Options.ProverLogFileAppend, ExecutionEngineOptions.Options.TimeLimit
+            this.prover = ProverInterface.CreateProver(program);
             this.reporter = new AbstractHoudiniErrorReporter();
 
             var impls = new List<Implementation>(

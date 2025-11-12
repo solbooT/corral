@@ -704,7 +704,7 @@ namespace cba.Util
                         {
                             Cmd c = b.Cmds[numInstr];
                             var calleeName = trace.GetCalledProcName( /* TODO: method name changed */c);
-                            var calleeTrace = trace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].counterexample;
+                            var calleeTrace = trace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].Counterexample;
                             ReconstructImperativeTrace(calleeTrace, calleeName, origProg);
                             calleeTraces.Add(
                                 new Duple<string, CalleeCounterexampleInfo>(
@@ -893,10 +893,10 @@ namespace cba.Util
                 {
                     Cmd c = b.Cmds[numInstr];
                     var loc = new TraceLocation(numBlock, numInstr);
-                    if (cex.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */.ContainsKey(loc))
+                    if (cex.CalleeCounterexamples.ContainsKey(loc))
                     {
                         printIndent(ttw, indent); ttw.WriteLine("call to {0}:", (c as CallCmd).Proc.Name);
-                        printLabels(cex.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].counterexample, ttw, indent + 1);
+                        printLabels(cex.CalleeCounterexamples[loc].Counterexample, ttw, indent + 1);
                         printIndent(ttw, indent); ttw.WriteLine("return from {0}.", (c as CallCmd).Proc.Name);
                         printIndent(ttw, indent); ttw.WriteLine(b.Label);
                     }

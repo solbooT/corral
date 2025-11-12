@@ -331,7 +331,7 @@ namespace cba
                     if (btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */.ContainsKey(loc))
                     {
                         ErrorTrace calleeTrace = constructErrorTrace(
-                             btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].counterexample, (c as CallCmd).Proc.Name, true, ref captureStateIndex);
+                             btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].Counterexample, (c as CallCmd).Proc.Name, true, ref captureStateIndex);
                         var info = new InstrInfo();
                         var cc = c as CallCmd;
                         Debug.Assert(cc != null);
@@ -448,7 +448,7 @@ namespace cba
                 if (btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */.ContainsKey(loc))
                 {
                     var calleeTrace = constructErrorTrace(
-                        btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].counterexample, (c as CallCmd).Proc.Name, true, ref captureStateIndex);
+                        btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].Counterexample, (c as CallCmd).Proc.Name, true, ref captureStateIndex);
                     var info = new InstrInfo();
 
                     var cc = c as CallCmd;
@@ -1618,7 +1618,7 @@ namespace cba
             foreach (Declaration d in program.TopLevelDeclarations)
             {
                 Implementation impl = d as Implementation;
-                if (impl != null && !impl.Skip /* TODO: SkipVerification changed to Skip */)
+                if (impl != null && !impl.IsSkipVerification(null))
                 {
                     if (ExecutionEngineOptions.Options.InlineDepth >= 0)
                     {

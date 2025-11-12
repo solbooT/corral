@@ -167,7 +167,7 @@ namespace cba
             loopImpls = loopImpls.Where(impl => !loopBounds.ContainsKey(impl.Name));
             #endregion
 
-            if (loopImpls.Count == 0)
+            if (loopImpls.Count() == 0)
                 return loopBounds;
 
             // Prepare query
@@ -178,8 +178,6 @@ namespace cba
             BoogieVerify.PrintImplsBeingVerified = true;
 
             // Set rec. bound
-            var oldBound = 999 /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */;
-            999 /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */ = maxBound;
 
             // Query
             var allErrors = new List<BoogieErrorTrace>();
@@ -193,7 +191,7 @@ namespace cba
                 Console.WriteLine("LB: Loop {0} requires minimum {1} iterations", loopName, bound);
             }
 
-            999 /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */ = oldBound;
+            ///* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */  = oldBound;
             BoogieVerify.PrintImplsBeingVerified = false;
             timeTaken = (DateTime.Now - start);
 
@@ -233,7 +231,7 @@ namespace cba
                     if (trace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */.ContainsKey(loc))
                     {
                         ret +=
-                            RecBound(recFunc, trace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].counterexample,
+                            RecBound(recFunc, trace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].Counterexample,
                             (c as CallCmd).Proc.Name);
                     }
                 }
@@ -712,7 +710,7 @@ namespace cba
                 foreach (Declaration d in TopLevelDeclarations)
                 {
                     Implementation impl = d as Implementation;
-                    if (impl != null && !impl.Skip /* TODO: SkipVerification changed to Skip */)
+                    if (impl != null && !impl.IsSkipVerification(null) /* TODO: SkipVerification changed to Skip */)
                     {
                         Inliner.ProcessImplementation(p as Program, impl);
                     }

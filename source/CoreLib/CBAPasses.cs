@@ -1135,7 +1135,7 @@ namespace cba
             999 /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */ = rb;
 
             // no loops found, then this transformation is identity
-            if (passInfo.Count == 0 && procsWithIrreducibleLoops.Count == 0)
+            if (passInfo.Count() == 0 && procsWithIrreducibleLoops.Count == 0)
                 return null;
 
             if (addUniqueCallLabels)
