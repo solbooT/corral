@@ -737,7 +737,7 @@ namespace cba
 
             if (Options.InlineDepth < 0)
                 return;
-            
+
             foreach (Implementation impl in impls)
             {
                 var inlineEnsuresVisitor = new Microsoft.Boogie.Houdini.InlineEnsuresVisitor();
@@ -751,7 +751,7 @@ namespace cba
             }
             foreach (Implementation impl in impls)
             {
-                Inliner.ProcessImplementationForHoudini(program, impl);
+                Inliner.ProcessImplementationForHoudini(null, program, impl);
             }
             foreach (Implementation impl in impls)
             {
