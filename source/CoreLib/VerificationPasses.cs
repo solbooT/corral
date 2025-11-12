@@ -1625,11 +1625,11 @@ namespace cba
                 {
                     if (Options.InlineDepth >= 0)
                     {
-                        Inliner.ProcessImplementation(Options, program, impl);
+                        Inliner.ProcessImplementation(null, Options, program, impl);
                     }
                     else
                     {
-                        CallInliner.ProcessImplementation(Options, program, impl);
+                        CallInliner.ProcessImplementation(null, Options, program, impl);
                     }
                     
                 }
@@ -1654,7 +1654,7 @@ namespace cba
 
             new public static void ProcessImplementation(Program program, Implementation impl)
             {
-                ProcessImplementation(program, impl, new CallInliner(program));
+                ProcessImplementation(null, program, impl, new CallInliner(program));
             }
         }
 

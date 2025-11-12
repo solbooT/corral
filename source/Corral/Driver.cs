@@ -780,7 +780,7 @@ namespace cba
             {
                 if (CommandLineOptions.UserWantsToCheckRoutine(impl.Name) && !impl.SkipVerification)
                 {
-                    CodeExprInliner.ProcessImplementation(program, impl);
+                    CodeExprInliner.ProcessImplementation(null, program, impl);
                 }
             }
             foreach (var impl in program.TopLevelDeclarations.OfType<Implementation>())
@@ -807,10 +807,10 @@ namespace cba
                 }
             }
 
-            new public static void ProcessImplementation(Program program, Implementation impl)
+            new public static void ProcessImplementation(null, Program program, Implementation impl)
             {
                 var ce = new CodeExprInliner(program);
-                ProcessImplementation(program, impl, ce);
+                ProcessImplementation(null, program, impl, ce);
                 ce.RestoreAnnotations();
             }
 

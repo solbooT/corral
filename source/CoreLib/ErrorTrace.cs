@@ -2112,7 +2112,7 @@ namespace cba
             var inliner = new InlineToTrace(program, null);
 
             traceStack.Push(FindCallsOnTrace(entryPoint, trace));
-            Inliner.ProcessImplementation(program, entryPoint, inliner);
+            Inliner.ProcessImplementation(null, program, entryPoint, inliner);
 
             foreach (var impl in program.TopLevelDeclarations.OfType<Implementation>())
             {

@@ -712,7 +712,7 @@ namespace cba
                     Implementation impl = d as Implementation;
                     if (impl != null && !impl.IsSkipVerification(null) /* TODO: SkipVerification changed to Skip */)
                     {
-                        Inliner.ProcessImplementation(p as Program, impl);
+                        Inliner.ProcessImplementation(null, p as Program, impl);
                     }
                 }
                 foreach (Declaration d in TopLevelDeclarations)
