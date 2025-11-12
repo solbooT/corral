@@ -289,7 +289,7 @@ namespace cba
                 if (d is GlobalVariable)
                 {
                     var ls = instrument((GlobalVariable)d);
-                    ls.ForEachate(x => ret.Add((Declaration)x));
+                    ls.ForEach(x => ret.Add((Declaration)x));
                 }
                 else if (d is Procedure)
                 {
@@ -409,7 +409,7 @@ namespace cba
                 }
 
                 var newg = mgr.duplicateGlobalVar(gbl, dup);
-                newg.ForEachate(x => mods.Add(new IdentifierExpr(gbl.tok, x)));
+                newg.ForEach(x => mods.Add(new IdentifierExpr(gbl.tok, x)));
                 copies.Add(gbl.Name, newg);
             }
 
@@ -797,7 +797,7 @@ namespace cba
                 var acmd = blk.Cmds[0] as AssumeCmd;
                 if (acmd == null) continue;
 
-                if (!QKeyValue.FindBoolAttribute(acmd.Attributes, "do_re")) continue;
+                if (!BoogieApiHelpers.FindBoolAttribute(acmd.Attributes, "do_re")) continue;
 
                 if (!preds.ContainsKey(blk.Label)) continue;
                 if(preds[blk.Label].Count != 1) continue;
@@ -820,7 +820,7 @@ namespace cba
                 if (!checkNegation(acmd.Expr, acmd2.Expr)) continue;
 
                 // Remove attribute
-                Debug.Assert(QKeyValue.FindBoolAttribute(acmd2.Attributes, "do_re"));
+                Debug.Assert(BoogieApiHelpers.FindBoolAttribute(acmd2.Attributes, "do_re"));
                 Debug.Assert(acmd2.Attributes.Key == "do_re");
                 Debug.Assert(acmd.Attributes.Key == "do_re");
 
@@ -831,10 +831,10 @@ namespace cba
             // Remove annotations on assumes that are the first in a widening block
             foreach (var blk in impl.Blocks)
             {
-                if (!blk.widenBlock) continue;
+                if (!blk.WidenBlock /* TODO: check if property exists */) continue;
                 if (blk.Cmds.Count == 0) continue;
                 var acmd = blk.Cmds[0] as AssumeCmd;
-                if (acmd == null || !QKeyValue.FindBoolAttribute(acmd.Attributes, "do_re")) continue;
+                if (acmd == null || !BoogieApiHelpers.FindBoolAttribute(acmd.Attributes, "do_re")) continue;
                 Debug.Assert(acmd.Attributes.Key == "do_re");
                 acmd.Attributes = acmd.Attributes.Next;
             }
@@ -913,7 +913,7 @@ namespace cba
                 int incnt = -1;
 
                 // If this is a widening block, add raiseException
-                if (block.widenBlock && !InstrumentationConfig.cooperativeYield)
+                if (block.WidenBlock /* TODO: check if property exists */ && !InstrumentationConfig.cooperativeYield)
                 {
                     curr_label = addRaiseExceptionInstrumentation(instrumented, curr, curr_label, true);
                     curr = new List<Cmd>();
@@ -1028,7 +1028,7 @@ namespace cba
 
                     // raise exception before blocking assumes
                     var assumecmd = cmd as AssumeCmd;
-                    if (assumecmd != null && QKeyValue.FindBoolAttribute(assumecmd.Attributes, "do_re") && !InstrumentationConfig.cooperativeYield)
+                    if (assumecmd != null && BoogieApiHelpers.FindBoolAttribute(assumecmd.Attributes, "do_re") && !InstrumentationConfig.cooperativeYield)
                     {
                         curr_label = addRaiseExceptionInstrumentation(instrumented, curr, curr_label, true);
                         curr = new List<Cmd>();
@@ -2098,7 +2098,7 @@ namespace cba
             implName = node.Name;
             localsToAdd = new List<LocalVariable>();
             node = base.VisitImplementation(node);
-            localsToAdd.ForEachate(x => node.LocVars.Add((Variable)x));
+            localsToAdd.ForEach(x => node.LocVars.Add((Variable)x));
 
             return node;
         }
@@ -2899,7 +2899,7 @@ namespace cba
                         }
 
                         // Remove yield statements
-                        if (cmd is YieldCmd)
+                        if (cmd is Cmd /* TODO: YieldCmd removed in Boogie 3.5.5 */)
                         {
                             currCmds.Add(BoogieAstFactory.MkAssume(Expr.True));
                             addedTrans(impl.Name, blk.Label, incnt, cmd, currLabel, currCmds);

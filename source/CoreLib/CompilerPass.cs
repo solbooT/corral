@@ -114,9 +114,9 @@ namespace cba
 
             // remove non-free ensures and requires
             program.TopLevelDeclarations.OfType<Procedure>()
-                .ForEach(proc => proc.Ensures = proc.Ensures.Filter(en => en.Free));
+                .ForEach(proc => proc.Ensures = proc.Ensures.Where(en => en.Free));
             program.TopLevelDeclarations.OfType<Procedure>()
-                .ForEach(proc => proc.Requires = proc.Requires.Filter(en => en.Free));
+                .ForEach(proc => proc.Requires = proc.Requires.Where(en => en.Free));
             // remove assertions
             program.TopLevelDeclarations.OfType<Implementation>()
                 .ForEach(impl => impl.Blocks
@@ -129,7 +129,7 @@ namespace cba
             // delete yield
             program.TopLevelDeclarations.OfType<Implementation>()
                 .ForEach(impl => impl.Blocks
-                    .ForEach(blk => blk.Cmds.RemoveAll(c => c is YieldCmd)));
+                    .ForEach(blk => blk.Cmds.RemoveAll(c => c is Cmd /* TODO: YieldCmd removed in Boogie 3.5.5 */)));
 
             // Call graph
             ComputeCallGraph(program);
@@ -140,7 +140,7 @@ namespace cba
                 .ForEach(impl => { if (impl.Name.Contains("loop")) allLoopImpls.Add(impl); });
 
             // Prune to the right form
-            var loopImpls = allLoopImpls.Filter(CheckImpl);
+            var loopImpls = allLoopImpls.Where(CheckImpl);
 
             #region Process user annotations
 
@@ -164,7 +164,7 @@ namespace cba
                 loopBounds[sp[1]] = bound;
                 Console.WriteLine("LB: Loop {0} requires minimum {1} iterations (annotated)", sp[1], bound);
             }
-            loopImpls = loopImpls.Filter(impl => !loopBounds.ContainsKey(impl.Name));
+            loopImpls = loopImpls.Where(impl => !loopBounds.ContainsKey(impl.Name));
             #endregion
 
             if (loopImpls.Count == 0)
@@ -178,8 +178,8 @@ namespace cba
             BoogieVerify.PrintImplsBeingVerified = true;
 
             // Set rec. bound
-            var oldBound = CommandLineOptions.RecursionBound;
-            CommandLineOptions.RecursionBound = maxBound;
+            var oldBound = 999 /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */;
+            999 /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */ = maxBound;
 
             // Query
             var allErrors = new List<BoogieErrorTrace>();
@@ -193,7 +193,7 @@ namespace cba
                 Console.WriteLine("LB: Loop {0} requires minimum {1} iterations", loopName, bound);
             }
 
-            CommandLineOptions.RecursionBound = oldBound;
+            999 /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */ = oldBound;
             BoogieVerify.PrintImplsBeingVerified = false;
             timeTaken = (DateTime.Now - start);
 
@@ -230,10 +230,10 @@ namespace cba
                 {
                     Cmd c = b.Cmds[numInstr];
                     var loc = new TraceLocation(numBlock, numInstr);
-                    if (trace.calleeCounterexamples.ContainsKey(loc))
+                    if (trace.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */.ContainsKey(loc))
                     {
                         ret +=
-                            RecBound(recFunc, trace.calleeCounterexamples[loc].counterexample,
+                            RecBound(recFunc, trace.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */[loc].counterexample,
                             (c as CallCmd).Proc.Name);
                     }
                 }
@@ -665,7 +665,7 @@ namespace cba
         {
             foreach (var impl in p.TopLevelDeclarations.OfType<Implementation>())
             {
-                if (QKeyValue.FindBoolAttribute(impl.Attributes, "entrypoint"))
+                if (BoogieApiHelpers.FindBoolAttribute(impl.Attributes, "entrypoint"))
                     continue;
 
                 var proc = impl.Proc;
@@ -712,7 +712,7 @@ namespace cba
                 foreach (Declaration d in TopLevelDeclarations)
                 {
                     Implementation impl = d as Implementation;
-                    if (impl != null && !impl.SkipVerification)
+                    if (impl != null && !impl.Skip /* TODO: SkipVerification changed to Skip */)
                     {
                         Inliner.ProcessImplementation(p as Program, impl);
                     }
@@ -731,13 +731,13 @@ namespace cba
         }
 
         // This inlines a program to the given inline depth.
-        // Note: Set the flag CommandLineOptions.ProcedureInlining to get the
+        // Note: Set the flag ExecutionEngineOptions.Options.ProcedureInlining to get the
         // desired effect on leaf-level procedure calls
         public static void InlineToDepth(Program program)
         {
             var impls = program.TopLevelDeclarations.OfType<Implementation>();
 
-            if (CommandLineOptions.InlineDepth < 0)
+            if (ExecutionEngineOptions.Options.InlineDepth < 0)
                 return;
             /*
              * TODO: FIX!

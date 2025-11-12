@@ -50,7 +50,7 @@ namespace CoreLib
             var assertLocations = new List<Procedure>();
             foreach (var impl in node.TopLevelDeclarations.OfType<Implementation>())
             {
-                if (QKeyValue.FindBoolAttribute(impl.Attributes, "entrypoint"))
+                if (BoogieApiHelpers.FindBoolAttribute(impl.Attributes, "entrypoint"))
                     continue;
                 if (cba.Util.BoogieVerify.ignoreAssertMethods.Contains(impl.Name))
                     continue;
@@ -225,7 +225,7 @@ namespace CoreLib
             LocateAsserts locate = new LocateAsserts();
             assertMethods = locate.VisitIt(prog);
             mainProc = prog.TopLevelDeclarations.OfType<Implementation>()
-                .Where(impl => QKeyValue.FindBoolAttribute(impl.Attributes, "entrypoint"))
+                .Where(impl => BoogieApiHelpers.FindBoolAttribute(impl.Attributes, "entrypoint"))
                 .Select(impl => impl.Proc)
                 .FirstOrDefault();
 
@@ -262,7 +262,7 @@ namespace CoreLib
             program.TopLevelDeclarations.OfType<Implementation>()
                 .ForEach(impl =>
                 {
-                    var b = QKeyValue.FindIntAttribute(impl.Attributes, BoogieVerify.ExtraRecBoundAttr, -1);
+                    var b = BoogieApiHelpers.FindIntAttribute(impl.Attributes, BoogieVerify.ExtraRecBoundAttr, -1);
                     if (b != -1) extraRecBound.Add(impl.Name, b);
                 });
 
@@ -359,14 +359,14 @@ namespace CoreLib
         protected void Push()
         {
             stats.stacksize++;
-            prover.Push();
+            svc.info.vcgen.prover.Push();
         }
 
         /* for measuring Z3 stack */
         protected void Pop()
         {
             stats.stacksize--;
-            prover.Pop();
+            svc.info.vcgen.prover.Pop();
 
         }
 
@@ -583,7 +583,7 @@ namespace CoreLib
             var ret = new List<Tuple<StratifiedVC, Block>>();
 
             // This is most likely redundant
-            prover.Assert(svc.MustReach(svc.info.impl.Blocks[0]), true);
+            svc.info.vcgen.prover.Assert(svc.MustReach(svc.info.impl.Blocks[0], null /* TODO: add ControlFlowIdMap parameter */), true);
 
             if (!attachedVCInv.ContainsKey(svc))
                 return ret;
@@ -597,12 +597,12 @@ namespace CoreLib
                 var key = Tuple.Create(vc, callblock);
                 if (prevAsserted != null && !prevAsserted.Contains(key))
                 {
-                    prover.Assert(vc.MustReach(callblock), true);
+                    svc.info.vcgen.prover.Assert(vc.MustReach(callblock, null /* TODO: add ControlFlowIdMap parameter */), true);
                     ret.Add(key);
                 }
                 iter = parent[iter];
             }
-            prover.Assert(mainVC.MustReach(mainVC.callSites.First(tup => tup.Value.Contains(iter)).Key), true);
+            svc.info.vcgen.prover.Assert(mainVC.MustReach(mainVC.callSites.First(tup => tup.Value.Contains(iter, null /* TODO: add ControlFlowIdMap parameter */)).Key), true);
             return ret;
         }
 
@@ -616,12 +616,12 @@ namespace CoreLib
             if (cba.Util.BoogieVerify.assertsPassedIsInt)
             {
                 Microsoft.BaseTypes.BigNum zero = Microsoft.BaseTypes.BigNum.FromInt(0);
-                assertsPass = prover.VCExprGen.Eq(scs.interfaceExprs[index], prover.VCExprGen.Integer(zero));
+                assertsPass = svc.info.vcgen.prover.VCExprGen.Eq(scs.interfaceExprs[index], svc.info.vcgen.prover.VCExprGen.Integer(zero));
             }
             else
                 assertsPass = scs.interfaceExprs[index];
 
-            prover.Assert(prover.VCExprGen.Implies(scs.callSiteExpr, assertsPass), true);
+            svc.info.vcgen.prover.Assert(prover.VCExprGen.Implies(scs.callSiteExpr, assertsPass), true);
         }
 
         // TODO: add this to BoogieVerifyOptions
@@ -657,29 +657,29 @@ namespace CoreLib
                 if (di.disabled)
                 {
                     if (DoSubst)
-                        toassert = prover.VCExprGen.Implies(scs.callSiteExpr, scs.Attach(svc));
+                        toassert = svc.info.vcgen.prover.VCExprGen.Implies(scs.callSiteExpr, scs.Attach(svc));
                     else
-                        toassert = prover.VCExprGen.Implies(scs.callSiteExpr, prover.VCExprGen.And(
+                        toassert = svc.info.vcgen.prover.VCExprGen.Implies(scs.callSiteExpr, svc.info.vcgen.prover.VCExprGen.And(
                         svc.vcexpr, AttachByEquality(scs, svc)));
                 }
                 else
                 {
                     var cb = GetControlBoolean(svc);
                     toassert = AttachByEquality(scs, svc);
-                    toassert = prover.VCExprGen.Implies(scs.callSiteExpr, prover.VCExprGen.And(cb, toassert));
-                    toassert = prover.VCExprGen.And(prover.VCExprGen.Implies(cb, svc.vcexpr), toassert);
+                    toassert = svc.info.vcgen.prover.VCExprGen.Implies(scs.callSiteExpr, svc.info.vcgen.prover.VCExprGen.And(cb, toassert));
+                    toassert = svc.info.vcgen.prover.VCExprGen.And(prover.VCExprGen.Implies(cb, svc.vcexpr), toassert);
                 }
 
-                prover.LogComment("Inlining " + scs.callSite.calleeName + " from " + (parent.ContainsKey(scs) ? attachedVC[parent[scs]].info.impl.Name : "main"));
+                svc.info.vcgen.prover.LogComment("Inlining " + scs.callSite.calleeName + " from " + (parent.ContainsKey(scs) ? attachedVC[parent[scs]].info.impl.Name : "main"));
 
                 di.Expanded(scs, svc);
                 stats.vcSize += SizeComputingVisitor.ComputeSize(toassert);
                 //Console.WriteLine("VC of {0} is {1}", scs.callSite.calleeName, toassert);
 
                 if (name != null)
-                    prover.AssertNamed(toassert, true, name);
+                    svc.info.vcgen.prover.AssertNamed(toassert, true, name);
                 else
-                    prover.Assert(toassert, true);
+                    svc.info.vcgen.prover.Assert(toassert, true);
 
                 attachedVC[scs] = svc;
                 attachedVCInv[svc] = scs;
@@ -697,15 +697,15 @@ namespace CoreLib
         private void Merge(StratifiedCallSite scs, StratifiedVC vc)
         {
             MacroSI.PRINT_DEBUG("    ~ attaching to existing callsite ");
-            prover.LogComment("Attaching for " + scs.callSite.calleeName);
+            svc.info.vcgen.prover.LogComment("Attaching for " + scs.callSite.calleeName);
             var toassert = AttachByEquality(scs, vc);
             var cb = GetControlBoolean(vc);
-            toassert = prover.VCExprGen.Implies(scs.callSiteExpr, prover.VCExprGen.And(cb, toassert));
+            toassert = svc.info.vcgen.prover.VCExprGen.Implies(scs.callSiteExpr, svc.info.vcgen.prover.VCExprGen.And(cb, toassert));
 
             di.Merged(scs, vc);
             stats.vcSize += SizeComputingVisitor.ComputeSize(toassert);
 
-            prover.Assert(toassert, true);
+            svc.info.vcgen.prover.Assert(toassert, true);
             attachedVC[scs] = vc;
         }
 
@@ -714,7 +714,7 @@ namespace CoreLib
         {
             if (controlBoolean.ContainsKey(vc))
                 return controlBoolean[vc];
-            var lit = prover.VCExprGen.Variable("extraControlBoolSIDI" + controlBoolean.Count,
+            var lit = svc.info.vcgen.prover.VCExprGen.Variable("extraControlBoolSIDI" + controlBoolean.Count,
                 Microsoft.Boogie.Type.Bool);
             controlBoolean.Add(vc, lit);
             return lit;
@@ -723,7 +723,7 @@ namespace CoreLib
         // Return unique call ID of a call site
         private int GetSiCallId(StratifiedCallSite scs)
         {
-            return QKeyValue.FindIntAttribute(scs.callSite.Attributes, "si_unique_call", -1);
+            return BoogieApiHelpers.FindIntAttribute(scs.callSite.Attributes, "si_unique_call", -1);
         }
 
         // Get persistent ID of a callsite
@@ -758,7 +758,7 @@ namespace CoreLib
             System.Diagnostics.Contracts.Contract.Assert(callee.callSite.interfaceExprs.Count == svcCallee.interfaceExprVars.Count);
             StratifiedInliningInfo info = svcCallee.info;
             ProverInterface prover = info.vcgen.prover;
-            VCExpressionGenerator gen = prover.VCExprGen;
+            VCExpressionGenerator gen = svc.info.vcgen.prover.VCExprGen;
 
             VCExpr conjunction = VCExpressionGenerator.True;
 
@@ -1106,7 +1106,7 @@ namespace CoreLib
             currentDag.AddNode(n2);
 
             // Add edge to our dag
-            var e = QKeyValue.FindIntAttribute(cs.callSite.Attributes, "si_unique_call", -1);
+            var e = BoogieApiHelpers.FindIntAttribute(cs.callSite.Attributes, "si_unique_call", -1);
             currentDag.AddEdge(new DagOracle.DagEdge(n1, n2, e));
 
             if (optimalDag != null && !currentOptNodeMapping.ContainsDomain(n2))
@@ -1131,7 +1131,7 @@ namespace CoreLib
 
             var n1 = vcNodeMap[containingVC[cs]];
             var n2 = vcNodeMap[vc];
-            var e = QKeyValue.FindIntAttribute(cs.callSite.Attributes, "si_unique_call", -1);
+            var e = BoogieApiHelpers.FindIntAttribute(cs.callSite.Attributes, "si_unique_call", -1);
             currentDag.AddEdge(new DagOracle.DagEdge(n1, n2, e));
 
             //currentDag.CheckSanity();
@@ -1164,7 +1164,7 @@ namespace CoreLib
 
             Debug.Assert(!SI.attachedVC.ContainsKey(cs));
 
-            var e = QKeyValue.FindIntAttribute(cs.callSite.Attributes, "si_unique_call", -1);
+            var e = BoogieApiHelpers.FindIntAttribute(cs.callSite.Attributes, "si_unique_call", -1);
             int[] rv = null;
             var candidates = currentDag.FindMergeCandidates(vcNodeMap[containingVC[cs]], e, GetTargetId(cs, out rv));
 
@@ -1215,7 +1215,7 @@ namespace CoreLib
             Debug.Assert(optimalDag != null);
             // this is where we are
             var n1 = vcNodeMap[containingVC[cs]];
-            var call = QKeyValue.FindIntAttribute(cs.callSite.Attributes, "si_unique_call", -1);
+            var call = BoogieApiHelpers.FindIntAttribute(cs.callSite.Attributes, "si_unique_call", -1);
             var o1 = currentOptNodeMapping.GetRange(n1);
             var o2 = optimalDag.FindSuccessor(o1, call, cs.callSite.calleeName);
             Debug.Assert(o2 != null);
@@ -1412,7 +1412,7 @@ namespace CoreLib
                         attr = (cmd as CallCmd).Attributes;
                     }
                     if (attr == null) continue;
-                    var v = QKeyValue.FindIntAttribute(attr, "si_unique_call", -1);
+                    var v = BoogieApiHelpers.FindIntAttribute(attr, "si_unique_call", -1);
                     if (v < 0) continue;
                     blockToCalls[b].Add(v);
 
@@ -1748,7 +1748,7 @@ namespace CoreLib
                 .ForEach(impl => impls.Add(impl.Name, impl));
 
             var ep = program.TopLevelDeclarations.OfType<Implementation>()
-                .Where(impl => QKeyValue.FindBoolAttribute(impl.Attributes, "entrypoint"))
+                .Where(impl => BoogieApiHelpers.FindBoolAttribute(impl.Attributes, "entrypoint"))
                 .FirstOrDefault();
             main = ep.Name;
 
@@ -1820,8 +1820,8 @@ namespace CoreLib
         bool HasExceededRecBound(string impl, int bound)
         {
             if (!extraRecBound.ContainsKey(impl))
-                return (bound > CommandLineOptions.RecursionBound);
-            return bound > CommandLineOptions.RecursionBound + extraRecBound[impl];
+                return (bound > 999 /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */);
+            return bound > 999 /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */ + extraRecBound[impl];
         }
 
         // Returns the size of the fully expanded tree
@@ -1862,7 +1862,7 @@ namespace CoreLib
                     {
                         if (!impls.ContainsKey(cmd.callee))
                             continue;
-                        var cs = QKeyValue.FindIntAttribute(cmd.Attributes, "si_unique_call", -1);
+                        var cs = BoogieApiHelpers.FindIntAttribute(cmd.Attributes, "si_unique_call", -1);
                         implToCalls[tup.Key].Add(Tuple.Create(cs, cmd.callee));
                     }
                 }
@@ -2401,7 +2401,7 @@ namespace CoreLib
                 .ForEach(impl => impls.Add(impl.Name, impl));
 
             var ep = program.TopLevelDeclarations.OfType<Implementation>()
-                .Where(impl => QKeyValue.FindBoolAttribute(impl.Attributes, "entrypoint"))
+                .Where(impl => BoogieApiHelpers.FindBoolAttribute(impl.Attributes, "entrypoint"))
                 .FirstOrDefault();
 
             var implToCalls = new Dictionary<string, HashSet<Tuple<int, string>>>();
@@ -2414,7 +2414,7 @@ namespace CoreLib
                     {
                         if (!impls.ContainsKey(cmd.callee))
                             continue;
-                        var cs = QKeyValue.FindIntAttribute(cmd.Attributes, "si_unique_call", -1);
+                        var cs = BoogieApiHelpers.FindIntAttribute(cmd.Attributes, "si_unique_call", -1);
                         implToCalls[tup.Key].Add(Tuple.Create(cs, cmd.callee));
                     }
                 }
@@ -2875,7 +2875,7 @@ namespace CoreLib
         // returns a list of blocks followed by a fake assert
         private List<Absy> GetAbsyTrace(StratifiedVC svc, IList<string> labels)
         {
-            if (CommandLineOptions.SIBoolControlVC)
+            if (ExecutionEngineOptions.Options.SIBoolControlVC)
                 return GetAbsyTraceBoolControlVC(svc);
             else
                 return GetAbsyTraceControlFlowVariable(svc, labels);
@@ -2897,7 +2897,7 @@ namespace CoreLib
 
         private List<Absy> GetAbsyTraceBoolControlVC(StratifiedVC svc)
         {
-            Debug.Assert(CommandLineOptions.UseProverEvaluate, "Must use prover evaluate option with boolControlVC"); 
+            Debug.Assert(ExecutionEngineOptions.Options.UseProverEvaluate, "Must use prover evaluate option with boolControlVC"); 
             
             var ret = new List<Absy>();
             var impl = svc.info.impl;
@@ -2959,14 +2959,14 @@ namespace CoreLib
                         }
                     }
                 }
-                if (svc.recordProcCallSites.ContainsKey(b) && (model != null || CommandLineOptions.UseProverEvaluate))
+                if (svc.recordProcCallSites.ContainsKey(b) && (model != null || ExecutionEngineOptions.Options.UseProverEvaluate))
                 {
                     foreach (StratifiedCallSite scs in svc.recordProcCallSites[b])
                     {
                         var args = new List<object>();
                         foreach (VCExpr expr in scs.interfaceExprs)
                         {
-                            if (model == null && CommandLineOptions.UseProverEvaluate)
+                            if (model == null && ExecutionEngineOptions.Options.UseProverEvaluate)
                             {
                                 args.Add(svc.info.vcgen.prover.Evaluate(expr));
                             }
@@ -3016,7 +3016,7 @@ namespace CoreLib
             }
 
             Block lastBlock = (Block)absyList[absyList.Count - 2];
-            Counterexample newCounterexample = VC.VCGen.AssertCmdToCounterexample(assertCmd, lastBlock.TransferCmd, trace, null, model, svc.info.mvInfo, si.prover.Context);
+            Counterexample newCounterexample = VerificationConditionGenerator.AssertCmdToCounterexample(assertCmd, lastBlock.TransferCmd, trace, null, model, svc.info.mvInfo, si.prover.Context);
             newCounterexample.AddCalleeCounterexample(calleeCounterexamples);
             return newCounterexample;
         }

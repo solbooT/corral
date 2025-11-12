@@ -841,7 +841,7 @@ namespace cba
             // Prune
             var newBlocks = new List<Block>();
             impl.Blocks
-                .Filter(blk => !toPrune.Contains(blk.Label))
+                .Where(blk => !toPrune.Contains(blk.Label))
                 .ForEach(blk => newBlocks.Add(blk));
 
             Debug.Assert(newBlocks[0] == impl.Blocks[0]);
@@ -849,7 +849,7 @@ namespace cba
             impl.Blocks = newBlocks;
 
             // Change goto commands
-            foreach (var blk in impl.Blocks.Filter(blk => blk.TransferCmd is GotoCmd))
+            foreach (var blk in impl.Blocks.Where(blk => blk.TransferCmd is GotoCmd))
             {
                 var gc = blk.TransferCmd as GotoCmd;
                 var ss = new List<String>();
@@ -1466,7 +1466,7 @@ namespace cba
             procsMerged = new HashSet<string>();
             foreach (var p in procs)
             {
-                if (QKeyValue.FindIntAttribute(p.Attributes, "inline", -1) != -1)
+                if (BoogieApiHelpers.FindIntAttribute(p.Attributes, "inline", -1) != -1)
                 {
                     procsMerged.Add(p.Name);
                 }

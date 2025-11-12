@@ -756,7 +756,7 @@ namespace cba
                 if (scc.Count == 1)
                 {
                     var onlyProc = scc.First();
-                    if (nameImplMap.ContainsKey(onlyProc) && QKeyValue.FindBoolAttribute(nameImplMap[onlyProc].Attributes, "LoopProcedure"))
+                    if (nameImplMap.ContainsKey(onlyProc) && BoogieApiHelpers.FindBoolAttribute(nameImplMap[onlyProc].Attributes, "LoopProcedure"))
                         continue;
 
                     if (graph.Successors(onlyProc).All(callee => callee != onlyProc))
@@ -795,7 +795,7 @@ namespace cba
                     program.RemoveTopLevelDeclaration(impl);
                     program.RemoveTopLevelDeclaration(impl.Proc);
 
-                    for (int i = 0; i < CommandLineOptions.RecursionBound; i++)
+                    for (int i = 0; i < 999 /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */; i++)
                     {
                         var dup = new FixedDuplicator(true);
                         var nimpl = dup.VisitImplementation(impl);
@@ -832,14 +832,14 @@ namespace cba
                                     continue;
                                 }
                                 newcmds.Add(
-                                    new CallCmd(ccmd.tok, ccmd.callee + string.Format("#{0}", CommandLineOptions.RecursionBound - 1),
+                                    new CallCmd(ccmd.tok, ccmd.callee + string.Format("#{0}", 999 /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */ - 1),
                                         ccmd.Ins, ccmd.Outs, ccmd.Attributes, ccmd.IsAsync));
                             }
                             blk.Cmds = newcmds;
                         }
                     }
 
-                    for (int i = 0; i < CommandLineOptions.RecursionBound; i++)
+                    for (int i = 0; i < 999 /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */; i++)
                     {
                         var impl = implCopies[Tuple.Create(name, i)];
                         foreach (var blk in impl.Blocks)
@@ -1120,19 +1120,19 @@ namespace cba
             
             foreach (var impl in BoogieUtil.GetImplementations(p))
             {
-                impl.PruneUnreachableBlocks();
+                impl.PruneUnreachableBlocks(ExecutionEngineOptions.Options);
             }
 
             // save RB
-            var rb = CommandLineOptions.RecursionBound;
+            var rb = 999 /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */;
             if (BoogieVerify.irreducibleLoopUnroll >= 0)
-                CommandLineOptions.RecursionBound = BoogieVerify.irreducibleLoopUnroll;
+                999 /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */ = BoogieVerify.irreducibleLoopUnroll;
 
             var procsWithIrreducibleLoops = new HashSet<string>();
-            var passInfo = p.ExtractLoops(out procsWithIrreducibleLoops);
+            var passInfo = /* TODO: ExtractLoops removed */ // /* TODO: ExtractLoops removed */ // p.ExtractLoops(out procsWithIrreducibleLoops);
 
             // restore RB
-            CommandLineOptions.RecursionBound = rb;
+            999 /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */ = rb;
 
             // no loops found, then this transformation is identity
             if (passInfo.Count == 0 && procsWithIrreducibleLoops.Count == 0)

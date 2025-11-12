@@ -95,7 +95,7 @@ namespace CoreLib
             p.AddTopLevelDeclarations(typeToRecordProc.Values);
 
             var tmainimpl = BoogieUtil.findProcedureImpl(p.TopLevelDeclarations, p.mainProcName);
-            if (!QKeyValue.FindBoolAttribute(tmainimpl.Attributes, "entrypoint"))
+            if (!BoogieApiHelpers.FindBoolAttribute(tmainimpl.Attributes, "entrypoint"))
                 tmainimpl.AddAttribute("entrypoint");
 
             var program = new PersistentCBAProgram(p, p.mainProcName, 0);
@@ -245,7 +245,7 @@ namespace CoreLib
                         retVal.Type), false);
                     newDecls.Add(mapconst);
 
-                    var id = QKeyValue.FindIntAttribute(ccmd.Attributes, RestrictToTrace.ConcretizeCallIdAttr, -1);
+                    var id = BoogieApiHelpers.FindIntAttribute(ccmd.Attributes, RestrictToTrace.ConcretizeCallIdAttr, -1);
                     allocConstants.Add(mapconst.Name, id);
 
                     newCmds.Add(BoogieAstFactory.MkVarEqVar(retVal.Decl, mapconst));
@@ -392,7 +392,7 @@ namespace CoreLib
                         var c1 = blk.Cmds[i] as AssumeCmd;
                         var c2 = blk.Cmds[i + 1] as AssumeCmd;
                         if (c1 == null || c2 == null) continue;
-                        if (!QKeyValue.FindBoolAttribute(c1.Attributes, "IndirectCall")) continue;
+                        if (!BoogieApiHelpers.FindBoolAttribute(c1.Attributes, "IndirectCall")) continue;
                         c2.Attributes = new QKeyValue(Token.NoToken, "indirect", new List<object>(), c2.Attributes);
                     }
                 }

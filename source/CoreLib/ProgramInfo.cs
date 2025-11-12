@@ -21,7 +21,7 @@ namespace cba
     }
 
     public override Procedure VisitProcedure(Procedure node) {
-      if (QKeyValue.FindBoolAttribute(node.Attributes, "entrypoint"))
+      if (BoogieApiHelpers.FindBoolAttribute(node.Attributes, "entrypoint"))
         entrypoints.Add(node.Name);
       return base.VisitProcedure(node);
     }
@@ -135,7 +135,7 @@ namespace cba
                 // Store declared global
                 declaredGlobals.Add(g.Name, g);
                 // Store thread-local global
-                if (QKeyValue.FindBoolAttribute(g.Attributes, LanguageSemantics.ThreadLocalAttr))
+                if (BoogieApiHelpers.FindBoolAttribute(g.Attributes, LanguageSemantics.ThreadLocalAttr))
                     threadLocalGlobals.Add(g.Name, g);
             }
 

@@ -141,7 +141,7 @@ namespace cba
             {
                 Block curr = labelToBlock[trace.Blocks[i].blockName];
 
-                Block traceBlock = new Block();
+                Block traceBlock = new Block(Token.NoToken, "__block", new List<Cmd>(), new ReturnCmd(Token.NoToken));
                 traceBlock.Cmds = new List<Cmd>();
                 traceBlock.Label = addIntToString(trace.Blocks[i].blockName, i); // (The "i" is to deal with loops)
                 if (i != n - 1)
@@ -281,7 +281,7 @@ namespace cba
                                 else if (call_instr.info.hasVar("si_arg") && cc.Outs[0].Decl.TypedIdent.Type.IsCtor)
                                     uvalueToConstants.InitAndAdd(call_instr.info.getVal("si_arg").ToString(), constant);
 
-                                var id = QKeyValue.FindIntAttribute(cc.Attributes, ConcretizeCallIdAttr, -1);
+                                var id = BoogieApiHelpers.FindIntAttribute(cc.Attributes, ConcretizeCallIdAttr, -1);
                                 concretizeConstantToCall.Add(constant.Name, id);
                             }
 

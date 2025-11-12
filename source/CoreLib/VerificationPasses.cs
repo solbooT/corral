@@ -128,7 +128,7 @@ namespace cba
             BoogieVerify.options.Set();
 
             // An important pass for recording the value of int variables
-            Debug.Assert(CommandLineOptions.StratifiedInlining > 0);
+            Debug.Assert(ExecutionEngineOptions.Options.StratifiedInlining > 0);
             if(WillGetModel)
               recordVarsTransformation(p, p.mainProcName);
 
@@ -327,10 +327,10 @@ namespace cba
                     var loc = new TraceLocation(i, numInstr);
                     ErrorTraceInstr instr = null;
 
-                    if (btrace.calleeCounterexamples.ContainsKey(loc))
+                    if (btrace.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */.ContainsKey(loc))
                     {
                         ErrorTrace calleeTrace = constructErrorTrace(
-                             btrace.calleeCounterexamples[loc].counterexample, (c as CallCmd).Proc.Name, true, ref captureStateIndex);
+                             btrace.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */[loc].counterexample, (c as CallCmd).Proc.Name, true, ref captureStateIndex);
                         var info = new InstrInfo();
                         var cc = c as CallCmd;
                         Debug.Assert(cc != null);
@@ -338,10 +338,10 @@ namespace cba
                         if (cc.Proc.Name == recordIntArgProc || cc.Proc.Name == recordBoolArgProc )
                         {
                             Debug.Assert(recordTransformationHappened);
-                            Debug.Assert(btrace.calleeCounterexamples[loc].args.Count == 1);
+                            Debug.Assert(btrace.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */[loc].args.Count == 1);
                             Debug.Assert(cc.Ins[0] is IdentifierExpr);
 
-                            var modelVal = btrace.calleeCounterexamples[loc].args[0];
+                            var modelVal = btrace.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */[loc].args[0];
                             object v = null;
                             if (cc.Proc.Name == recordIntArgProc && modelVal is Model.Integer)
                             {
@@ -377,10 +377,10 @@ namespace cba
                         }
                         if (cc.Proc.Name.StartsWith(recordArgProcPrefix))
                         {
-                            Debug.Assert(btrace.calleeCounterexamples[loc].args.Count == 1);
+                            Debug.Assert(btrace.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */[loc].args.Count == 1);
                             //Debug.Assert(cc.Ins[0] is IdentifierExpr);
 
-                            var v = btrace.calleeCounterexamples[loc].args[0];
+                            var v = btrace.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */[loc].args[0];
                             if (v != null)
                             {
                                 info.addVal("si_arg", v);
@@ -444,10 +444,10 @@ namespace cba
                 var c = lastBlk.Cmds[i];
                 var loc = new TraceLocation(btrace.Trace.Count - 1, i);
                 ErrorTraceInstr instr = null;
-                if (btrace.calleeCounterexamples.ContainsKey(loc))
+                if (btrace.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */.ContainsKey(loc))
                 {
                     var calleeTrace = constructErrorTrace(
-                        btrace.calleeCounterexamples[loc].counterexample, (c as CallCmd).Proc.Name, true, ref captureStateIndex);
+                        btrace.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */[loc].counterexample, (c as CallCmd).Proc.Name, true, ref captureStateIndex);
                     var info = new InstrInfo();
 
                     var cc = c as CallCmd;
@@ -456,10 +456,10 @@ namespace cba
                     if (cc.Proc.Name == recordIntArgProc || cc.Proc.Name == recordBoolArgProc)
                     {
                         Debug.Assert(recordTransformationHappened);
-                        Debug.Assert(btrace.calleeCounterexamples[loc].args.Count == 1);
+                        Debug.Assert(btrace.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */[loc].args.Count == 1);
                         Debug.Assert(cc.Ins[0] is IdentifierExpr);
 
-                        var modelVal = btrace.calleeCounterexamples[loc].args[0];
+                        var modelVal = btrace.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */[loc].args[0];
                         object v = null;
                         if (cc.Proc.Name == recordIntArgProc && modelVal is Model.Integer)
                         {
@@ -495,10 +495,10 @@ namespace cba
                     }
                     else if (cc.Proc.Name.StartsWith(recordArgProcPrefix))
                     {
-                        Debug.Assert(btrace.calleeCounterexamples[loc].args.Count == 1);
+                        Debug.Assert(btrace.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */[loc].args.Count == 1);
                         //Debug.Assert(cc.Ins[0] is IdentifierExpr);
 
-                        var v = btrace.calleeCounterexamples[loc].args[0];
+                        var v = btrace.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */[loc].args[0];
                         if (v != null)
                         {
                             info.addVal("si_arg", v);
@@ -637,8 +637,8 @@ namespace cba
 
             public bool Match(Procedure proc)
             {
-                if (QKeyValue.FindBoolAttribute(annotations, "loop") &&
-                    !QKeyValue.FindBoolAttribute(proc.Attributes, "LoopProcedure"))
+                if (BoogieApiHelpers.FindBoolAttribute(annotations, "loop") &&
+                    !BoogieApiHelpers.FindBoolAttribute(proc.Attributes, "LoopProcedure"))
                     return false;
 
                 var mods = new HashSet<string>();
@@ -648,7 +648,7 @@ namespace cba
                 if (!mustMod.IsSubsetOf(mods)) return false;
                 if (mustNotMod.Intersection(mods).Any()) return false;
 
-                if (QKeyValue.FindBoolAttribute(annotations, "mustfail"))
+                if (BoogieApiHelpers.FindBoolAttribute(annotations, "mustfail"))
                 {
                     Debug.Assert(procsThatFail != null);
                     return procsThatFail.Contains(proc.Name);
@@ -792,10 +792,10 @@ namespace cba
                 var tv = templateVars.First(v => v.Name == tvName);
                 matches.Add(tvName, new HashSet<Variable>());
 
-                var includeFormalIn = QKeyValue.FindBoolAttribute(tv.Attributes, "includeFormalIn");
-                var includeFormalOut = QKeyValue.FindBoolAttribute(tv.Attributes, "includeFormalOut");
-                var includeGlobals = QKeyValue.FindBoolAttribute(tv.Attributes, "includeGlobals");
-                var includeLoopLocals = QKeyValue.FindBoolAttribute(tv.Attributes, "includeLoopLocals");
+                var includeFormalIn = BoogieApiHelpers.FindBoolAttribute(tv.Attributes, "includeFormalIn");
+                var includeFormalOut = BoogieApiHelpers.FindBoolAttribute(tv.Attributes, "includeFormalOut");
+                var includeGlobals = BoogieApiHelpers.FindBoolAttribute(tv.Attributes, "includeGlobals");
+                var includeLoopLocals = BoogieApiHelpers.FindBoolAttribute(tv.Attributes, "includeLoopLocals");
 
                 if (!includeFormalIn && !includeFormalOut && !includeGlobals && !includeLoopLocals)
                 {
@@ -977,7 +977,7 @@ namespace cba
             var templateCounter = 0;
 
             // loop vars
-            var loopTemplateVars = new HashSet<string>(templateVars.Where(v => QKeyValue.FindBoolAttribute(v.Attributes, "includeLoopLocals")).Select(v => v.Name));
+            var loopTemplateVars = new HashSet<string>(templateVars.Where(v => BoogieApiHelpers.FindBoolAttribute(v.Attributes, "includeLoopLocals")).Select(v => v.Name));
 
             // Iterate over templates
             foreach (var template in templates)
@@ -988,10 +988,10 @@ namespace cba
                 foreach (var impl in program.TopLevelDeclarations.OfType<Implementation>())
                 {
                     var proc = impl.Proc;
-                    if (QKeyValue.FindBoolAttribute(impl.Attributes, "entrypoint")) continue;
-                    var nocandidates = QKeyValue.FindBoolAttribute(impl.Proc.Attributes, "nohoudini");
+                    if (BoogieApiHelpers.FindBoolAttribute(impl.Attributes, "entrypoint")) continue;
+                    var nocandidates = BoogieApiHelpers.FindBoolAttribute(impl.Proc.Attributes, "nohoudini");
                     if (!template.Match(proc)) continue;
-                    if (forLoopOnly && !QKeyValue.FindBoolAttribute(proc.Attributes, "LoopProcedure")) continue;
+                    if (forLoopOnly && !BoogieApiHelpers.FindBoolAttribute(proc.Attributes, "LoopProcedure")) continue;
 
                     if (!ret.ContainsKey(proc.Name)) ret.Add(proc.Name, new Dictionary<string, EExpr>());
 
@@ -1056,7 +1056,7 @@ namespace cba
             {
                 var impl = name2Impl[kvp.Key];
                 var proc = impl.Proc;
-                if (QKeyValue.FindBoolAttribute(impl.Attributes, "entrypoint")) continue;
+                if (BoogieApiHelpers.FindBoolAttribute(impl.Attributes, "entrypoint")) continue;
                 if (!ret.ContainsKey(proc.Name)) ret.Add(proc.Name, new Dictionary<string, EExpr>());
 
                 foreach (var expr in kvp.Value)
@@ -1089,7 +1089,7 @@ namespace cba
             {
                 var impl = name2Impl[kvp.Key];
                 var proc = impl.Proc;
-                if (QKeyValue.FindBoolAttribute(impl.Attributes, "entrypoint")) continue;
+                if (BoogieApiHelpers.FindBoolAttribute(impl.Attributes, "entrypoint")) continue;
                 if (!ret.ContainsKey(proc.Name)) ret.Add(proc.Name, new Dictionary<string, EExpr>());
 
                 foreach (var expr in kvp.Value)
@@ -1157,7 +1157,7 @@ namespace cba
             {
                 Debug.Assert(onlyEnsures());
                 // Turn on summary computation in Boogie
-                Debug.Assert(CommandLineOptions.StratifiedInlining > 0);
+                Debug.Assert(ExecutionEngineOptions.Options.StratifiedInlining > 0);
             }
 
             // Insert summaries
@@ -1177,7 +1177,7 @@ namespace cba
 
             // find the entrypoint
             var ep = program.TopLevelDeclarations.OfType<Implementation>()
-                .Where(impl => QKeyValue.FindBoolAttribute(impl.Attributes, "entrypoint"))
+                .Where(impl => BoogieApiHelpers.FindBoolAttribute(impl.Attributes, "entrypoint"))
                 .FirstOrDefault();
 
             // convert assert to assume negation
@@ -1290,7 +1290,7 @@ namespace cba
                 foreach (var eexpr in templates)
                 {
                     if (!eexpr.IsFree) continue;
-                    if (QKeyValue.FindBoolAttribute(eexpr.annotations, "drop")) continue;
+                    if (BoogieApiHelpers.FindBoolAttribute(eexpr.annotations, "drop")) continue;
 
                     var allExprs = InstantiateTemplate(eexpr.expr, globals, formals, funcs);
 
@@ -1318,7 +1318,7 @@ namespace cba
             {
                 var impl = decl as Implementation;
                 if (impl == null) continue;
-                if (QKeyValue.FindIntAttribute(impl.Proc.Attributes, "inline", -1) == -1) continue;
+                if (BoogieApiHelpers.FindIntAttribute(impl.Proc.Attributes, "inline", -1) == -1) continue;
                 impl.Proc.Attributes = BoogieUtil.removeAttr("inline", impl.Proc.Attributes);
                 impl.Proc.Attributes = BoogieUtil.removeAttr("verify", impl.Proc.Attributes);
                 impl.Attributes = BoogieUtil.removeAttr("inline", impl.Attributes);
@@ -1381,16 +1381,16 @@ namespace cba
 
             // Run Houdini
 
-            CommandLineOptions.InlineDepth = InlineDepth;
-            var old = CommandLineOptions.ProcedureInlining;
-            CommandLineOptions.ProcedureInlining = CommandLineOptions.Inlining.Spec;
-            var si = CommandLineOptions.StratifiedInlining;
-            CommandLineOptions.StratifiedInlining = 0;
-            var oldErrorLimit = CommandLineOptions.ErrorLimit;
-            CommandLineOptions.ErrorLimit = runHoudiniLite ? 1 : 5;
-            CommandLineOptions.ContractInfer = true;
-            var oldTimeout = CommandLineOptions.TimeLimit;
-            CommandLineOptions.TimeLimit = Math.Max(1, (HoudiniTimeout + 500) / 1000); // milliseconds -> seconds
+            ExecutionEngineOptions.Options.InlineDepth = InlineDepth;
+            var old = ExecutionEngineOptions.Options.ProcedureInlining;
+            ExecutionEngineOptions.Options.ProcedureInlining = Microsoft.Boogie.CoreOptions.Inlining.Spec;
+            var si = ExecutionEngineOptions.Options.StratifiedInlining;
+            ExecutionEngineOptions.Options.StratifiedInlining = 0;
+            var oldErrorLimit = ExecutionEngineOptions.Options.ErrorLimit;
+            ExecutionEngineOptions.Options.ErrorLimit = runHoudiniLite ? 1 : 5;
+            ExecutionEngineOptions.Options.ContractInfer = true;
+            var oldTimeout = ExecutionEngineOptions.Options.TimeLimit;
+            ExecutionEngineOptions.Options.TimeLimit = Math.Max(1, (HoudiniTimeout + 500) / 1000); // milliseconds -> seconds
 
             var time3 = DateTime.Now;
 
@@ -1411,7 +1411,7 @@ namespace cba
                 {
                     // Turn off requires candidates
                     program.TopLevelDeclarations.OfType<Constant>()
-                        .Where(c => QKeyValue.FindBoolAttribute(c.Attributes, "existential"))
+                        .Where(c => BoogieApiHelpers.FindBoolAttribute(c.Attributes, "existential"))
                         .ForEach(c => allConstants.Add(c.Name));
 
                     origProg = BoogieUtil.ReResolve(program);
@@ -1421,7 +1421,7 @@ namespace cba
                             var uv = new VarsUsed();
                             uv.VisitRequiresSeq(proc.Requires);
                             requiresConstants.UnionWith(uv.varsUsed.Intersection(allConstants));
-                            proc.Requires = proc.Requires.Filter(re => re.Free);
+                            proc.Requires = proc.Requires.Where(re => re.Free);
                         });
                     program.TopLevelDeclarations.OfType<Constant>()
                         .Where(c => requiresConstants.Contains(c.Name))
@@ -1456,7 +1456,7 @@ namespace cba
 
                     var houdiniStats = new HoudiniSession.HoudiniStatistics();
                     Houdini houdini = new Houdini(program, houdiniStats);
-                    outcome = houdini.PerformHoudiniInference();
+                    outcome = houdini.PerformHoudiniInference( /* TODO: now returns Task */);
                     Debug.Assert(outcome.ErrorCount == 0, "Something wrong with houdini");
 
                     if (!fastRequiresInference)
@@ -1486,12 +1486,12 @@ namespace cba
                     origProg.AddTopLevelDeclarations(newAxioms);
                     //BoogieUtil.PrintProgram(origProg, "h2.bpl");
 
-                    CommandLineOptions.ReverseHoudiniWorklist = true;
+                    ExecutionEngineOptions.Options.ReverseHoudiniWorklist = true;
                     var houdiniStats = new HoudiniSession.HoudiniStatistics();
                     Houdini houdini = new Houdini(origProg, houdiniStats);
-                    HoudiniOutcome outcomeReq = houdini.PerformHoudiniInference();
+                    HoudiniOutcome outcomeReq = houdini.PerformHoudiniInference( /* TODO: now returns Task */);
                     Debug.Assert(outcomeReq.ErrorCount == 0, "Something wrong with houdini");
-                    CommandLineOptions.ReverseHoudiniWorklist = false;
+                    ExecutionEngineOptions.Options.ReverseHoudiniWorklist = false;
 
                     outcome.assignment.Where(kvp => !requiresConstants.Contains(kvp.Key))
                         .ForEach(kvp => { if (kvp.Value) trueConstants.Add(kvp.Key); });
@@ -1517,13 +1517,13 @@ namespace cba
                     });
             }
 
-            CommandLineOptions.InlineDepth = -1;
-            CommandLineOptions.ProcedureInlining = old;
-            CommandLineOptions.StratifiedInlining = si;
-            CommandLineOptions.ErrorLimit = oldErrorLimit;
-            CommandLineOptions.ContractInfer = false;
-            CommandLineOptions.TimeLimit = oldTimeout;
-            CommandLineOptions.PrintErrorModel = 0;
+            ExecutionEngineOptions.Options.InlineDepth = -1;
+            ExecutionEngineOptions.Options.ProcedureInlining = old;
+            ExecutionEngineOptions.Options.StratifiedInlining = si;
+            ExecutionEngineOptions.Options.ErrorLimit = oldErrorLimit;
+            ExecutionEngineOptions.Options.ContractInfer = false;
+            ExecutionEngineOptions.Options.TimeLimit = oldTimeout;
+            ExecutionEngineOptions.Options.PrintErrorModel = 0;
 
             #region debug static analysis
 
@@ -1622,15 +1622,15 @@ namespace cba
             foreach (Declaration d in program.TopLevelDeclarations)
             {
                 Implementation impl = d as Implementation;
-                if (impl != null && !impl.SkipVerification)
+                if (impl != null && !impl.Skip /* TODO: SkipVerification changed to Skip */)
                 {
-                    if (CommandLineOptions.InlineDepth >= 0)
+                    if (ExecutionEngineOptions.Options.InlineDepth >= 0)
                     {
-                        Inliner.ProcessImplementation(program, impl);
+                        Inliner.ProcessImplementation(ExecutionEngineOptions.Options, program, impl);
                     }
                     else
                     {
-                        CallInliner.ProcessImplementation(program, impl);
+                        CallInliner.ProcessImplementation(ExecutionEngineOptions.Options, program, impl);
                     }
                     
                 }
@@ -1661,7 +1661,7 @@ namespace cba
             protected override int GetInlineCount(CallCmd callCmd, Implementation impl)
             {
 
-                if (QKeyValue.FindBoolAttribute(callCmd.Attributes, "inlinecall"))
+                if (BoogieApiHelpers.FindBoolAttribute(callCmd.Attributes, "inlinecall"))
                 {
                     recursiveProcUnrollMap[impl.Name] = 1;
                     return 1;
@@ -1683,7 +1683,7 @@ namespace cba
 
             var ignoreImpl = new Predicate<Implementation>(impl =>
             {
-                bool r = QKeyValue.FindBoolAttribute(impl.Proc.Attributes, "nohoudini");
+                bool r = BoogieApiHelpers.FindBoolAttribute(impl.Proc.Attributes, "nohoudini");
                 return r;
             });
 
@@ -1730,13 +1730,13 @@ namespace cba
 
             if (ExtractLoops)
             {
-                var rb = CommandLineOptions.RecursionBound;
-                CommandLineOptions.RecursionBound = 2;
+                var rb = 999 /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */;
+                999 /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */ = 2;
                 
                 // Unroll loops
-                program.ExtractLoops();
+                /* TODO: ExtractLoops removed */ // /* TODO: ExtractLoops removed */ // program.ExtractLoops();
 
-                CommandLineOptions.RecursionBound = rb;
+                999 /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */ = rb;
             }
 
             program = new CBAProgram(BoogieUtil.ReResolve(program), program.mainProcName, program.contextBound);
@@ -1804,16 +1804,16 @@ namespace cba
             Console.WriteLine("Running Houdini");
             // Run Houdini
 
-            CommandLineOptions.InlineDepth = InlineDepth;
-            var old = CommandLineOptions.ProcedureInlining;
-            CommandLineOptions.ProcedureInlining = CommandLineOptions.Inlining.Spec;
-            var si = CommandLineOptions.StratifiedInlining;
-            CommandLineOptions.StratifiedInlining = 0;
-            var oldErrorLimit = CommandLineOptions.ErrorLimit;
-            CommandLineOptions.ErrorLimit = 5;
-            CommandLineOptions.ContractInfer = true;
-            var oldTimeout = CommandLineOptions.TimeLimit;
-            CommandLineOptions.TimeLimit = Math.Max(1, (HoudiniTimeout + 500) / 1000); // milliseconds -> seconds
+            ExecutionEngineOptions.Options.InlineDepth = InlineDepth;
+            var old = ExecutionEngineOptions.Options.ProcedureInlining;
+            ExecutionEngineOptions.Options.ProcedureInlining = Microsoft.Boogie.CoreOptions.Inlining.Spec;
+            var si = ExecutionEngineOptions.Options.StratifiedInlining;
+            ExecutionEngineOptions.Options.StratifiedInlining = 0;
+            var oldErrorLimit = ExecutionEngineOptions.Options.ErrorLimit;
+            ExecutionEngineOptions.Options.ErrorLimit = 5;
+            ExecutionEngineOptions.Options.ContractInfer = true;
+            var oldTimeout = ExecutionEngineOptions.Options.TimeLimit;
+            ExecutionEngineOptions.Options.TimeLimit = Math.Max(1, (HoudiniTimeout + 500) / 1000); // milliseconds -> seconds
 
             var time3 = DateTime.Now;
 
@@ -1835,7 +1835,7 @@ namespace cba
                 {
                     // Turn off requires candidates
                     program.TopLevelDeclarations.OfType<Constant>()
-                        .Where(c => QKeyValue.FindBoolAttribute(c.Attributes, "existential"))
+                        .Where(c => BoogieApiHelpers.FindBoolAttribute(c.Attributes, "existential"))
                         .ForEach(c => allConstants.Add(c.Name));
 
                     origProg = BoogieUtil.ReResolve(program);
@@ -1845,7 +1845,7 @@ namespace cba
                             var uv = new VarsUsed();
                             uv.VisitRequiresSeq(proc.Requires);
                             requiresConstants.UnionWith(uv.varsUsed.Intersection(allConstants));
-                            proc.Requires = proc.Requires.Filter(re => re.Free);
+                            proc.Requires = proc.Requires.Where(re => re.Free);
                         });
                     program.TopLevelDeclarations.OfType<Constant>()
                         .Where(c => requiresConstants.Contains(c.Name))
@@ -1867,7 +1867,7 @@ namespace cba
                 {
                     var houdiniStats = new HoudiniSession.HoudiniStatistics();
                     Houdini houdini = new Houdini(program, houdiniStats);
-                    outcome = houdini.PerformHoudiniInference();
+                    outcome = houdini.PerformHoudiniInference( /* TODO: now returns Task */);
                     Debug.Assert(outcome.ErrorCount == 0, "Something wrong with houdini");
 
                     if (!fastRequiresInference)
@@ -1895,12 +1895,12 @@ namespace cba
                     origProg.AddTopLevelDeclarations(newAxioms);
                     //BoogieUtil.PrintProgram(origProg, "h2.bpl");
 
-                    CommandLineOptions.ReverseHoudiniWorklist = true;
+                    ExecutionEngineOptions.Options.ReverseHoudiniWorklist = true;
                     var houdiniStats = new HoudiniSession.HoudiniStatistics();
                     Houdini houdini = new Houdini(origProg, houdiniStats);
-                    HoudiniOutcome outcomeReq = houdini.PerformHoudiniInference();
+                    HoudiniOutcome outcomeReq = houdini.PerformHoudiniInference( /* TODO: now returns Task */);
                     Debug.Assert(outcomeReq.ErrorCount == 0, "Something wrong with houdini");
-                    CommandLineOptions.ReverseHoudiniWorklist = false;
+                    ExecutionEngineOptions.Options.ReverseHoudiniWorklist = false;
 
                     outcome.assignment.Where(kvp => !requiresConstants.Contains(kvp.Key))
                         .ForEach(kvp => { if (kvp.Value) trueConstants.Add(kvp.Key); });
@@ -1925,13 +1925,13 @@ namespace cba
                     });
             }
 
-            CommandLineOptions.InlineDepth = -1;
-            CommandLineOptions.ProcedureInlining = old;
-            CommandLineOptions.StratifiedInlining = si;
-            CommandLineOptions.ErrorLimit = oldErrorLimit;
-            CommandLineOptions.ContractInfer = false;
-            CommandLineOptions.TimeLimit = oldTimeout;
-            CommandLineOptions.PrintErrorModel = 0;
+            ExecutionEngineOptions.Options.InlineDepth = -1;
+            ExecutionEngineOptions.Options.ProcedureInlining = old;
+            ExecutionEngineOptions.Options.StratifiedInlining = si;
+            ExecutionEngineOptions.Options.ErrorLimit = oldErrorLimit;
+            ExecutionEngineOptions.Options.ContractInfer = false;
+            ExecutionEngineOptions.Options.TimeLimit = oldTimeout;
+            ExecutionEngineOptions.Options.PrintErrorModel = 0;
 
             //#region debug static analysis
 
@@ -1999,7 +1999,7 @@ namespace cba
                         }
                     });
 
-                if (QKeyValue.FindBoolAttribute(impl.Attributes, "entrypoint")) continue;
+                if (BoogieApiHelpers.FindBoolAttribute(impl.Attributes, "entrypoint")) continue;
                 if (!ret.ContainsKey(proc.Name)) ret.Add(proc.Name, new Dictionary<string, EExpr>());
 
                 List<Expr> requires = new List<Expr>();
@@ -2356,7 +2356,7 @@ namespace cba
                     .ForEach(proc => procsThatCannotReachAssert.Add(proc.Name));
 
                 program.TopLevelDeclarations.OfType<Procedure>()
-                    .Where(proc => QKeyValue.FindBoolAttribute(proc.Attributes, "LoopProcedure"))
+                    .Where(proc => BoogieApiHelpers.FindBoolAttribute(proc.Attributes, "LoopProcedure"))
                     .ForEach(proc => procsThatCannotReachAssert.Add(proc.Name));
             }
 
@@ -2383,7 +2383,7 @@ namespace cba
 
             // Identify main
             var main = program.TopLevelDeclarations.OfType<Implementation>()
-                .Where(impl => QKeyValue.FindBoolAttribute(impl.Attributes, "entrypoint"))
+                .Where(impl => BoogieApiHelpers.FindBoolAttribute(impl.Attributes, "entrypoint"))
                 .FirstOrDefault();
             if (main == null)
                 main = BoogieUtil.findProcedureImpl(program.TopLevelDeclarations, program.mainProcName);
@@ -2527,7 +2527,7 @@ namespace cba
                     tc.LabelTargets = new List<Block>(tc.LabelNames.Select(s => l2b[s]));
                 }
 
-                mainCopy.Blocks = LoopUnroll.UnrollLoops(mainCopy.Blocks[0], CommandLineOptions.RecursionBound, false);
+                mainCopy.Blocks = LoopUnroll.UnrollLoops(mainCopy.Blocks[0], 999 /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */, false);
 
                 // detect loops
                 l2b = BoogieUtil.labelBlockMapping(mainCopy);
@@ -2838,8 +2838,8 @@ namespace cba
         {
             // Identify main
             var main = program.TopLevelDeclarations.OfType<Implementation>()
-                .Where(impl => QKeyValue.FindBoolAttribute(impl.Attributes, "entrypoint") ||
-                    QKeyValue.FindBoolAttribute(impl.Proc.Attributes, "entrypoint"))
+                .Where(impl => BoogieApiHelpers.FindBoolAttribute(impl.Attributes, "entrypoint") ||
+                    BoogieApiHelpers.FindBoolAttribute(impl.Proc.Attributes, "entrypoint"))
                 .FirstOrDefault();
             if (main == null && program.mainProcName != null)
                 main = BoogieUtil.findProcedureImpl(program.TopLevelDeclarations, program.mainProcName);
@@ -2864,7 +2864,7 @@ namespace cba
                 .ForEach(proc => procsThatCannotReachAssert.Add(proc.Name));
 
             program.TopLevelDeclarations.OfType<Procedure>()
-                .Where(proc => QKeyValue.FindBoolAttribute(proc.Attributes, "LoopProcedure"))
+                .Where(proc => BoogieApiHelpers.FindBoolAttribute(proc.Attributes, "LoopProcedure"))
                 .ForEach(proc => procsThatCannotReachAssert.Add(proc.Name));
 
             // Make copies of all procedures that can reach assert

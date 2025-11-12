@@ -1359,7 +1359,7 @@ namespace cba
                     if (assertCmd != null)
                     {
                         sourceFile = QKeyValue.FindStringAttribute(assertCmd.Attributes, "sourcefile");
-                        sourceLine = QKeyValue.FindIntAttribute(assertCmd.Attributes, "sourceline", -1);
+                        sourceLine = BoogieApiHelpers.FindIntAttribute(assertCmd.Attributes, "sourceline", -1);
                         if (sourceFile != null && !sourceFile.Equals("?") && sourceLine != -1)
                         {
                            stack[0].tok = new Token(sourceLine, 0);
@@ -1484,8 +1484,8 @@ namespace cba
                         if (si.file == null) si.file = QKeyValue.FindStringAttribute(acmd.Attributes, "sourcefile");
                         if (si.file == null) continue;
 
-                        si.line = QKeyValue.FindIntAttribute(acmd.Attributes, "sourceLine", -1);
-                        if (si.line == -1) si.line = QKeyValue.FindIntAttribute(acmd.Attributes, "sourceline", -1);
+                        si.line = BoogieApiHelpers.FindIntAttribute(acmd.Attributes, "sourceLine", -1);
+                        if (si.line == -1) si.line = BoogieApiHelpers.FindIntAttribute(acmd.Attributes, "sourceline", -1);
 
                         si.extra = QKeyValue.FindStringAttribute(acmd.Attributes, "print");
                         si.am = QKeyValue.FindStringAttribute(acmd.Attributes, "abortM");
@@ -1750,7 +1750,7 @@ namespace cba
                 return;
             }
 
-            var index = QKeyValue.FindIntAttribute(acmd.Attributes, "sI", -1);
+            var index = BoogieApiHelpers.FindIntAttribute(acmd.Attributes, "sI", -1);
             if (index != -1)
             {
                 var si = sourceInfo[index];
@@ -1774,8 +1774,8 @@ namespace cba
                 {
                     file = QKeyValue.FindStringAttribute(acmd.Attributes, "sourceFile");
                     if (file == null) file = QKeyValue.FindStringAttribute(acmd.Attributes, "sourcefile");
-                    line = QKeyValue.FindIntAttribute(acmd.Attributes, "sourceLine", -1);
-                    if (line == -1) line = QKeyValue.FindIntAttribute(acmd.Attributes, "sourceline", -1);
+                    line = BoogieApiHelpers.FindIntAttribute(acmd.Attributes, "sourceLine", -1);
+                    if (line == -1) line = BoogieApiHelpers.FindIntAttribute(acmd.Attributes, "sourceline", -1);
                 }
                 extra = QKeyValue.FindStringAttribute(acmd.Attributes, "print");
                 am = QKeyValue.FindStringAttribute(acmd.Attributes, "abortM");
@@ -1892,8 +1892,8 @@ namespace cba
 
             file = QKeyValue.FindStringAttribute(acmd.Attributes, "sourceFile");
             if (file == null) file = QKeyValue.FindStringAttribute(acmd.Attributes, "sourcefile");
-            line = QKeyValue.FindIntAttribute(acmd.Attributes, "sourceLine", -1);
-            if (line == -1) line = QKeyValue.FindIntAttribute(acmd.Attributes, "sourceline", -1);
+            line = BoogieApiHelpers.FindIntAttribute(acmd.Attributes, "sourceLine", -1);
+            if (line == -1) line = BoogieApiHelpers.FindIntAttribute(acmd.Attributes, "sourceline", -1);
 
             if (file == null || line == -1) return null;
             if (file == "?") return null;
@@ -2067,8 +2067,8 @@ namespace cba
                     if (cc == null || cc.calleeTrace == null)
                         continue;
                     
-                    Debug.Assert(pblk.Cmds[i] is CallCmd && QKeyValue.FindIntAttribute((pblk.Cmds[i] as CallCmd).Attributes, "InlineToTraceUniqueId", -1) != -1);
-                    ret.Add(QKeyValue.FindIntAttribute((pblk.Cmds[i] as CallCmd).Attributes, "InlineToTraceUniqueId", -1), cc.calleeTrace);
+                    Debug.Assert(pblk.Cmds[i] is CallCmd && BoogieApiHelpers.FindIntAttribute((pblk.Cmds[i] as CallCmd).Attributes, "InlineToTraceUniqueId", -1) != -1);
+                    ret.Add(BoogieApiHelpers.FindIntAttribute((pblk.Cmds[i] as CallCmd).Attributes, "InlineToTraceUniqueId", -1), cc.calleeTrace);
                 }
             }
 
@@ -2102,7 +2102,7 @@ namespace cba
             }
             var entry = 
             TopLevelDeclarations.OfType<Implementation>()
-                .Where(impl => QKeyValue.FindBoolAttribute(impl.Attributes, "entrypoint"));
+                .Where(impl => BoogieApiHelpers.FindBoolAttribute(impl.Attributes, "entrypoint"));
             if (entry.Count() != 1)
                 throw new InternalError("InlineToTrace requires a unique entry poiny");
             var entryPoint = entry.First();
@@ -2128,7 +2128,7 @@ namespace cba
         
         protected override int GetInlineCount(CallCmd callCmd, Implementation impl)
         {
-            var id = QKeyValue.FindIntAttribute(callCmd.Attributes, "InlineToTraceUniqueId", -1);
+            var id = BoogieApiHelpers.FindIntAttribute(callCmd.Attributes, "InlineToTraceUniqueId", -1);
             if (id == -1) return -1;
             var loc = traceStack.Peek();
             if (!loc.ContainsKey(id)) return -1;

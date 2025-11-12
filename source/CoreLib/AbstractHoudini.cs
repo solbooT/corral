@@ -47,8 +47,8 @@ namespace CoreLib {
             this.impl2Summary = new Dictionary<string, ISummaryElement>();
             this.name2Impl = BoogieUtil.nameImplMapping(program);
 
-            this.vcgen = new VCGen(program, CommandLineOptions.ProverLogFilePath, CommandLineOptions.ProverLogFileAppend, new List<Checker>());
-            this.prover = ProverInterface.CreateProver(program, CommandLineOptions.ProverLogFilePath, CommandLineOptions.ProverLogFileAppend, CommandLineOptions.TimeLimit);
+            this.vcgen = new VerificationConditionGenerator(program, ExecutionEngineOptions.Options.ProverLogFilePath, ExecutionEngineOptions.Options.ProverLogFileAppend, new List<Checker>());
+            this.prover = ProverInterface.CreateProver(program, ExecutionEngineOptions.Options.ProverLogFilePath, ExecutionEngineOptions.Options.ProverLogFileAppend, ExecutionEngineOptions.Options.TimeLimit);
             this.reporter = new AbstractHoudiniErrorReporter();
 
             var impls = new List<Implementation>(
@@ -69,7 +69,7 @@ namespace CoreLib {
 
             var main = program.TopLevelDeclarations
                 .OfType<Implementation>()
-                .Where(impl => QKeyValue.FindBoolAttribute(impl.Attributes, "entrypoint"))
+                .Where(impl => BoogieApiHelpers.FindBoolAttribute(impl.Attributes, "entrypoint"))
                 .FirstOrDefault();
 
             Debug.Assert(main != null);
@@ -136,7 +136,7 @@ namespace CoreLib {
             }
 
             prover.Close();
-            CommandLineOptions.TheProverFactory.Close();
+            ProverFactory.Instance /* TODO: TheProverFactory API changed */.Close();
         }
 
         private bool ProcessImpl(Implementation impl)
@@ -179,8 +179,8 @@ namespace CoreLib {
                 
                 //Console.WriteLine("Checking: {0}", vc);
 
-                prover.BeginCheck(impl.Name, vc, reporter);
-                ProverInterface.Outcome proverOutcome = prover.CheckOutcome(reporter);
+                prover.Check(impl.Name, vc, reporter); // TODO: BeginCheck is now async Check
+                SolverOutcome proverOutcome = prover.CheckOutcome(reporter); // TODO: CheckOutcome changed
                 if (reporter.model == null)
                     break;
                 
@@ -504,9 +504,9 @@ namespace CoreLib {
                 if(!template.IsEnsures)
                     continue;
 
-                if(QKeyValue.FindBoolAttribute(template.annotations, "pre")) 
+                if(BoogieApiHelpers.FindBoolAttribute(template.annotations, "pre")) 
                     PrePreds.Add(template.getEnsures().Condition);
-                else if(QKeyValue.FindBoolAttribute(template.annotations, "post"))
+                else if(BoogieApiHelpers.FindBoolAttribute(template.annotations, "post"))
                     PostPreds.Add(template.getEnsures().Condition);
             }
         }

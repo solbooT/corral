@@ -40,7 +40,7 @@ namespace cba
         {
             localsToAdd = new List<LocalVariable>();
             node = base.VisitImplementation(node);
-            localsToAdd.ForEachate(x => node.LocVars.Add((Variable)x));
+            localsToAdd.ForEach(x => node.LocVars.Add((Variable)x));
 
             return node;
         }
