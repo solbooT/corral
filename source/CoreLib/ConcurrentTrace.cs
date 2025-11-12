@@ -293,8 +293,8 @@ namespace cba
             {
                 file = QKeyValue.FindStringAttribute(acmd.Attributes, "sourceFile");
                 if (file == null) file = QKeyValue.FindStringAttribute(acmd.Attributes, "sourcefile");
-                line = BoogieApiHelpers.FindIntAttribute(acmd.Attributes, "sourceLine", -1);
-                if (line == -1) line = BoogieApiHelpers.FindIntAttribute(acmd.Attributes, "sourceline", -1);
+                line = QKeyValue.FindIntAttribute(acmd.Attributes, "sourceLine", -1);
+                if (line == -1) line = QKeyValue.FindIntAttribute(acmd.Attributes, "sourceline", -1);
             }
 
             if (file == null || line == -1)

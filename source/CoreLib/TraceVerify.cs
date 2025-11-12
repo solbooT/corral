@@ -281,7 +281,7 @@ namespace cba
                                 else if (call_instr.info.hasVar("si_arg") && cc.Outs[0].Decl.TypedIdent.Type.IsCtor)
                                     uvalueToConstants.InitAndAdd(call_instr.info.getVal("si_arg").ToString(), constant);
 
-                                var id = BoogieApiHelpers.FindIntAttribute(cc.Attributes, ConcretizeCallIdAttr, -1);
+                                var id = QKeyValue.FindIntAttribute(cc.Attributes, ConcretizeCallIdAttr, -1);
                                 concretizeConstantToCall.Add(constant.Name, id);
                             }
 

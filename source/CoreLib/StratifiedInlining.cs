@@ -262,7 +262,7 @@ namespace CoreLib
             program.TopLevelDeclarations.OfType<Implementation>()
                 .ForEach(impl =>
                 {
-                    var b = BoogieApiHelpers.FindIntAttribute(impl.Attributes, BoogieVerify.ExtraRecBoundAttr, -1);
+                    var b = QKeyValue.FindIntAttribute(impl.Attributes, BoogieVerify.ExtraRecBoundAttr, -1);
                     if (b != -1) extraRecBound.Add(impl.Name, b);
                 });
 
@@ -723,7 +723,7 @@ namespace CoreLib
         // Return unique call ID of a call site
         private int GetSiCallId(StratifiedCallSite scs)
         {
-            return BoogieApiHelpers.FindIntAttribute(scs.callSite.Attributes, "si_unique_call", -1);
+            return QKeyValue.FindIntAttribute(scs.callSite.Attributes, "si_unique_call", -1);
         }
 
         // Get persistent ID of a callsite
@@ -1106,7 +1106,7 @@ namespace CoreLib
             currentDag.AddNode(n2);
 
             // Add edge to our dag
-            var e = BoogieApiHelpers.FindIntAttribute(cs.callSite.Attributes, "si_unique_call", -1);
+            var e = QKeyValue.FindIntAttribute(cs.callSite.Attributes, "si_unique_call", -1);
             currentDag.AddEdge(new DagOracle.DagEdge(n1, n2, e));
 
             if (optimalDag != null && !currentOptNodeMapping.ContainsDomain(n2))
@@ -1131,7 +1131,7 @@ namespace CoreLib
 
             var n1 = vcNodeMap[containingVC[cs]];
             var n2 = vcNodeMap[vc];
-            var e = BoogieApiHelpers.FindIntAttribute(cs.callSite.Attributes, "si_unique_call", -1);
+            var e = QKeyValue.FindIntAttribute(cs.callSite.Attributes, "si_unique_call", -1);
             currentDag.AddEdge(new DagOracle.DagEdge(n1, n2, e));
 
             //currentDag.CheckSanity();
@@ -1164,7 +1164,7 @@ namespace CoreLib
 
             Debug.Assert(!SI.attachedVC.ContainsKey(cs));
 
-            var e = BoogieApiHelpers.FindIntAttribute(cs.callSite.Attributes, "si_unique_call", -1);
+            var e = QKeyValue.FindIntAttribute(cs.callSite.Attributes, "si_unique_call", -1);
             int[] rv = null;
             var candidates = currentDag.FindMergeCandidates(vcNodeMap[containingVC[cs]], e, GetTargetId(cs, out rv));
 
@@ -1215,7 +1215,7 @@ namespace CoreLib
             Debug.Assert(optimalDag != null);
             // this is where we are
             var n1 = vcNodeMap[containingVC[cs]];
-            var call = BoogieApiHelpers.FindIntAttribute(cs.callSite.Attributes, "si_unique_call", -1);
+            var call = QKeyValue.FindIntAttribute(cs.callSite.Attributes, "si_unique_call", -1);
             var o1 = currentOptNodeMapping.GetRange(n1);
             var o2 = optimalDag.FindSuccessor(o1, call, cs.callSite.calleeName);
             Debug.Assert(o2 != null);
@@ -1412,7 +1412,7 @@ namespace CoreLib
                         attr = (cmd as CallCmd).Attributes;
                     }
                     if (attr == null) continue;
-                    var v = BoogieApiHelpers.FindIntAttribute(attr, "si_unique_call", -1);
+                    var v = QKeyValue.FindIntAttribute(attr, "si_unique_call", -1);
                     if (v < 0) continue;
                     blockToCalls[b].Add(v);
 
@@ -1862,7 +1862,7 @@ namespace CoreLib
                     {
                         if (!impls.ContainsKey(cmd.callee))
                             continue;
-                        var cs = BoogieApiHelpers.FindIntAttribute(cmd.Attributes, "si_unique_call", -1);
+                        var cs = QKeyValue.FindIntAttribute(cmd.Attributes, "si_unique_call", -1);
                         implToCalls[tup.Key].Add(Tuple.Create(cs, cmd.callee));
                     }
                 }
@@ -2414,7 +2414,7 @@ namespace CoreLib
                     {
                         if (!impls.ContainsKey(cmd.callee))
                             continue;
-                        var cs = BoogieApiHelpers.FindIntAttribute(cmd.Attributes, "si_unique_call", -1);
+                        var cs = QKeyValue.FindIntAttribute(cmd.Attributes, "si_unique_call", -1);
                         implToCalls[tup.Key].Add(Tuple.Create(cs, cmd.callee));
                     }
                 }

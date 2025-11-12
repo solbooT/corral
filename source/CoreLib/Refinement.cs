@@ -1466,7 +1466,7 @@ namespace cba
             procsMerged = new HashSet<string>();
             foreach (var p in procs)
             {
-                if (BoogieApiHelpers.FindIntAttribute(p.Attributes, "inline", -1) != -1)
+                if (QKeyValue.FindIntAttribute(p.Attributes, "inline", -1) != -1)
                 {
                     procsMerged.Add(p.Name);
                 }

@@ -245,7 +245,7 @@ namespace CoreLib
                         retVal.Type), false);
                     newDecls.Add(mapconst);
 
-                    var id = BoogieApiHelpers.FindIntAttribute(ccmd.Attributes, RestrictToTrace.ConcretizeCallIdAttr, -1);
+                    var id = QKeyValue.FindIntAttribute(ccmd.Attributes, RestrictToTrace.ConcretizeCallIdAttr, -1);
                     allocConstants.Add(mapconst.Name, id);
 
                     newCmds.Add(BoogieAstFactory.MkVarEqVar(retVal.Decl, mapconst));

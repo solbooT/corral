@@ -1318,7 +1318,7 @@ namespace cba
             {
                 var impl = decl as Implementation;
                 if (impl == null) continue;
-                if (BoogieApiHelpers.FindIntAttribute(impl.Proc.Attributes, "inline", -1) == -1) continue;
+                if (QKeyValue.FindIntAttribute(impl.Proc.Attributes, "inline", -1) == -1) continue;
                 impl.Proc.Attributes = BoogieUtil.removeAttr("inline", impl.Proc.Attributes);
                 impl.Proc.Attributes = BoogieUtil.removeAttr("verify", impl.Proc.Attributes);
                 impl.Attributes = BoogieUtil.removeAttr("inline", impl.Attributes);
