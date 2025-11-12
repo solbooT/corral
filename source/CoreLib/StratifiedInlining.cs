@@ -694,19 +694,19 @@ namespace CoreLib
             return ret;
         }
 
-        private void Merge(StratifiedCallSite scs, StratifiedVC vc)
+        private void Merge(StratifiedCallSite scs, StratifiedVC svc)
         {
             MacroSI.PRINT_DEBUG("    ~ attaching to existing callsite ");
             svc.info.vcgen.prover.LogComment("Attaching for " + scs.callSite.calleeName);
-            var toassert = AttachByEquality(scs, vc);
-            var cb = GetControlBoolean(vc);
+            var toassert = AttachByEquality(scs, svc);
+            var cb = GetControlBoolean(svc);
             toassert = svc.info.vcgen.prover.VCExprGen.Implies(scs.callSiteExpr, svc.info.vcgen.prover.VCExprGen.And(cb, toassert));
 
-            di.Merged(scs, vc);
+            di.Merged(scs, svc);
             stats.vcSize += SizeComputingVisitor.ComputeSize(toassert);
 
             svc.info.vcgen.prover.Assert(toassert, true);
-            attachedVC[scs] = vc;
+            attachedVC[scs] = svc;
         }
 
         // Return the control Boolean for the VC
@@ -758,7 +758,7 @@ namespace CoreLib
             System.Diagnostics.Contracts.Contract.Assert(callee.callSite.interfaceExprs.Count == svcCallee.interfaceExprVars.Count);
             StratifiedInliningInfo info = svcCallee.info;
             ProverInterface prover = info.vcgen.prover;
-            VCExpressionGenerator gen = svc.info.vcgen.prover.VCExprGen;
+            VCExpressionGenerator gen = prover.VCExprGen;
 
             VCExpr conjunction = VCExpressionGenerator.True;
 
