@@ -254,68 +254,6 @@ namespace CoreLib
                 callGraph.PrintOut(Console.Out);
         }
 
-        public StratifiedInlining(Program program, string logFilePath, bool appendLogFile, Action<Implementation> PassiveImplInstrumentation) :
-            base(program, logFilePath, appendLogFile, new List<Checker>(), PassiveImplInstrumentation)
-        {
-            stats = new Stats();
-
-            this.extraRecBound = new Dictionary<string, int>();
-            program.TopLevelDeclarations.OfType<Implementation>()
-                .ForEach(impl =>
-                {
-                    var b = QKeyValue.FindIntAttribute(impl.Attributes, BoogieVerify.ExtraRecBoundAttr, -1);
-                    if (b != -1) extraRecBound.Add(impl.Name, b);
-                });
-
-            if (cba.Util.BoogieVerify.options.useFwdBck)
-            {
-                RunInitialAnalyses(program);
-            }
-
-            attachedVC = new Dictionary<StratifiedCallSite, StratifiedVC>();
-            attachedVCInv = new Dictionary<StratifiedVC, StratifiedCallSite>();
-            parent = new Dictionary<StratifiedCallSite, StratifiedCallSite>();
-            implementations = new HashSet<string>(implName2StratifiedInliningInfo.Keys);
-
-            forceInlineProcs = new HashSet<string>();
-
-            controlBoolean = new Dictionary<StratifiedVC, VCExpr>();
-            di = new DI(this, true);
-
-            if (BoogieVerify.options.extraFlags.Contains("do") || BoogieVerify.options.extraFlags.Contains("doslow"))
-            {
-                Console.WriteLine("============= DAG Oracle ============");
-                
-                var sttime = DateTime.Now;
-                DagOracle dago = null;
-                var treesize = 0;
-                
-                if (BoogieVerify.options.extraFlags.Contains("doslow"))
-                {
-                    dago = DagOracle.ConstructCallDag(program, extraRecBound);
-                    dago.Dump("tree.dot");
-                    treesize = dago.ComputeSize();
-                    dago.Compress();
-                }
-                else
-                {
-                    dago = new DagOracle(program, extraRecBound);
-                    treesize = dago.ConstructCallDagOnTheFly(false, DI.PickStrategy());
-                }
-                var compresstime = (DateTime.Now - sttime);
-
-                Console.WriteLine("Compression: {0} {1}", dago.ComputeSize(), treesize == 0 ? dago.ComputeDagSizes() : treesize);
-                Console.WriteLine("Compression time: {0} seconds", compresstime.TotalSeconds.ToString("F2"));
-
-                dago.Dump("dag.dot");
-                Debug.Assert(treesize == 0 || treesize == dago.ComputeDagSizes());
-                dago.CheckSanity();
-                Console.WriteLine("Compressed dag sanity confirmed");
-                Console.WriteLine("=====================================");
-                throw new NormalExit("Done");
-            }
-        }
-
         /* depth in the call tree */
         public int StackDepth(StratifiedCallSite cs)
         {
@@ -630,70 +568,6 @@ namespace CoreLib
         static DagOracle prevDag = null;
 
         static int dumpCnt = 0;
-
-        // Inline
-        private StratifiedVC Expand(StratifiedCallSite scs)
-        {
-            return Expand(scs, null, true, false);
-        }
-
-        private StratifiedVC Expand(StratifiedCallSite scs, string name, bool DoSubst, bool dontMerge)
-        {
-            MacroSI.PRINT_DEBUG("    ~ extend callsite " + scs.callSite.calleeName);
-            Debug.Assert(DoSubst || di.disabled);
-            var candidate = dontMerge ? null : di.FindMergeCandidate(scs);
-            StratifiedVC ret = null;
-
-            if (candidate == null)
-            {
-                stats.numInlined++;
-                var svc = new StratifiedVC(implName2StratifiedInliningInfo[scs.callSite.calleeName], implementations);
-
-                foreach (var newCallSite in svc.CallSites)
-                {
-                    parent[newCallSite] = scs;
-                }
-                VCExpr toassert;
-
-                if (di.disabled)
-                {
-                    if (DoSubst)
-                        toassert = svc.info.vcgen.prover.VCExprGen.Implies(scs.callSiteExpr, scs.Attach(svc));
-                    else
-                        toassert = svc.info.vcgen.prover.VCExprGen.Implies(scs.callSiteExpr, svc.info.vcgen.prover.VCExprGen.And(
-                        svc.vcexpr, AttachByEquality(scs, svc)));
-                }
-                else
-                {
-                    var cb = GetControlBoolean(svc);
-                    toassert = AttachByEquality(scs, svc);
-                    toassert = svc.info.vcgen.prover.VCExprGen.Implies(scs.callSiteExpr, svc.info.vcgen.prover.VCExprGen.And(cb, toassert));
-                    toassert = svc.info.vcgen.prover.VCExprGen.And(svc.info.vcgen.prover.VCExprGen.Implies(cb, svc.vcexpr), toassert);
-                }
-
-                svc.info.vcgen.prover.LogComment("Inlining " + scs.callSite.calleeName + " from " + (parent.ContainsKey(scs) ? attachedVC[parent[scs]].info.impl.Name : "main"));
-
-                di.Expanded(scs, svc);
-                stats.vcSize += SizeComputingVisitor.ComputeSize(toassert);
-                //Console.WriteLine("VC of {0} is {1}", scs.callSite.calleeName, toassert);
-
-                if (name != null)
-                    svc.info.vcgen.prover.AssertNamed(toassert, true, name);
-                else
-                    svc.info.vcgen.prover.Assert(toassert, true);
-
-                attachedVC[scs] = svc;
-                attachedVCInv[svc] = scs;
-                //TestMustReach(svc);
-                ret = svc;
-            }
-            else
-            {
-                Merge(scs, candidate);
-                ret = null;
-            }
-            return ret;
-        }
 
         private void Merge(StratifiedCallSite scs, StratifiedVC svc)
         {

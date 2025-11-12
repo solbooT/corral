@@ -1655,18 +1655,6 @@ namespace cba
             {
                 ProcessImplementation(program, impl, new CallInliner(program));
             }
-
-            protected override int GetInlineCount(CallCmd callCmd, Implementation impl)
-            {
-
-                if (QKeyValueExtensions.FindBoolAttribute(callCmd.Attributes, "inlinecall"))
-                {
-                    recursiveProcUnrollMap[impl.Name] = 1;
-                    return 1;
-                }
-                else
-                    return 0;
-            }
         }
 
         // Remove implementations that cannot have an impact on any houdini candidate.

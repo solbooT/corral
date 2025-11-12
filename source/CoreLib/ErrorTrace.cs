@@ -2126,18 +2126,6 @@ namespace cba
             }
         }
         
-        protected override int GetInlineCount(CallCmd callCmd, Implementation impl)
-        {
-            var id = QKeyValue.FindIntAttribute(callCmd.Attributes, "InlineToTraceUniqueId", -1);
-            if (id == -1) return -1;
-            var loc = traceStack.Peek();
-            if (!loc.ContainsKey(id)) return -1;
-            traceStack.Push(FindCallsOnTrace(impl, loc[id]));
-            recursiveProcUnrollMap[impl.Name] = 1;
-            return 1;
-
-        }
-        
         // Change "inline$" to "itt$inline$" in block labels and 
         class RenameLabelsAndVariables : FixedVisitor
         {

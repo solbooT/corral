@@ -126,7 +126,7 @@ namespace CoreLib
                         var acmd = blk.Cmds[i] as AssumeCmd;
                         if (acmd == null) continue;
 
-                        if (QKeyValueExtensions.FindBoolAttribute(acmd.Attributes, StratifiedVCGenBase.callSiteVarAttr))
+                        if (QKeyValueExtensions.FindBoolAttribute(acmd.Attributes, StratifiedVerificationConditionGeneratorBase.callSiteVarAttr))
                         {
                             cv = acmd.Expr;
                             continue;
