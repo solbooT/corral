@@ -546,6 +546,7 @@ namespace cba
 
     public class ContractInfer : CompilerPass
     {
+        VCGenOptions Options;
         public class EExpr 
         {
             public Expr expr;

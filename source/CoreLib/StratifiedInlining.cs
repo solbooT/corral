@@ -176,7 +176,7 @@ namespace CoreLib
         public Dictionary<StratifiedVC, StratifiedCallSite> attachedVCInv;
 
         /* VC of main */
-        private StratifiedVC mainVC;
+        private StratifiedVC svc;
 
         /*  Parent linking -- used only for computing the recursion depth */
         public Dictionary<StratifiedCallSite, StratifiedCallSite> parent;        
@@ -603,7 +603,7 @@ namespace CoreLib
                 }
                 iter = parent[iter];
             }
-            svc.info.vcgen.prover.Assert(mainVC.MustReach(mainVC.callSites.First(tup => tup.Value.Contains(iter, null /* TODO: add ControlFlowIdMap parameter */)).Key), true);
+            svc.info.vcgen.prover.Assert(svc.MustReach(svc.callSites.First(tup => tup.Value.Contains(iter, null /* TODO: add ControlFlowIdMap parameter */)).Key), true);
             return ret;
         }
 
@@ -622,7 +622,7 @@ namespace CoreLib
             else
                 assertsPass = scs.interfaceExprs[index];
 
-            svc.info.vcgen.prover.Assert(prover.VCExprGen.Implies(scs.callSiteExpr, assertsPass), true);
+            svc.info.vcgen.prover.Assert(svc.info.vcgen.prover.VCExprGen.Implies(scs.callSiteExpr, assertsPass), true);
         }
 
         // TODO: add this to BoogieVerifyOptions
@@ -668,7 +668,7 @@ namespace CoreLib
                     var cb = GetControlBoolean(svc);
                     toassert = AttachByEquality(scs, svc);
                     toassert = svc.info.vcgen.prover.VCExprGen.Implies(scs.callSiteExpr, svc.info.vcgen.prover.VCExprGen.And(cb, toassert));
-                    toassert = svc.info.vcgen.prover.VCExprGen.And(prover.VCExprGen.Implies(cb, svc.vcexpr), toassert);
+                    toassert = svc.info.vcgen.prover.VCExprGen.And(svc.info.vcgen.prover.VCExprGen.Implies(cb, svc.vcexpr), toassert);
                 }
 
                 svc.info.vcgen.prover.LogComment("Inlining " + scs.callSite.calleeName + " from " + (parent.ContainsKey(scs) ? attachedVC[parent[scs]].info.impl.Name : "main"));
@@ -2823,7 +2823,7 @@ namespace CoreLib
     {
         StratifiedInlining si;
         public VerifierCallback callback;
-        StratifiedVC mainVC;
+        StratifiedVC svc;
         public static TimeSpan ttime = TimeSpan.Zero;
 
         public bool reportTrace;
@@ -2832,18 +2832,18 @@ namespace CoreLib
         public List<StratifiedCallSite> callSitesToExpand;
         List<Tuple<int, int>> orderedStateIds;
 
-        public StratifiedInliningErrorReporter(VerifierCallback callback, StratifiedInlining si, StratifiedVC mainVC)
+        public StratifiedInliningErrorReporter(VerifierCallback callback, StratifiedInlining si, StratifiedVC svc)
         {
             this.callback = callback;
             this.si = si;
-            this.mainVC = mainVC;
+            this.svc = svc;
             this.reportTrace = false;
             this.reportTraceIfNothingToExpand = false;
         }
 
         public override int StartingProcId()
         {
-            return mainVC.id;
+            return svc.id;
         }
 
         private Absy Label2Absy(string procName, string label)
