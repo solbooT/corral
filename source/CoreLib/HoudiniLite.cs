@@ -401,8 +401,8 @@ namespace CoreLib
                     {
                         foreach (var k in remaining)
                         {
-                            var b = recordingBool == null ? (bool)prover.Evaluate(constantToAssertedExpr[k])
-                                : (bool)prover.Evaluate(recordingBool[k]);
+                            var b = recordingBool == null ? prover.Evaluate(constantToAssertedExpr[k]).Result
+                                : prover.Evaluate(recordingBool[k]).Result;
 
                             if (!b)
                             {
@@ -416,12 +416,12 @@ namespace CoreLib
                     {
                         foreach (var tup in callSiteVarToConstantToExpr)
                         {
-                            if (!(bool)prover.Evaluate(nameToCallSiteVar[tup.Key]))
+                            if (!(bool)prover.Evaluate(nameToCallSiteVar[tup.Key]).Result)
                                 continue;
                             // call site taken
                             foreach (var tup2 in tup.Value)
                             {
-                                if ((bool)prover.Evaluate(tup2.Value))
+                                if ((bool)prover.Evaluate(tup2.Value).Result)
                                 {
                                     failed.Add(tup2.Key);
                                     if (dbg) Console.WriteLine("Failed: {0}", tup2.Key);

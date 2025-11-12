@@ -9,6 +9,7 @@ using Microsoft.Boogie.VCExprAST;
 using VC;
 using cba.Util;
 using Microsoft.Boogie.GraphUtil;
+using System.Threading.Tasks;
 
 namespace CoreLib
 {
@@ -2911,7 +2912,7 @@ namespace CoreLib
                 Block next = null;
                 foreach (var succ in gc.LabelTargets)
                 {
-                    var succtaken = (bool)svc.info.vcgen.prover.Evaluate(svc.blockToControlVar[succ]);
+                    var succtaken = svc.info.vcgen.prover.Evaluate(svc.blockToControlVar[succ]).Result;
                     if (succtaken)
                     {
                         next = succ;
