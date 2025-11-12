@@ -47,9 +47,9 @@ namespace CoreLib {
             this.impl2Summary = new Dictionary<string, ISummaryElement>();
             this.name2Impl = BoogieUtil.nameImplMapping(program);
 
-            // TODO ExecutionEngineOptions.Options.ProverLogFilePath, ExecutionEngineOptions.Options.ProverLogFileAppend
+            // TODO Options.ProverLogFilePath, Options.ProverLogFileAppend
             this.vcgen = new VerificationConditionGenerator(program, new List<Checker>());
-            // TODO ExecutionEngineOptions.Options.ProverLogFilePath, ExecutionEngineOptions.Options.ProverLogFileAppend, ExecutionEngineOptions.Options.TimeLimit
+            // TODO Options.ProverLogFilePath, Options.ProverLogFileAppend, Options.TimeLimit
             this.prover = ProverInterface.CreateProver(program);
             this.reporter = new AbstractHoudiniErrorReporter();
 
@@ -804,7 +804,7 @@ namespace CoreLib {
     {
         public Model model;
 
-        public AbstractHoudiniErrorReporter()
+        public AbstractHoudiniErrorReporter() : base(null)
         {
             model = null;
         }

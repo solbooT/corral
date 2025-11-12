@@ -2706,7 +2706,7 @@ namespace CoreLib
         public List<StratifiedCallSite> callSitesToExpand;
         List<Tuple<int, int>> orderedStateIds;
 
-        public StratifiedInliningErrorReporter(VerifierCallback callback, StratifiedInlining si, StratifiedVC svc)
+        public StratifiedInliningErrorReporter(VerifierCallback callback, StratifiedInlining si, StratifiedVC svc) : base(null)
         {
             this.callback = callback;
             this.si = si;
@@ -2750,7 +2750,7 @@ namespace CoreLib
         // returns a list of blocks followed by a fake assert
         private List<Absy> GetAbsyTrace(StratifiedVC svc, IList<string> labels)
         {
-            if (ExecutionEngineOptions.Options.SIBoolControlVC)
+            if (Options.SIBoolControlVC)
                 return GetAbsyTraceBoolControlVC(svc);
             else
                 return GetAbsyTraceControlFlowVariable(svc, labels);
@@ -2772,7 +2772,7 @@ namespace CoreLib
 
         private List<Absy> GetAbsyTraceBoolControlVC(StratifiedVC svc)
         {
-            Debug.Assert(ExecutionEngineOptions.Options.UseProverEvaluate, "Must use prover evaluate option with boolControlVC"); 
+            Debug.Assert(Options.UseProverEvaluate, "Must use prover evaluate option with boolControlVC"); 
             
             var ret = new List<Absy>();
             var impl = svc.info.impl;
@@ -2834,14 +2834,14 @@ namespace CoreLib
                         }
                     }
                 }
-                if (svc.recordProcCallSites.ContainsKey(b) && (model != null || ExecutionEngineOptions.Options.UseProverEvaluate))
+                if (svc.recordProcCallSites.ContainsKey(b) && (model != null || Options.UseProverEvaluate))
                 {
                     foreach (StratifiedCallSite scs in svc.recordProcCallSites[b])
                     {
                         var args = new List<object>();
                         foreach (VCExpr expr in scs.interfaceExprs)
                         {
-                            if (model == null && ExecutionEngineOptions.Options.UseProverEvaluate)
+                            if (model == null && Options.UseProverEvaluate)
                             {
                                 args.Add(svc.info.vcgen.prover.Evaluate(expr));
                             }

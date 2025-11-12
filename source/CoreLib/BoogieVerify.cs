@@ -42,10 +42,10 @@ namespace cba.Util
 
         public static void setTimeOut(uint TO)
         {
-            ExecutionEngineOptions.Options.TimeLimit = 0;
+            Options.TimeLimit = 0;
             if (TO > 0)
             {
-                ExecutionEngineOptions.Options.TimeLimit = TO;
+                Options.TimeLimit = TO;
             }
         }
 
@@ -163,8 +163,8 @@ namespace cba.Util
             VerificationConditionGenerator vcgen = null;
             try
             {
-                Debug.Assert(ExecutionEngineOptions.Options.StratifiedInlining > 0);
-                vcgen = new CoreLib.StratifiedInlining(program, ExecutionEngineOptions.Options.ProverLogFilePath, ExecutionEngineOptions.Options.ProverLogFileAppend, null);
+                Debug.Assert(Options.StratifiedInlining > 0);
+                vcgen = new CoreLib.StratifiedInlining(program, Options.ProverLogFilePath, Options.ProverLogFileAppend, null);
             }
             catch (ProverException e)
             {
@@ -245,7 +245,7 @@ namespace cba.Util
                 if (errors != null) ret = ReturnStatus.NOK;
 
                 // Print model
-                if (errors != null && errors.Count > 0 && errors[0].Model != null && ExecutionEngineOptions.Options.ModelViewFile != null)
+                if (errors != null && errors.Count > 0 && errors[0].Model != null && Options.ModelViewFile != null)
                 {
                     var model = errors[0].Model;
                     var cnt = 0;
@@ -257,7 +257,7 @@ namespace cba.Util
                         }
                     });
 
-                    using (var wr = new StreamWriter(ExecutionEngineOptions.Options.ModelViewFile, false))
+                    using (var wr = new StreamWriter(Options.ModelViewFile, false))
                     {
                         model.Write(wr);
                     }
@@ -753,11 +753,11 @@ namespace cba.Util
         // overwrite all options set by a previous call to Set
         public void Set()
         {
-            ExecutionEngineOptions.Options.StratifiedInlining = StratifiedInlining;
-            ExecutionEngineOptions.Options.StratifiedInliningWithoutModels = StratifiedInliningWithoutModels;
-            ExecutionEngineOptions.Options.UseProverEvaluate = UseProverEvaluate;
+            Options.StratifiedInlining = StratifiedInlining;
+            Options.StratifiedInliningWithoutModels = StratifiedInliningWithoutModels;
+            Options.UseProverEvaluate = UseProverEvaluate;
             if (!StratifiedInliningWithoutModels && ModelViewFile != null)
-                ExecutionEngineOptions.Options.ModelViewFile = ModelViewFile;
+                Options.ModelViewFile = ModelViewFile;
         }
     }
 

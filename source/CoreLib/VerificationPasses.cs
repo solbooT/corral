@@ -130,7 +130,7 @@ namespace cba
             BoogieVerify.options.Set();
 
             // An important pass for recording the value of int variables
-            Debug.Assert(ExecutionEngineOptions.Options.StratifiedInlining > 0);
+            Debug.Assert(Options.StratifiedInlining > 0);
             if(WillGetModel)
               recordVarsTransformation(p, p.mainProcName);
 
@@ -1160,7 +1160,7 @@ namespace cba
             {
                 Debug.Assert(onlyEnsures());
                 // Turn on summary computation in Boogie
-                Debug.Assert(ExecutionEngineOptions.Options.StratifiedInlining > 0);
+                Debug.Assert(Options.StratifiedInlining > 0);
             }
 
             // Insert summaries
@@ -1384,16 +1384,16 @@ namespace cba
 
             // Run Houdini
 
-            ExecutionEngineOptions.Options.InlineDepth = InlineDepth;
-            var old = ExecutionEngineOptions.Options.ProcedureInlining;
-            ExecutionEngineOptions.Options.ProcedureInlining = Microsoft.Boogie.CoreOptions.Inlining.Spec;
-            var si = ExecutionEngineOptions.Options.StratifiedInlining;
-            ExecutionEngineOptions.Options.StratifiedInlining = 0;
-            var oldErrorLimit = ExecutionEngineOptions.Options.ErrorLimit;
-            ExecutionEngineOptions.Options.ErrorLimit = runHoudiniLite ? 1 : 5;
-            ExecutionEngineOptions.Options.ContractInfer = true;
-            var oldTimeout = ExecutionEngineOptions.Options.TimeLimit;
-            ExecutionEngineOptions.Options.TimeLimit = Math.Max(1, (HoudiniTimeout + 500) / 1000); // milliseconds -> seconds
+            Options.InlineDepth = InlineDepth;
+            var old = Options.ProcedureInlining;
+            Options.ProcedureInlining = Microsoft.Boogie.CoreOptions.Inlining.Spec;
+            var si = Options.StratifiedInlining;
+            Options.StratifiedInlining = 0;
+            var oldErrorLimit = Options.ErrorLimit;
+            Options.ErrorLimit = runHoudiniLite ? 1 : 5;
+            Options.ContractInfer = true;
+            var oldTimeout = Options.TimeLimit;
+            Options.TimeLimit = Math.Max(1, (HoudiniTimeout + 500) / 1000); // milliseconds -> seconds
 
             var time3 = DateTime.Now;
 
@@ -1454,7 +1454,7 @@ namespace cba
 
                     var houdiniStats = new HoudiniSession.HoudiniStatistics();
                     Houdini houdini = new Houdini(program, houdiniStats);
-                    outcome = houdini.PerformHoudiniInference( /* TODO: now returns Task */).ToList();
+                    outcome = houdini.PerformHoudiniInference( /* TODO: now returns Task */).Result;
                     Debug.Assert(outcome.ErrorCount == 0, "Something wrong with houdini");
 
                     if (!fastRequiresInference)
@@ -1622,13 +1622,13 @@ namespace cba
                 Implementation impl = d as Implementation;
                 if (impl != null && !impl.IsSkipVerification(null))
                 {
-                    if (ExecutionEngineOptions.Options.InlineDepth >= 0)
+                    if (Options.InlineDepth >= 0)
                     {
-                        Inliner.ProcessImplementation(ExecutionEngineOptions.Options, program, impl);
+                        Inliner.ProcessImplementation(Options, program, impl);
                     }
                     else
                     {
-                        CallInliner.ProcessImplementation(ExecutionEngineOptions.Options, program, impl);
+                        CallInliner.ProcessImplementation(Options, program, impl);
                     }
                     
                 }
@@ -1786,15 +1786,15 @@ namespace cba
 
             HoudiniOptions options = new HoudiniOptions();
             options.InlineDepth = InlineDepth;
-            var old = ExecutionEngineOptions.Options.ProcedureInlining;
-            ExecutionEngineOptions.Options.ProcedureInlining = Microsoft.Boogie.CoreOptions.Inlining.Spec;
-            var si = ExecutionEngineOptions.Options.StratifiedInlining;
-            ExecutionEngineOptions.Options.StratifiedInlining = 0;
-            var oldErrorLimit = ExecutionEngineOptions.Options.ErrorLimit;
-            ExecutionEngineOptions.Options.ErrorLimit = 5;
-            ExecutionEngineOptions.Options.ContractInfer = true;
-            var oldTimeout = ExecutionEngineOptions.Options.TimeLimit;
-            ExecutionEngineOptions.Options.TimeLimit = Math.Max(1, (HoudiniTimeout + 500) / 1000); // milliseconds -> seconds
+            var old = Options.ProcedureInlining;
+            Options.ProcedureInlining = Microsoft.Boogie.CoreOptions.Inlining.Spec;
+            var si = Options.StratifiedInlining;
+            Options.StratifiedInlining = 0;
+            var oldErrorLimit = Options.ErrorLimit;
+            Options.ErrorLimit = 5;
+            Options.ContractInfer = true;
+            var oldTimeout = Options.TimeLimit;
+            Options.TimeLimit = Math.Max(1, (HoudiniTimeout + 500) / 1000); // milliseconds -> seconds
 
             var time3 = DateTime.Now;
 
@@ -1874,14 +1874,13 @@ namespace cba
                         newAxioms.Add(new Axiom(Token.NoToken, axiom));
                     }
                     origProg.AddTopLevelDeclarations(newAxioms);
-                    //BoogieUtil.PrintProgram(origProg, "h2.bpl");
 
-                    ExecutionEngineOptions.Options.ReverseHoudiniWorklist = true;
+                    Options.ReverseHoudiniWorklist = true;
                     var houdiniStats = new HoudiniSession.HoudiniStatistics();
                     Houdini houdini = new Houdini(origProg, houdiniStats);
                     HoudiniOutcome outcomeReq = await houdini.PerformHoudiniInference();
                     Debug.Assert(outcomeReq.ErrorCount == 0, "Something wrong with houdini");
-                    ExecutionEngineOptions.Options.ReverseHoudiniWorklist = false;
+                    Options.ReverseHoudiniWorklist = false;
 
                     outcome.assignment.Where(kvp => !requiresConstants.Contains(kvp.Key))
                         .ForEach(kvp => { if (kvp.Value) trueConstants.Add(kvp.Key); });
@@ -1906,13 +1905,13 @@ namespace cba
                     });
             }
 
-            ExecutionEngineOptions.Options.InlineDepth = -1;
-            ExecutionEngineOptions.Options.ProcedureInlining = old;
-            ExecutionEngineOptions.Options.StratifiedInlining = si;
-            ExecutionEngineOptions.Options.ErrorLimit = oldErrorLimit;
-            ExecutionEngineOptions.Options.ContractInfer = false;
-            ExecutionEngineOptions.Options.TimeLimit = oldTimeout;
-            ExecutionEngineOptions.Options.PrintErrorModel = 0;
+            Options.InlineDepth = -1;
+            Options.ProcedureInlining = old;
+            Options.StratifiedInlining = si;
+            Options.ErrorLimit = oldErrorLimit;
+            Options.ContractInfer = false;
+            Options.TimeLimit = oldTimeout;
+            Options.PrintErrorModel = 0;
 
             //#region debug static analysis
 

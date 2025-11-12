@@ -729,28 +729,15 @@ namespace cba
         }
 
         // This inlines a program to the given inline depth.
-        // Note: Set the flag ExecutionEngineOptions.Options.ProcedureInlining to get the
+        // Note: Set the flag Options.ProcedureInlining to get the
         // desired effect on leaf-level procedure calls
         public static void InlineToDepth(Program program)
         {
             var impls = program.TopLevelDeclarations.OfType<Implementation>();
 
-            if (ExecutionEngineOptions.Options.InlineDepth < 0)
+            if (Options.InlineDepth < 0)
                 return;
-            /*
-             * TODO: FIX!
-            foreach (Implementation impl in impls)
-            {
-                var inlineRequiresVisitor = new Microsoft.Boogie.Houdini.InlineRequiresVisitor();
-                inlineRequiresVisitor.Visit(impl);
-            }
-
-            foreach (Implementation impl in impls)
-            {
-                var freeRequiresVisitor = new Microsoft.Boogie.Houdini.FreeRequiresVisitor();
-                freeRequiresVisitor.Visit(impl);
-            }
-            */
+            
             foreach (Implementation impl in impls)
             {
                 var inlineEnsuresVisitor = new Microsoft.Boogie.Houdini.InlineEnsuresVisitor();
