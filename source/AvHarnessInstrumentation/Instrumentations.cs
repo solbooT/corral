@@ -397,7 +397,7 @@ namespace AvHarnessInstrumentation
 
                     // create a new procedure
                     var proc = new Procedure(Token.NoToken, "unknown_" + SanitizeTypeName(type), new List<TypeVariable>(), new List<Variable>(),
-                        new List<Variable> { new Formal(Token.NoToken, new TypedIdent(Token.NoToken, "r", type), false) },
+                        new List<Variable> { new Formal(Token.NoToken, false, new TypedIdent(Token.NoToken, "r", type), false) },
                         new List<Requires>(), new List<IdentifierExpr>(), new List<Ensures>());
                     proc.AddAttribute(AvnAnnotations.AngelicUnknownCall);
                     unknownGenProcs.Add(ty, proc);

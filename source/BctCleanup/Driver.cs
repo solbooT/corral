@@ -105,10 +105,10 @@ namespace BctCleanup
         }
 
         private static void replaceFECalls(Program prog) {
-          prog.AddTopLevelDeclaration(new Procedure(Token.NoToken, "corral_atomic_begin", new List<TypeVariable>(), new List<Variable>(), new List<Variable>(), new List<Requires>(), new List<IdentifierExpr>(), new List<Ensures>()));
-          prog.AddTopLevelDeclaration(new Procedure(Token.NoToken, "corral_atomic_end", new List<TypeVariable>(), new List<Variable>(), new List<Variable>(), new List<Requires>(), new List<IdentifierExpr>(), new List<Ensures>()));
+          prog.AddTopLevelDeclaration(new Procedure(Token.NoToken, "corral_atomic_begin", new List<TypeVariable>(), new List<Variable>(), new List<Variable>(), false, new List<Requires>(), new List<IdentifierExpr>(), new List<Ensures>()));
+          prog.AddTopLevelDeclaration(new Procedure(Token.NoToken, "corral_atomic_end", new List<TypeVariable>(), new List<Variable>(), new List<Variable>(), false, new List<Requires>(), new List<IdentifierExpr>(), new List<Ensures>()));
           Formal id = new Formal(Token.NoToken, new TypedIdent(Token.NoToken, "id", Microsoft.Boogie.Type.Int), false);
-          prog.AddTopLevelDeclaration(new Procedure(Token.NoToken, "corral_getThreadID", new List<TypeVariable>(), new List<Variable>(), new List<Variable>(new Variable[] { id }), new List<Requires>(), new List<IdentifierExpr>(), new List<Ensures>()));
+          prog.AddTopLevelDeclaration(new Procedure(Token.NoToken, "corral_getThreadID", new List<TypeVariable>(), new List<Variable>(), new List<Variable>(new Variable[] { id }), false, new List<Requires>(), new List<IdentifierExpr>(), new List<Ensures>()));
           HashSet<Declaration> declsToRemove = new HashSet<Declaration>();
           foreach (Declaration decl in prog.TopLevelDeclarations) {
             Procedure proc = decl as Procedure;

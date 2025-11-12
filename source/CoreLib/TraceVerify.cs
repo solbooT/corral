@@ -121,7 +121,7 @@ namespace cba
 
             output.AddTopLevelDeclaration(
                 new Procedure(Token.NoToken, newName, proc.TypeParameters, proc.InParams,
-                    proc.OutParams, proc.Requires, proc.Modifies, proc.Ensures,
+                    proc.OutParams, false, proc.Requires, proc.Modifies, proc.Ensures,
                     proc.Attributes));
 
             // Now to peice together the commands from the implementation. We keep around
@@ -443,7 +443,8 @@ namespace cba
             foreach (var p in newProcsToAdd)
             {
                 var proc = new Procedure(Token.NoToken, p, new List<TypeVariable>(),
-                    new List<Variable>(), new List<Variable>(), new List<Requires>(), new List<IdentifierExpr>(), new List<Ensures>());
+                    new List<Variable>(), new List<Variable>(), false, new List<Requires>(),
+                    new List<IdentifierExpr>(), new List<Ensures>());
                 output.AddTopLevelDeclaration(proc);
             }
 

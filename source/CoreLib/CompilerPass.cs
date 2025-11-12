@@ -230,10 +230,10 @@ namespace cba
                 {
                     Cmd c = b.Cmds[numInstr];
                     var loc = new TraceLocation(numBlock, numInstr);
-                    if (trace.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */.ContainsKey(loc))
+                    if (trace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */.ContainsKey(loc))
                     {
                         ret +=
-                            RecBound(recFunc, trace.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */[loc].counterexample,
+                            RecBound(recFunc, trace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].counterexample,
                             (c as CallCmd).Proc.Name);
                     }
                 }

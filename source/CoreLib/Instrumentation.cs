@@ -2367,7 +2367,7 @@ namespace cba
                 inp.AddTopLevelDeclaration(
                     new Procedure(
                         Token.NoToken, LanguageSemantics.assertNotReachableName(),
-                        new List<TypeVariable>(), new List<Variable>(), new List<Variable>(),
+                        new List<TypeVariable>(), new List<Variable>(), new List<Variable>(), false,
                         new List<Requires>(), new List<IdentifierExpr>(), new List<Ensures>()));
 
             }

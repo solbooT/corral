@@ -2934,7 +2934,7 @@ namespace CoreLib
             // assume that the assertion is in the last place??
             AssertCmd assertCmd = (AssertCmd)absyList[absyList.Count - 1];
             List<Block> trace = new List<Block>();
-            var calleeCounterexamples = new Dictionary<TraceLocation, CalleeCounterexampleInfo>();
+            var CalleeCounterexamples = new Dictionary<TraceLocation, CalleeCounterexampleInfo>();
             for (int j = 0; j < absyList.Count - 1; j++)
             {
                 Block b = (Block)absyList[j];
@@ -2954,7 +2954,7 @@ namespace CoreLib
                         {
                             List<Absy> calleeAbsyList = GetAbsyTrace(si.attachedVC[scs], null);
                             var calleeCounterexample = NewTrace(si.attachedVC[scs], calleeAbsyList, model);
-                            calleeCounterexamples[new TraceLocation(trace.Count - 1, scs.callSite.numInstr)] =
+                            CalleeCounterexamples[new TraceLocation(trace.Count - 1, scs.callSite.numInstr)] =
                             new CalleeCounterexampleInfo(calleeCounterexample, new List<object>());
                         }
                     }
@@ -3009,7 +3009,7 @@ namespace CoreLib
                                 }
                             }
                         }
-                        calleeCounterexamples[new TraceLocation(trace.Count - 1, scs.callSite.numInstr)] =
+                        CalleeCounterexamples[new TraceLocation(trace.Count - 1, scs.callSite.numInstr)] =
                             new CalleeCounterexampleInfo(null, args);
                     }
                 }
@@ -3017,7 +3017,7 @@ namespace CoreLib
 
             Block lastBlock = (Block)absyList[absyList.Count - 2];
             Counterexample newCounterexample = VerificationConditionGenerator.AssertCmdToCounterexample(assertCmd, lastBlock.TransferCmd, trace, null, model, svc.info.mvInfo, si.prover.Context);
-            newCounterexample.AddCalleeCounterexample(calleeCounterexamples);
+            newCounterexample.AddCalleeCounterexample(CalleeCounterexamples);
             return newCounterexample;
         }
 

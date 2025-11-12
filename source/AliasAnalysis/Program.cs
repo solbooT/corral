@@ -1328,7 +1328,7 @@ namespace AliasAnalysis
                     newLocVars.AddRange(newLocVarsBlock);
                 }
 
-                Procedure constraintProc = new Procedure(Token.NoToken, impl.Name, new List<TypeVariable>(), input, output, new List<Requires>(), new List<IdentifierExpr>(), new List<Ensures>());
+                Procedure constraintProc = new Procedure(Token.NoToken, impl.Name, new List<TypeVariable>(), input, output, false, new List<Requires>(), new List<IdentifierExpr>(), new List<Ensures>());
                 Debug.Assert(impl.Proc != null);
                 if (BoogieUtil.checkAttrExists("entrypoint", impl.Proc.Attributes)) constraintProc.AddAttribute("entrypoint");
                 constraintProg.AddTopLevelDeclaration(constraintProc);

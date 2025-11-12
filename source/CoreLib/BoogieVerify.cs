@@ -622,10 +622,10 @@ namespace cba.Util
                     newTrace.Add(currOrigBlock);
                 }
 
-                if (trace.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */.ContainsKey(currLocation))
+                if (trace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */.ContainsKey(currLocation))
                 {
                     // find the corresponding call in origBlock
-                    var calleeInfo = trace.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */[currLocation];
+                    var calleeInfo = trace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[currLocation];
                     var calleeName = trace.GetCalledProcName( /* TODO: method name changed */trace.Trace[currLocation.numBlock].Cmds[currLocation.numInstr]);
                     while (currOrigInstr < currOrigBlock.Cmds.Count)
                     {
@@ -650,7 +650,7 @@ namespace cba.Util
             }
 
             var ret = new AssertCounterexample(newTrace, null, null, trace.Model, trace.MvInfo, trace.Context /* TODO: add ProverContext parameter */);
-            ret.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */ = newTraceCallees;
+            ret.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */ = newTraceCallees;
 
             return ret;
         }
@@ -682,7 +682,7 @@ namespace cba.Util
                     //b.Emit(new TokenTextWriter(Console.Out, null), 0);
                     for (int numInstr = 0; numInstr < b.Cmds.Count; numInstr++)
                     {
-                        if (trace.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */.ContainsKey(new TraceLocation(numBlock, numInstr)))
+                        if (trace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */.ContainsKey(new TraceLocation(numBlock, numInstr)))
                         {
                             throw new InternalError("BoogieVerify: An intermediate block has a procedure call");
                         }
@@ -700,17 +700,17 @@ namespace cba.Util
                     for (int numInstr = 0; numInstr < b.Cmds.Count; numInstr++)
                     {
                         var loc = new TraceLocation(numBlock, numInstr);
-                        if (trace.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */.ContainsKey(loc))
+                        if (trace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */.ContainsKey(loc))
                         {
                             Cmd c = b.Cmds[numInstr];
                             var calleeName = trace.GetCalledProcName( /* TODO: method name changed */c);
-                            var calleeTrace = trace.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */[loc].counterexample;
+                            var calleeTrace = trace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].counterexample;
                             ReconstructImperativeTrace(calleeTrace, calleeName, origProg);
                             calleeTraces.Add(
                                 new Duple<string, CalleeCounterexampleInfo>(
                                     calleeName,
                                     new CalleeCounterexampleInfo(calleeTrace,
-                                        trace.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */[loc].args)
+                                        trace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].args)
                                         ));
                         }
                     }
@@ -753,7 +753,7 @@ namespace cba.Util
             }
             trace.Trace = newBlocks;
             // reset other info. Safe thing to do unless we know what it is
-            trace.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */ = newCalleeTraces;
+            trace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */ = newCalleeTraces;
         }
     }
 
@@ -893,10 +893,10 @@ namespace cba.Util
                 {
                     Cmd c = b.Cmds[numInstr];
                     var loc = new TraceLocation(numBlock, numInstr);
-                    if (cex.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */.ContainsKey(loc))
+                    if (cex.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */.ContainsKey(loc))
                     {
                         printIndent(ttw, indent); ttw.WriteLine("call to {0}:", (c as CallCmd).Proc.Name);
-                        printLabels(cex.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */[loc].counterexample, ttw, indent + 1);
+                        printLabels(cex.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].counterexample, ttw, indent + 1);
                         printIndent(ttw, indent); ttw.WriteLine("return from {0}.", (c as CallCmd).Proc.Name);
                         printIndent(ttw, indent); ttw.WriteLine(b.Label);
                     }
@@ -1008,7 +1008,7 @@ namespace cba.Util
         public bool verifyTrace(out Program newProg)
         {
             // Currently, this only works for intraprocedural traces
-            Debug.Assert(acex.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */.Count == 0);
+            Debug.Assert(acex.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */.Count == 0);
 
             HashSet<string> calledProcs;
             Implementation traceImpl = getImplementation(out calledProcs);
@@ -1033,7 +1033,7 @@ namespace cba.Util
                     else if (tmp.Name == impl.Name)
                     {
                         Procedure pex = new Procedure(Token.NoToken, tmp.Name + "_cex", tmp.TypeParameters, tmp.InParams,
-                            tmp.OutParams, tmp.Requires, tmp.Modifies, tmp.Ensures, tmp.Attributes);
+                            tmp.OutParams, false, tmp.Requires, tmp.Modifies, tmp.Ensures, tmp.Attributes);
                         newProg.AddTopLevelDeclaration(pex);
                     }
                 }

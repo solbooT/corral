@@ -56,8 +56,8 @@ namespace CoreLib
             var inpVarInt = new Formal(Token.NoToken, new TypedIdent(Token.NoToken, "x", Microsoft.Boogie.Type.Int), true);
             var inpVarBool = new Formal(Token.NoToken, new TypedIdent(Token.NoToken, "x", Microsoft.Boogie.Type.Bool), true);
 
-            var reProcInt = new Procedure(Token.NoToken, recordProcNameInt, new List<TypeVariable>(), new List<Variable> { inpVarInt }, new List<Variable>(), new List<Requires>(), new List<IdentifierExpr>(), new List<Ensures>());
-            var reProcBool = new Procedure(Token.NoToken, recordProcNameBool, new List<TypeVariable>(), new List<Variable> { inpVarBool }, new List<Variable>(), new List<Requires>(), new List<IdentifierExpr>(), new List<Ensures>());
+            var reProcInt = new Procedure(Token.NoToken, recordProcNameInt, new List<TypeVariable>(), new List<Variable> { inpVarInt }, new List<Variable>(), false, new List<Requires>(), new List<IdentifierExpr>(), new List<Ensures>());
+            var reProcBool = new Procedure(Token.NoToken, recordProcNameBool, new List<TypeVariable>(), new List<Variable> { inpVarBool }, new List<Variable>(), false, new List<Requires>(), new List<IdentifierExpr>(), new List<Ensures>());
 
             // Add procedures for initialization of local variables
             foreach (var impl in p.TopLevelDeclarations.OfType<Implementation>())
@@ -272,7 +272,7 @@ namespace CoreLib
                 if (!typeToRecordProc.ContainsKey(t))
                 {
                     var inpVar = new Formal(Token.NoToken, new TypedIdent(Token.NoToken, "x", v.Type), true);
-                    var reProc = new Procedure(Token.NoToken, recordProcNameCtor + t, new List<TypeVariable>(), new List<Variable> { inpVar }, new List<Variable>(), new List<Requires>(), new List<IdentifierExpr>(), new List<Ensures>());
+                    var reProc = new Procedure(Token.NoToken, recordProcNameCtor + t, new List<TypeVariable>(), new List<Variable> { inpVar }, new List<Variable>(), false, new List<Requires>(), new List<IdentifierExpr>(), new List<Ensures>());
                     typeToRecordProc.Add(t, reProc);
                 }
                 return new CallCmd(Token.NoToken, typeToRecordProc[t].Name, ins, new List<IdentifierExpr>());
@@ -290,7 +290,7 @@ namespace CoreLib
             if (!typeToInitLocalsProc.ContainsKey(typeToStr))
             {
                 var outVar = new Formal(Token.NoToken, new TypedIdent(Token.NoToken, "x", ty), false);
-                var reProc = new Procedure(Token.NoToken, initLocProcName + typeToStr, new List<TypeVariable>(), new List<Variable>(), new List<Variable> { outVar }, new List<Requires>(), new List<IdentifierExpr>(), new List<Ensures>());
+                var reProc = new Procedure(Token.NoToken, initLocProcName + typeToStr, new List<TypeVariable>(), new List<Variable>(), new List<Variable> { outVar }, false, new List<Requires>(), new List<IdentifierExpr>(), new List<Ensures>());
                 typeToInitLocalsProc.Add(typeToStr, reProc);
             }
             return typeToInitLocalsProc[typeToStr];

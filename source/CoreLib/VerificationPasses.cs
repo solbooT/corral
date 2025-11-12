@@ -187,7 +187,7 @@ namespace cba
                 var inv = new List<Variable>();
                 inv.Add(new Formal(Token.NoToken, new TypedIdent(Token.NoToken, "x", Microsoft.Boogie.Type.Int), true));
 
-                intDecl = new Procedure(Token.NoToken, recordIntArgProc, new List<TypeVariable>(), inv, new List<Variable>(), new List<Requires>(),
+                intDecl = new Procedure(Token.NoToken, recordIntArgProc, new List<TypeVariable>(), inv, new List<Variable>(), false, new List<Requires>(),
                     new List<IdentifierExpr>(), new List<Ensures>());
 
                 program.AddTopLevelDeclaration(intDecl);
@@ -199,7 +199,7 @@ namespace cba
                 var inv = new List<Variable>();
                 inv.Add(new Formal(Token.NoToken, new TypedIdent(Token.NoToken, "x", Microsoft.Boogie.Type.Bool), true));
 
-                boolDecl = new Procedure(Token.NoToken, recordBoolArgProc, new List<TypeVariable>(), inv, new List<Variable>(), new List<Requires>(),
+                boolDecl = new Procedure(Token.NoToken, recordBoolArgProc, new List<TypeVariable>(), inv, new List<Variable>(), false, new List<Requires>(),
                     new List<IdentifierExpr>(), new List<Ensures>());
 
                 program.AddTopLevelDeclaration(boolDecl);
@@ -327,10 +327,10 @@ namespace cba
                     var loc = new TraceLocation(i, numInstr);
                     ErrorTraceInstr instr = null;
 
-                    if (btrace.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */.ContainsKey(loc))
+                    if (btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */.ContainsKey(loc))
                     {
                         ErrorTrace calleeTrace = constructErrorTrace(
-                             btrace.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */[loc].counterexample, (c as CallCmd).Proc.Name, true, ref captureStateIndex);
+                             btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].counterexample, (c as CallCmd).Proc.Name, true, ref captureStateIndex);
                         var info = new InstrInfo();
                         var cc = c as CallCmd;
                         Debug.Assert(cc != null);
@@ -338,10 +338,10 @@ namespace cba
                         if (cc.Proc.Name == recordIntArgProc || cc.Proc.Name == recordBoolArgProc )
                         {
                             Debug.Assert(recordTransformationHappened);
-                            Debug.Assert(btrace.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */[loc].args.Count == 1);
+                            Debug.Assert(btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].args.Count == 1);
                             Debug.Assert(cc.Ins[0] is IdentifierExpr);
 
-                            var modelVal = btrace.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */[loc].args[0];
+                            var modelVal = btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].args[0];
                             object v = null;
                             if (cc.Proc.Name == recordIntArgProc && modelVal is Model.Integer)
                             {
@@ -377,10 +377,10 @@ namespace cba
                         }
                         if (cc.Proc.Name.StartsWith(recordArgProcPrefix))
                         {
-                            Debug.Assert(btrace.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */[loc].args.Count == 1);
+                            Debug.Assert(btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].args.Count == 1);
                             //Debug.Assert(cc.Ins[0] is IdentifierExpr);
 
-                            var v = btrace.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */[loc].args[0];
+                            var v = btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].args[0];
                             if (v != null)
                             {
                                 info.addVal("si_arg", v);
@@ -444,10 +444,10 @@ namespace cba
                 var c = lastBlk.Cmds[i];
                 var loc = new TraceLocation(btrace.Trace.Count - 1, i);
                 ErrorTraceInstr instr = null;
-                if (btrace.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */.ContainsKey(loc))
+                if (btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */.ContainsKey(loc))
                 {
                     var calleeTrace = constructErrorTrace(
-                        btrace.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */[loc].counterexample, (c as CallCmd).Proc.Name, true, ref captureStateIndex);
+                        btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].counterexample, (c as CallCmd).Proc.Name, true, ref captureStateIndex);
                     var info = new InstrInfo();
 
                     var cc = c as CallCmd;
@@ -456,10 +456,10 @@ namespace cba
                     if (cc.Proc.Name == recordIntArgProc || cc.Proc.Name == recordBoolArgProc)
                     {
                         Debug.Assert(recordTransformationHappened);
-                        Debug.Assert(btrace.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */[loc].args.Count == 1);
+                        Debug.Assert(btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].args.Count == 1);
                         Debug.Assert(cc.Ins[0] is IdentifierExpr);
 
-                        var modelVal = btrace.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */[loc].args[0];
+                        var modelVal = btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].args[0];
                         object v = null;
                         if (cc.Proc.Name == recordIntArgProc && modelVal is Model.Integer)
                         {
@@ -495,10 +495,10 @@ namespace cba
                     }
                     else if (cc.Proc.Name.StartsWith(recordArgProcPrefix))
                     {
-                        Debug.Assert(btrace.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */[loc].args.Count == 1);
+                        Debug.Assert(btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].args.Count == 1);
                         //Debug.Assert(cc.Ins[0] is IdentifierExpr);
 
-                        var v = btrace.NestedCounterExamples /* TODO: API changed from calleeCounterexamples */[loc].args[0];
+                        var v = btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].args[0];
                         if (v != null)
                         {
                             info.addVal("si_arg", v);
@@ -1456,7 +1456,7 @@ namespace cba
 
                     var houdiniStats = new HoudiniSession.HoudiniStatistics();
                     Houdini houdini = new Houdini(program, houdiniStats);
-                    outcome = houdini.PerformHoudiniInference( /* TODO: now returns Task */);
+                    outcome = houdini.PerformHoudiniInference( /* TODO: now returns Task */).ToList();
                     Debug.Assert(outcome.ErrorCount == 0, "Something wrong with houdini");
 
                     if (!fastRequiresInference)
@@ -1804,7 +1804,8 @@ namespace cba
             Console.WriteLine("Running Houdini");
             // Run Houdini
 
-            ExecutionEngineOptions.Options.InlineDepth = InlineDepth;
+            HoudiniOptions options = new HoudiniOptions();
+            options.InlineDepth = InlineDepth;
             var old = ExecutionEngineOptions.Options.ProcedureInlining;
             ExecutionEngineOptions.Options.ProcedureInlining = Microsoft.Boogie.CoreOptions.Inlining.Spec;
             var si = ExecutionEngineOptions.Options.StratifiedInlining;
@@ -2940,7 +2941,7 @@ namespace cba
 
             // create a new main
             var newMainProc = new Procedure(Token.NoToken, "daFakeMain", new List<TypeVariable>(main.Proc.TypeParameters),
-                new List<Variable>(main.Proc.InParams), new List<Variable>(main.Proc.OutParams), new List<Requires>(main.Proc.Requires),
+                new List<Variable>(main.Proc.InParams), new List<Variable>(main.Proc.OutParams), false, new List<Requires>(main.Proc.Requires),
                 new List<IdentifierExpr>(), new List<Ensures>(main.Proc.Ensures));
 
             var newMainImpl = new Implementation(Token.NoToken, "daFakeMain", new List<TypeVariable>(main.TypeParameters),

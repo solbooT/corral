@@ -920,7 +920,7 @@ namespace cba
 
             // Create new main procedure
             var newMainProc = new Procedure(Token.NoToken, "fakeMain", oldMainProc.TypeParameters,
-                oldMainProc.InParams, oldMainProc.OutParams, oldMainProc.Requires,
+                oldMainProc.InParams, oldMainProc.OutParams, false, oldMainProc.Requires,
                 oldMainProc.Modifies, oldMainProc.Ensures);
 
             var newMainImpl = new Implementation(Token.NoToken, "fakeMain", oldMainImpl.TypeParameters,

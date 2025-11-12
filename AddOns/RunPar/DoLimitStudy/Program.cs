@@ -279,7 +279,7 @@ namespace Microsoft.Boogie
                     if (proc.Ensures.Count == 0)
                         continue;
 
-                    Procedure newProc = new Procedure(Token.NoToken, proc.Name + "_summary", proc.TypeParameters, proc.InParams, proc.OutParams, proc.Requires, proc.Modifies, proc.Ensures);
+                    Procedure newProc = new Procedure(Token.NoToken, proc.Name + "_summary", proc.TypeParameters, proc.InParams, proc.OutParams, false, proc.Requires, proc.Modifies, proc.Ensures);
 
                     newProg.TopLevelDeclarations.Add(newProc);
                 }

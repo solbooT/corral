@@ -1329,7 +1329,7 @@ namespace ExplainError
                 var i = new Implementation(Token.NoToken, "DummyCheckForFalse", impl.Proc.TypeParameters, impl.Proc.InParams, impl.Proc.OutParams, new List<Variable>(), new List<Block>());
                 i.OriginalBlocks = blks;
                 i.OriginalLocVars = new List<Variable>();
-                var p = new Procedure(Token.NoToken, "DummyCheckForFalse", impl.Proc.TypeParameters, impl.Proc.InParams, impl.Proc.OutParams,
+                var p = new Procedure(Token.NoToken, "DummyCheckForFalse", impl.Proc.TypeParameters, impl.Proc.InParams, impl.Proc.OutParams, false,
                     new List<Requires>(new Requires[] { new Requires(false, e) }), new List<IdentifierExpr>(), new List<Ensures>(new Ensures[] { new Ensures(false, Expr.False) }));
                 i.Proc = p;
                 var cexList = new List<Counterexample>();

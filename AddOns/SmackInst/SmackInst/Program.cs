@@ -469,7 +469,7 @@ namespace SmackInst
                     
             // create init proc
             var initproc = new Procedure(Token.NoToken, "SmackExtraInit", new List<TypeVariable>(), new List<Variable>(),
-                new List<Variable>(), new List<Requires>(), new List<IdentifierExpr>(), new List<Ensures>());
+                new List<Variable>(), false, new List<Requires>(), new List<IdentifierExpr>(), new List<Ensures>());
             initproc.AddAttribute(AvUtil.AvnAnnotations.InitialializationProcAttr);
 			//initproc.Ensures.Add(new Ensures(true, Expr.Gt(Expr.Ident(alloc), Expr.Literal (0))));
             var initimpl = new Implementation(Token.NoToken, initproc.Name, new List<TypeVariable>(), new List<Variable>(),
@@ -690,7 +690,7 @@ namespace SmackInst
                                 if (specialScalarFunc == null)
                                 {
                                     // make a procedure
-                                    specialScalarFunc = new Procedure(Token.NoToken, "$devirtbounce_special_scalar", new List<TypeVariable>(), new List<Variable>(), currProc.OutParams, new List<Requires>(), new List<IdentifierExpr>(), new List<Ensures>());
+                                    specialScalarFunc = new Procedure(Token.NoToken, "$devirtbounce_special_scalar", new List<TypeVariable>(), new List<Variable>(), currProc.OutParams, false, new List<Requires>(), new List<IdentifierExpr>(), new List<Ensures>());
                                 }
                                 CallCmd callCmd = new CallCmd(Token.NoToken, specialScalarFunc.Name, new List<Expr>(), new List<IdentifierExpr>() { Expr.Ident(procRet) });
                                 newCmds.Add(callCmd);
@@ -700,7 +700,7 @@ namespace SmackInst
                                 if (specialPtrFunc == null)
                                 {
                                     // make a procedure
-                                    specialPtrFunc = new Procedure(Token.NoToken, "$devirtbounce_special_pointer", new List<TypeVariable>(), new List<Variable>(), currProc.OutParams, new List<Requires>(), new List<IdentifierExpr>(), new List<Ensures>());
+                                    specialPtrFunc = new Procedure(Token.NoToken, "$devirtbounce_special_pointer", new List<TypeVariable>(), new List<Variable>(), currProc.OutParams, false, new List<Requires>(), new List<IdentifierExpr>(), new List<Ensures>());
                                 }
                                 CallCmd callCmd = new CallCmd(Token.NoToken, specialPtrFunc.Name, new List<Expr>(), new List<IdentifierExpr>() { Expr.Ident(procRet) });
                                 newCmds.Add(callCmd);
@@ -1327,16 +1327,16 @@ namespace SmackInst
             var rVar = new Formal(Token.NoToken, new TypedIdent(Token.NoToken, "r", btype.Int), true);
 
             prog.AddTopLevelDeclaration(new Procedure(Token.NoToken, typePreCondFuncName, 
-                new List<TypeVariable>(), new List<Variable>() { iVar, tVar }, new List<Variable>(), 
+                new List<TypeVariable>(), new List<Variable>() { iVar, tVar }, false, new List<Variable>(), 
                 new List<Requires>(), new List<IdentifierExpr>(), new List<Ensures>()));
             prog.AddTopLevelDeclaration(new Procedure(Token.NoToken, isTypeFuncName,
-                new List<TypeVariable>(), new List<Variable>() { iVar, tVar, rVar }, new List<Variable>(),
+                new List<TypeVariable>(), new List<Variable>() { iVar, tVar, false, rVar }, new List<Variable>(),
                 new List<Requires>(), new List<IdentifierExpr>(), new List<Ensures>()));
             prog.AddTopLevelDeclaration(new Procedure(Token.NoToken, upcallFuncName,
-                new List<TypeVariable>(), new List<Variable>() { iVar }, new List<Variable>(),
+                new List<TypeVariable>(), new List<Variable>() { iVar }, new List<Variable>(), false,
                 new List<Requires>(), new List<IdentifierExpr>(), new List<Ensures>()));
             prog.AddTopLevelDeclaration(new Procedure(Token.NoToken, getTypeIdFuncName,
-                new List<TypeVariable>(), new List<Variable>() { iVar,tVar }, new List<Variable>(),
+                new List<TypeVariable>(), new List<Variable>() { iVar,tVar }, false, new List<Variable>(),
                 new List<Requires>(), new List<IdentifierExpr>(), new List<Ensures>()));
 
             foreach (var impl in prog.TopLevelDeclarations.OfType<Implementation>())

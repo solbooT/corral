@@ -719,7 +719,7 @@ namespace AvHarnessInstrumentation
                 var found = nonDetProcs.Where(x => x.Name == procName).FirstOrDefault();
                 if (found != null) return found;
                 var proc = new Procedure(Token.NoToken, procName,
-                    new List<TypeVariable>(), new List<Variable>(), new List<Variable>() { op },
+                    new List<TypeVariable>(), new List<Variable>(), new List<Variable>() { op }, false,
                     new List<Requires>(), new List<IdentifierExpr>(), new List<Ensures>());
                 nonDetProcs.Add(proc);
                 return proc;

@@ -1153,7 +1153,7 @@ namespace AngelicVerifierNull
                 var b = new Formal(Token.NoToken, new TypedIdent(Token.NoToken, "b", outp.TypedIdent.Type), false);
                 var aproc_unk = new Procedure(Token.NoToken, aproc + "_unk", new List<TypeVariable>(),
                     new List<Variable> { a },
-                    new List<Variable> { b },
+                    new List<Variable> { b }, false,
                     new List<Requires>(), new List<IdentifierExpr>(), new List<Ensures>());
                 aproc_unk.Ensures.Add(new Ensures(true, Expr.Eq(Expr.Ident(a), Expr.Ident(b))));
 

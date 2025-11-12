@@ -986,7 +986,7 @@ namespace Microsoft.Boogie
         public static Declaration MkProc(string name, List<Variable> ins, List<Variable> outs)
         {
             return new Procedure(
-                Token.NoToken, name, new List<TypeVariable>(), ins, outs,
+                Token.NoToken, name, new List<TypeVariable>(), ins, outs, false,
                 new List<Requires>(), new List<IdentifierExpr>(), new List<Ensures>());
         }
         public static Declaration MkProc(string name,
@@ -1751,7 +1751,7 @@ namespace Microsoft.Boogie
             var outParam = new Formal(Token.NoToken, new TypedIdent(Token.NoToken, "x_" + outVersion, outV.TypedIdent.Type), false);
 
             var proc = new Procedure(Token.NoToken, "phiNode$" + phiProcsDecl.Count, new List<TypeVariable>(),
-                new List<Variable>(inParams.ToArray()), new List<Variable>(new Variable[] { outParam }), new List<Requires>(), new List<IdentifierExpr>(), new List<Ensures>());
+                new List<Variable>(inParams.ToArray()), new List<Variable>(new Variable[] { outParam }), false, new List<Requires>(), new List<IdentifierExpr>(), new List<Ensures>());
             phiProcsDecl.Add(proc);
 
             Expr expr = Expr.False;
