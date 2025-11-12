@@ -290,6 +290,7 @@ namespace cba.Util
                 }
 
             }
+            procsHitRecBound = (vcgen as CoreLib.StratifiedInliningInfo).procsHitRecBound;
 
             //PutBackAsserts(program);
             Debug.Assert(vcgen is CoreLib.StratifiedInlining);
