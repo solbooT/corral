@@ -185,7 +185,7 @@ namespace cba.Util
 
                 List<Counterexample> errors;
 
-                VerificationConditionGenerator.Outcome outcome;
+                VcOutcome outcome;
 
                 try
                 {
@@ -205,33 +205,33 @@ namespace cba.Util
                 {
                     throw new InternalError("VCGenException: " + e.Message);
                     //errors = null;
-                    //outcome = VerificationConditionGenerator.Outcome.Inconclusive;
+                    //outcome = VcOutcome.Inconclusive;
                 }
                 catch (UnexpectedProverOutputException upo)
                 {
 
                     throw new InternalError("Unexpected prover output: " + upo.Message);
                     //errors = null;
-                    //outcome = VerificationConditionGenerator.Outcome.Inconclusive;
+                    //outcome = VcOutcome.Inconclusive;
                 }
 
                 switch (outcome)
                 {
-                    case VerificationConditionGenerator.Outcome.Correct:
+                    case VcOutcome.Correct:
                         break;
-                    case VerificationConditionGenerator.Outcome.Errors:
+                    case VcOutcome.Errors:
                         break;
-                    case VerificationConditionGenerator.Outcome.ReachedBound:
+                    case VcOutcome.ReachedBound:
                         ret = ReturnStatus.ReachedBound;
                         break;
-                    case VerificationConditionGenerator.Outcome.Inconclusive:
+                    case VcOutcome.Inconclusive:
                         throw new InternalError("z3 says inconclusive");
-                    case VerificationConditionGenerator.Outcome.OutOfMemory:
+                    case VcOutcome.OutOfMemory:
                         // wipe out any counterexamples
                         timedOut.Add(impl.Name); errors = new List<Counterexample>();
                         break;
-                    case VerificationConditionGenerator.Outcome.OutOfResource:
-                    case VerificationConditionGenerator.Outcome.TimedOut:
+                    case VcOutcome.OutOfResource:
+                    case VcOutcome.TimedOut:
                         // wipe out any counterexamples
                         timedOut.Add(impl.Name); errors = new List<Counterexample>();
                         break;
@@ -481,7 +481,7 @@ namespace cba.Util
             }
 
             //// ---------- Verify ----------------------------------------------------------------
-            Debug.Assert(ExecutionEngineOptions.Options.StratifiedInlining > 0);
+            Debug.Assert(Options.StratifiedInlining > 0);
 
             VerificationConditionGenerator /* TODO: StratifiedVCGenBase removed */ vcgen = null;
             try
@@ -503,7 +503,7 @@ namespace cba.Util
 
             var main = mains.First();
 
-            VerificationConditionGenerator.Outcome outcome;
+            VcOutcome outcome;
             //HashSet<string> minVars = new HashSet<string>();
 
             try
@@ -524,37 +524,37 @@ namespace cba.Util
             {
                 throw new InternalError("VCGenException: " + e.Message);
                 //errors = null;
-                //outcome = VerificationConditionGenerator.Outcome.Inconclusive;
+                //outcome = VcOutcome.Inconclusive;
             }
             catch (UnexpectedProverOutputException upo)
             {
 
                 throw new InternalError("Unexpected prover output: " + upo.Message);
                 //errors = null;
-                //outcome = VerificationConditionGenerator.Outcome.Inconclusive;
+                //outcome = VcOutcome.Inconclusive;
             }
 
             switch (outcome)
             {
-                case VerificationConditionGenerator.Outcome.Correct:
+                case VcOutcome.Correct:
                     break;
-                case VerificationConditionGenerator.Outcome.Errors:
+                case VcOutcome.Errors:
                     Debug.Assert(false);
                     break;
-                case VerificationConditionGenerator.Outcome.ReachedBound:
+                case VcOutcome.ReachedBound:
                     Debug.Assert(false);
                     break;
-                case VerificationConditionGenerator.Outcome.Inconclusive:
+                case VcOutcome.Inconclusive:
                     throw new InternalError("z3 says inconclusive");
-                case VerificationConditionGenerator.Outcome.OutOfMemory:
+                case VcOutcome.OutOfMemory:
                     throw new InternalError("z3 out of memory");
-                case VerificationConditionGenerator.Outcome.OutOfResource:
-                case VerificationConditionGenerator.Outcome.TimedOut:
+                case VcOutcome.OutOfResource:
+                case VcOutcome.TimedOut:
                     throw new InternalError("z3 timed out");
                 default:
                     throw new InternalError("z3 unknown response");
             }
-            Debug.Assert(outcome == VerificationConditionGenerator.Outcome.Correct);
+            Debug.Assert(outcome == VcOutcome.Correct);
 
             vcgen.Close();
             ProverFactory.Instance /* TODO: TheProverFactory API changed */.Close();
@@ -710,7 +710,7 @@ namespace cba.Util
                                 new Duple<string, CalleeCounterexampleInfo>(
                                     calleeName,
                                     new CalleeCounterexampleInfo(calleeTrace,
-                                        trace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].args)
+                                        trace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].Args)
                                         ));
                         }
                     }

@@ -52,6 +52,7 @@ namespace cba
         public static string recordArgProcPrefix = "boogie_si_record";
         string recordIntArgProc;
         string recordBoolArgProc;
+        VCGenOptions Options;
 
         // Is Boogie going to give us a model
         static bool WillGetModel
@@ -338,10 +339,10 @@ namespace cba
                         if (cc.Proc.Name == recordIntArgProc || cc.Proc.Name == recordBoolArgProc )
                         {
                             Debug.Assert(recordTransformationHappened);
-                            Debug.Assert(btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].args.Count == 1);
+                            Debug.Assert(btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].Args.Count == 1);
                             Debug.Assert(cc.Ins[0] is IdentifierExpr);
 
-                            var modelVal = btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].args[0];
+                            var modelVal = btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].Args[0];
                             object v = null;
                             if (cc.Proc.Name == recordIntArgProc && modelVal is Model.Integer)
                             {
@@ -377,10 +378,10 @@ namespace cba
                         }
                         if (cc.Proc.Name.StartsWith(recordArgProcPrefix))
                         {
-                            Debug.Assert(btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].args.Count == 1);
+                            Debug.Assert(btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].Args.Count == 1);
                             //Debug.Assert(cc.Ins[0] is IdentifierExpr);
 
-                            var v = btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].args[0];
+                            var v = btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].Args[0];
                             if (v != null)
                             {
                                 info.addVal("si_arg", v);
@@ -456,10 +457,10 @@ namespace cba
                     if (cc.Proc.Name == recordIntArgProc || cc.Proc.Name == recordBoolArgProc)
                     {
                         Debug.Assert(recordTransformationHappened);
-                        Debug.Assert(btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].args.Count == 1);
+                        Debug.Assert(btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].Args.Count == 1);
                         Debug.Assert(cc.Ins[0] is IdentifierExpr);
 
-                        var modelVal = btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].args[0];
+                        var modelVal = btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].Args[0];
                         object v = null;
                         if (cc.Proc.Name == recordIntArgProc && modelVal is Model.Integer)
                         {
@@ -495,10 +496,10 @@ namespace cba
                     }
                     else if (cc.Proc.Name.StartsWith(recordArgProcPrefix))
                     {
-                        Debug.Assert(btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].args.Count == 1);
+                        Debug.Assert(btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].Args.Count == 1);
                         //Debug.Assert(cc.Ins[0] is IdentifierExpr);
 
-                        var v = btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].args[0];
+                        var v = btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].Args[0];
                         if (v != null)
                         {
                             info.addVal("si_arg", v);
@@ -1445,11 +1446,6 @@ namespace cba
                     cba.Util.BoogieVerify.options = new BoogieVerifyOptions();
                     var res = CoreLib.HoudiniInlining.RunHoudini(program);
                     trueConstants.UnionWith(res);
-                    //CoreLib.HoudiniStats.Print();
-                    //Console.WriteLine("Num true = {0}", res.Count);
-                    //Console.WriteLine("True assignment: {0}", res.Concat(" "));
-                    //trueConstants.UnionWith(res);
-                    //throw new NormalExit("Done");
                 }
                 else
                 {
@@ -1486,12 +1482,12 @@ namespace cba
                     origProg.AddTopLevelDeclarations(newAxioms);
                     //BoogieUtil.PrintProgram(origProg, "h2.bpl");
 
-                    ExecutionEngineOptions.Options.ReverseHoudiniWorklist = true;
+                    Options.ReverseHoudiniWorklist = true;
                     var houdiniStats = new HoudiniSession.HoudiniStatistics();
                     Houdini houdini = new Houdini(origProg, houdiniStats);
-                    HoudiniOutcome outcomeReq = houdini.PerformHoudiniInference( /* TODO: now returns Task */);
+                    HoudiniOutcome outcomeReq = houdini.PerformHoudiniInference();
                     Debug.Assert(outcomeReq.ErrorCount == 0, "Something wrong with houdini");
-                    ExecutionEngineOptions.Options.ReverseHoudiniWorklist = false;
+                    Options.ReverseHoudiniWorklist = false;
 
                     outcome.assignment.Where(kvp => !requiresConstants.Contains(kvp.Key))
                         .ForEach(kvp => { if (kvp.Value) trueConstants.Add(kvp.Key); });
@@ -1517,13 +1513,13 @@ namespace cba
                     });
             }
 
-            ExecutionEngineOptions.Options.InlineDepth = -1;
-            ExecutionEngineOptions.Options.ProcedureInlining = old;
-            ExecutionEngineOptions.Options.StratifiedInlining = si;
-            ExecutionEngineOptions.Options.ErrorLimit = oldErrorLimit;
-            ExecutionEngineOptions.Options.ContractInfer = false;
-            ExecutionEngineOptions.Options.TimeLimit = oldTimeout;
-            ExecutionEngineOptions.Options.PrintErrorModel = 0;
+            Options.InlineDepth = -1;
+            Options.ProcedureInlining = old;
+            Options.StratifiedInlining = si;
+            Options.ErrorLimit = oldErrorLimit;
+            Options.ContractInfer = false;
+            Options.TimeLimit = oldTimeout;
+            Options.PrintErrorModel = 0;
 
             #region debug static analysis
 
@@ -1731,12 +1727,6 @@ namespace cba
             if (ExtractLoops)
             {
                 var rb = 999 /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */;
-                999 /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */ = 2;
-                
-                // Unroll loops
-                /* TODO: ExtractLoops removed */ // /* TODO: ExtractLoops removed */ // program.ExtractLoops();
-
-                999 /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */ = rb;
             }
 
             program = new CBAProgram(BoogieUtil.ReResolve(program), program.mainProcName, program.contextBound);
