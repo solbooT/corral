@@ -834,27 +834,27 @@ namespace CoreLib
         public static MERGING_STRATEGY PickStrategy()
         {
             var strategy = MERGING_STRATEGY.FIRST;
-            if (BoogieVerify.options.extraFlags.Contains("DiNone"))
+            if (BoogieVerify.Options.extraFlags.Contains("DiNone"))
             {
                 Console.WriteLine("Selecting DAG Inilining strategy: None");
                 strategy = MERGING_STRATEGY.NONE;
             }
-            if (BoogieVerify.options.extraFlags.Contains("DiRandom"))
+            if (BoogieVerify.Options.extraFlags.Contains("DiRandom"))
             {
                 Console.WriteLine("Selecting DAG Inilining strategy: Random");
                 strategy = MERGING_STRATEGY.RANDOM;
             }
-            if (BoogieVerify.options.extraFlags.Contains("DiRandomPick"))
+            if (BoogieVerify.Options.extraFlags.Contains("DiRandomPick"))
             {
                 Console.WriteLine("Selecting DAG Inilining strategy: RandomPick");
                 strategy = MERGING_STRATEGY.RANDOM_PICK;
             }
-            if (BoogieVerify.options.extraFlags.Contains("DiMaxc"))
+            if (BoogieVerify.Options.extraFlags.Contains("DiMaxc"))
             {
                 Console.WriteLine("Selecting DAG Inilining strategy: maxc");
                 strategy = MERGING_STRATEGY.MAXC;
             }
-            if (BoogieVerify.options.extraFlags.Contains("DiOpt"))
+            if (BoogieVerify.Options.extraFlags.Contains("DiOpt"))
             {
                 Console.WriteLine("Selecting DAG Inilining strategy: static opt");
                 strategy = MERGING_STRATEGY.OPT;

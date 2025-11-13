@@ -174,7 +174,7 @@ namespace cba
             var query = PrepareQuery(loopImpls, program);
 
             // Set general options
-            BoogieVerify.options = options;
+            BoogieVerify.Options = options;
             BoogieVerify.PrintImplsBeingVerified = true;
 
             // Set rec. bound

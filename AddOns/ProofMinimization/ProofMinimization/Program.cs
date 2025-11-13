@@ -441,11 +441,11 @@ namespace ProofMinimization
             CommandLineOptions.ContractInfer = true;
             CommandLineOptions.RecursionBound = 2;
             BoogieUtil.InitializeBoogie(boogieOptions);
-            cba.Util.BoogieVerify.options = new BoogieVerifyOptions();
-            cba.Util.BoogieVerify.options.newStratifiedInlining = true;
-            cba.Util.BoogieVerify.options.newStratifiedInliningAlgo = "";
-            //cba.Util.BoogieVerify.options.useDI = true;
-            cba.Util.BoogieVerify.options.extraFlags.Add("SiStingy");
+            cba.Util.BoogieVerify.Options = new BoogieVerifyOptions();
+            cba.Util.BoogieVerify.Options.newStratifiedInlining = true;
+            cba.Util.BoogieVerify.Options.newStratifiedInliningAlgo = "";
+            //cba.Util.BoogieVerify.Options.useDI = true;
+            cba.Util.BoogieVerify.Options.extraFlags.Add("SiStingy");
 
             BoogieVerify.removeAsserts = false;
             cba.PersistentCBAProgram.useIO = true;
@@ -652,16 +652,16 @@ namespace ProofMinimization
             var err = new List<BoogieErrorTrace>();
 
             // Set bound
-            BoogieVerify.options.maxInlinedBound = 0;
+            BoogieVerify.Options.maxInlinedBound = 0;
             if (inlined != 0)
-                BoogieVerify.options.maxInlinedBound = PerfMetric(inlined);
+                BoogieVerify.Options.maxInlinedBound = PerfMetric(inlined);
 
             var rstatus = BoogieVerify.Verify(program, out err, true);
             Console.WriteLine(string.Format("  >> Procedures Inlined: {0}", BoogieVerify.CallTreeSize));
             //Console.WriteLine(string.Format("Boogie verification time: {0} s", BoogieVerify.verificationTime.TotalSeconds.ToString("F2")));
 
             inlined = BoogieVerify.CallTreeSize + 1;
-            BoogieVerify.options.CallTree = new HashSet<string>();
+            BoogieVerify.Options.CallTree = new HashSet<string>();
             BoogieVerify.CallTreeSize = 0;
             BoogieVerify.verificationTime = TimeSpan.Zero;
 

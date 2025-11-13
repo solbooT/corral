@@ -365,9 +365,9 @@ namespace cba
             Stats.pathVerificationQueries++;
 
             if (refinement)
-                BoogieVerify.options = refinementVerifyOptions;
+                BoogieVerify.Options = refinementVerifyOptions;
             else
-                BoogieVerify.options = pathVerifyOptions;
+                BoogieVerify.Options = pathVerifyOptions;
 
             verifyingPath = true;
             BoogieVerify.recordTempTime = true;
@@ -409,7 +409,7 @@ namespace cba
             // Set timeout
             BoogieVerify.setTimeOut(GlobalConfig.getTimeLeft());
 
-            BoogieVerify.options = progVerifyOptions;
+            BoogieVerify.Options = progVerifyOptions;
 
             // AL: adding logging
             //CommandLineOptions.ProverLogFilePath = "logProg";

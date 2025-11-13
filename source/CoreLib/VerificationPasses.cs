@@ -61,7 +61,7 @@ namespace cba
         {
             get
             {
-                return BoogieVerify.options.UseProverEvaluate || !BoogieVerify.options.StratifiedInliningWithoutModels;
+                return BoogieVerify.Options.UseProverEvaluate || !BoogieVerify.Options.StratifiedInliningWithoutModels;
             }
         }
 
@@ -128,7 +128,7 @@ namespace cba
                 throw new InvalidProg("Cannot typecheck");
             }
 
-            BoogieVerify.options.Set();
+            BoogieVerify.Options.Set();
 
             // An important pass for recording the value of int variables
             Debug.Assert(Options.StratifiedInlining > 0);
@@ -1442,7 +1442,7 @@ namespace cba
 
                 if (runHoudiniLite)
                 {
-                    cba.Util.BoogieVerify.options = new BoogieVerifyOptions();
+                    cba.Util.BoogieVerify.Options = new BoogieVerifyOptions();
                     var res = CoreLib.HoudiniInlining.RunHoudini(program);
                     trueConstants.UnionWith(res);
                 }

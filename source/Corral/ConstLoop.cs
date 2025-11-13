@@ -433,7 +433,7 @@ namespace cba
             var options = new BoogieVerifyOptions();
             //options.StratifiedInlining = 100;
             options.StratifiedInliningWithoutModels = true;
-            BoogieVerify.options = options;
+            BoogieVerify.Options = options;
 
             // set strong array theory
             var ua_old = CommandLineOptions.UseArrayTheory;

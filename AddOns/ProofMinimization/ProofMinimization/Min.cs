@@ -531,19 +531,19 @@ namespace ProofMinimization
                 var err = new List<BoogieErrorTrace>();
 
                 // Set bound
-                BoogieVerify.options.maxInlinedBound = 0;
+                BoogieVerify.Options.maxInlinedBound = 0;
                 if (fileToPerf[file] != 0)
-                    BoogieVerify.options.maxInlinedBound = PerfMetric(fileToPerf[file]);
+                    BoogieVerify.Options.maxInlinedBound = PerfMetric(fileToPerf[file]);
 
                 var rstatus = BoogieVerify.Verify(program, out err, true);
                 if (dbg)
                 {
-                    Console.WriteLine(string.Format("  >> Procedures Inlined: {0} / {1}", BoogieVerify.CallTreeSize, BoogieVerify.options.maxInlinedBound));
+                    Console.WriteLine(string.Format("  >> Procedures Inlined: {0} / {1}", BoogieVerify.CallTreeSize, BoogieVerify.Options.maxInlinedBound));
                     Console.WriteLine(string.Format("Boogie verification time: {0} s", BoogieVerify.verificationTime.TotalSeconds.ToString("F2")));
                 }
 
                 var procs_inlined = BoogieVerify.CallTreeSize + 1;
-                BoogieVerify.options.CallTree = new HashSet<string>();
+                BoogieVerify.Options.CallTree = new HashSet<string>();
                 BoogieVerify.CallTreeSize = 0;
                 BoogieVerify.verificationTime = TimeSpan.Zero;
 
@@ -600,16 +600,16 @@ namespace ProofMinimization
             var err = new List<BoogieErrorTrace>();
 
             // Set bound
-            BoogieVerify.options.maxInlinedBound = 0;
+            BoogieVerify.Options.maxInlinedBound = 0;
             if (inlined != 0)
-                BoogieVerify.options.maxInlinedBound = PerfMetric(inlined);
+                BoogieVerify.Options.maxInlinedBound = PerfMetric(inlined);
 
             var rstatus = BoogieVerify.Verify(program, out err, true);
             //Console.WriteLine(string.Format("  >> Procedures Inlined: {0}", BoogieVerify.CallTreeSize));
             //Console.WriteLine(string.Format("Boogie verification time: {0} s", BoogieVerify.verificationTime.TotalSeconds.ToString("F2")));
 
             inlined = BoogieVerify.CallTreeSize + 1;
-            BoogieVerify.options.CallTree = new HashSet<string>();
+            BoogieVerify.Options.CallTree = new HashSet<string>();
             BoogieVerify.CallTreeSize = 0;
             BoogieVerify.verificationTime = TimeSpan.Zero;
 

@@ -1124,7 +1124,7 @@ namespace AngelicVerifierNull
         // with straightline code, and all non-determinism is concretized
         public static PersistentProgram GetPathProgram(cba.ErrorTrace trace, PersistentProgram program, out CoreLib.SDVConcretizePathPass concretize)
         {
-            BoogieVerify.options = cba.ConfigManager.pathVerifyOptions;
+            BoogieVerify.Options = cba.ConfigManager.pathVerifyOptions;
 
             // convert trace to a path program
             //cba.RestrictToTrace.convertNonFailingAssertsToAssumes = true;
@@ -1201,7 +1201,7 @@ namespace AngelicVerifierNull
             witness.writeToFile("trace_prog.bpl");
 
             // Concretize non-determinism
-            BoogieVerify.options = cba.ConfigManager.pathVerifyOptions;
+            BoogieVerify.Options = cba.ConfigManager.pathVerifyOptions;
             concretize = new CoreLib.SDVConcretizePathPass();
 
             // TODO: set a reasonable timeout here

@@ -102,7 +102,7 @@ namespace HoudiniLite
             CommandLineOptions.ContractInfer = true;
             BoogieUtil.InitializeBoogie(boogieOptions);
             CommandLineOptions.ErrorLimit = 1;
-            cba.Util.BoogieVerify.options = new BoogieVerifyOptions();
+            cba.Util.BoogieVerify.Options = new BoogieVerifyOptions();
         }
 
         static HashSet<string> RunBoogieHoudini(Program program)

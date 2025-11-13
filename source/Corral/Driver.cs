@@ -598,12 +598,12 @@ namespace cba
                 var err = new List<BoogieErrorTrace>();
                 init.Typecheck(null);
 
-                BoogieVerify.options = new BoogieVerifyOptions();
-                BoogieVerify.options.NonUniformUnfolding = config.NonUniformUnfolding;
-                BoogieVerify.options.newStratifiedInliningAlgo = config.newStratifiedInliningAlgo;
-                BoogieVerify.options.useDI = config.useDI;
-                BoogieVerify.options.extraFlags = config.extraFlags;
-                if (config.staticInlining > 0) BoogieVerify.options.StratifiedInlining = 100;
+                BoogieVerify.Options = new BoogieVerifyOptions();
+                BoogieVerify.Options.NonUniformUnfolding = config.NonUniformUnfolding;
+                BoogieVerify.Options.newStratifiedInliningAlgo = config.newStratifiedInliningAlgo;
+                BoogieVerify.Options.useDI = config.useDI;
+                BoogieVerify.Options.extraFlags = config.extraFlags;
+                if (config.staticInlining > 0) BoogieVerify.Options.StratifiedInlining = 100;
                 var rstatus = BoogieVerify.Verify(init, out err, true);
                 Console.WriteLine("Return status: {0}", rstatus);
                 if (err == null || err.Count == 0)
@@ -1089,7 +1089,7 @@ namespace cba
                 ProgTransformation.PersistentProgramIO.CheckMemoryPressure();
 
                 // Check Program
-                BoogieVerify.options = progVerifyOptions;
+                BoogieVerify.Options = progVerifyOptions;
                 BoogieVerify.setTimeOut(GlobalConfig.getTimeLeft());
 
                 Console.WriteLine("Verifying program while tracking: {0}", varsToKeep.Variables.Print());
@@ -1150,7 +1150,7 @@ namespace cba
                 //////////////////////////
 
                 Stats.beginTime();
-                BoogieVerify.options = pathVerifyOptions;
+                BoogieVerify.Options = pathVerifyOptions;
 
                 var pverify = new VerificationPass(config.printData != 0);
                 pverify.run(ptrace);
@@ -1194,7 +1194,7 @@ namespace cba
 
                 // Refine
                 Stats.beginTime();
-                BoogieVerify.options = refinementVerifyOptions;
+                BoogieVerify.Options = refinementVerifyOptions;
                 refinementState.setAllVars(ptrace.allVars);
                 var refinement = new GeneralRefinementScheme(new SequentialProgVerifier(), true,
                     ptrace, refinementState, config.tryDroppingForRefinement);
