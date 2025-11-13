@@ -1124,18 +1124,15 @@ namespace cba
             }
 
             // save RB
-            var rb = 999 /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */;
+            var old = 0;
             if (BoogieVerify.irreducibleLoopUnroll >= 0)
-                999 /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */ = BoogieVerify.irreducibleLoopUnroll;
+                old  = BoogieVerify.irreducibleLoopUnroll;
 
             var procsWithIrreducibleLoops = new HashSet<string>();
-            var passInfo = /* TODO: ExtractLoops removed */ // /* TODO: ExtractLoops removed */ // p.ExtractLoops(out procsWithIrreducibleLoops);
-
-            // restore RB
-            999 /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */ = rb;
+            var passInfo = p.ExtractLoops(out procsWithIrreducibleLoops);
 
             // no loops found, then this transformation is identity
-            if (passInfo.Count() == 0 && procsWithIrreducibleLoops.Count == 0)
+            if (passInfo.Count == 0 && procsWithIrreducibleLoops.Count == 0)
                 return null;
 
             if (addUniqueCallLabels)

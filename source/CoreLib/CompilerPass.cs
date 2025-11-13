@@ -632,6 +632,8 @@ namespace cba
         // inline recursion bound
         int bound;
 
+        public CommandLineOptions Options;
+
         public InliningPass(int bound)
         {
             passName = "Inlining";

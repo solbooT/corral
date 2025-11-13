@@ -2706,6 +2706,8 @@ namespace CoreLib
         public List<StratifiedCallSite> callSitesToExpand;
         List<Tuple<int, int>> orderedStateIds;
 
+        public CommandLineOptions Options;
+
         public StratifiedInliningErrorReporter(VerifierCallback callback, StratifiedInlining si, StratifiedVC svc) : base(null)
         {
             this.callback = callback;

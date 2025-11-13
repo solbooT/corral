@@ -17,8 +17,8 @@ namespace cba.Util
         public enum ReturnStatus { OK, NOK, ReachedBound };
         public static readonly string ExtraRecBoundAttr = "SIextraRecBound";
 
-        // Verification options
-        public static BoogieVerifyOptions options;
+        // Verification Options
+        public static BoogieVerifyOptions Options;
 
         // Unrolling for irreducible loops (default behavior: recursion bound)
         public static int irreducibleLoopUnroll = -1;
@@ -107,24 +107,23 @@ namespace cba.Util
             if (removeAsserts)
                 RemoveAsserts(program);
 
-            // Set options
-            options.Set();
+            // Set Options
+            Options.Set();
 
             // save RB
-            var rb = 999 /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */;
+            var rb = 999; // rec bound
             if (BoogieVerify.irreducibleLoopUnroll >= 0)
-                999 /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */ = BoogieVerify.irreducibleLoopUnroll;
+                rb = BoogieVerify.irreducibleLoopUnroll; // rec bound option assign
 
             // Do loop extraction
-            var extractionInfo = /* TODO: ExtractLoops removed */ // /* TODO: ExtractLoops removed */ // program.ExtractLoops();
+            var extractionInfo = program.ExtractLoops();
 
-            // restore RB
-            999 /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */ = rb;
+            // TODO restore RB onto rec bound option
 
             // set bounds
-            if (options.extraRecBound != null)
+            if (Options.extraRecBound != null)
             {
-                options.extraRecBound.ForEach(tup =>
+                Options.extraRecBound.ForEach(tup =>
                     {
                         var impl = BoogieUtil.findProcedureImpl(program.TopLevelDeclarations, tup.Key);
                         if (impl != null) impl.AddAttribute(BoogieVerify.ExtraRecBoundAttr, Expr.Literal(tup.Value));
@@ -138,10 +137,10 @@ namespace cba.Util
                 program = BoogieUtil.ReadAndResolve("last_query.bpl");
             }
 
-            if (options.printProg)
+            if (Options.printProg)
             {
-                Debug.Assert(options.progFileName != null, "Invalid options");
-                BoogieUtil.PrintProgram(program, options.progFileName);
+                Debug.Assert(Options.progFileName != null, "Invalid Options");
+                BoogieUtil.PrintProgram(program, Options.progFileName);
             }
             #endregion
 
@@ -297,9 +296,9 @@ namespace cba.Util
             procsHitRecBound = (vcgen as CoreLib.StratifiedInlining).procsHitRecBound;
             CallTreeSize = (vcgen as CoreLib.StratifiedInlining).stats.numInlined;
             vcSize = (vcgen as CoreLib.StratifiedInlining).stats.vcSize;
-            if (options.CallTree != null)
+            if (Options.CallTree != null)
             {
-                options.CallTree = (vcgen as CoreLib.StratifiedInlining).GetCallTree();
+                Options.CallTree = (vcgen as CoreLib.StratifiedInlining).GetCallTree();
             }
 
             vcgen.Close();
@@ -472,9 +471,9 @@ namespace cba.Util
         public static HashSet<string> UniqueProcsInlined()
         {
             var ret = new HashSet<string>();
-            if (options.CallTree == null) return ret;
+            if (Options.CallTree == null) return ret;
 
-            foreach (var s in options.CallTree)
+            foreach (var s in Options.CallTree)
             {
                 var tokens = s.Split(new string[] {"_131_"}, StringSplitOptions.RemoveEmptyEntries);
                 if (tokens.Length < 2) continue;
@@ -705,7 +704,7 @@ namespace cba.Util
         public Dictionary<string, int> extraRecBound;
         public HashSet<string> extraFlags;
 
-        // Default options
+        // Default Options
         public BoogieVerifyOptions()
         {
             StratifiedInlining = 1;
@@ -750,14 +749,14 @@ namespace cba.Util
         }
 
         // Invariant: This method should be idempotent, i.e., it should always
-        // overwrite all options set by a previous call to Set
+        // overwrite all Options set by a previous call to Set
         public void Set()
         {
-            Options.StratifiedInlining = StratifiedInlining;
-            Options.StratifiedInliningWithoutModels = StratifiedInliningWithoutModels;
-            Options.UseProverEvaluate = UseProverEvaluate;
+            StratifiedInlining = StratifiedInlining;
+            StratifiedInliningWithoutModels = StratifiedInliningWithoutModels;
+            UseProverEvaluate = UseProverEvaluate;
             if (!StratifiedInliningWithoutModels && ModelViewFile != null)
-                Options.ModelViewFile = ModelViewFile;
+                ModelViewFile = ModelViewFile;
         }
     }
 

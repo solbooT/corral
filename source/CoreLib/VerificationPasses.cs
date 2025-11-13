@@ -39,7 +39,6 @@ namespace cba
 
         // The set of global variables that were used in proof of correctness
         // TODO: This is not yet computed!
-        //public Set<string> globalsUsedForProof { get; private set; }
 
         // For pruning a program
         PruneProgramPass prune;
@@ -1905,11 +1904,6 @@ namespace cba
             }
 
             Options.InlineDepth = -1;
-            Options.ProcedureInlining = old;
-            Options.StratifiedInlining = si;
-            Options.ErrorLimit = oldErrorLimit;
-            Options.ContractInfer = false;
-            Options.TimeLimit = oldTimeout;
             Options.PrintErrorModel = 0;
 
             int cia = 0;
@@ -1983,7 +1977,7 @@ namespace cba
                     {
                         // in != NULL => out != NULL
                         requires.OfType<Expr>().
-                            Iter(req =>
+                            ForEach(req =>
                             {
                                 var expr = Expr.Imp(req, NonNull(r));
                                 proc.Ensures.Add(CandidateEnsure(expr, candCons, ret[impl.Name]));

@@ -67,6 +67,7 @@ namespace CoreLib
         static bool RobustAgainstEvaluate = false; // usually this is not needed
         public static bool DualHoudini = false;
         public static bool dbg = false;
+        public static CommandLineOptions Options;
 
         public HoudiniInlining(Program program, string logFilePath, bool appendLogFile, Action<Implementation> PassiveImplInstrumentation) :
             base(program, logFilePath, appendLogFile, PassiveImplInstrumentation)
@@ -160,7 +161,7 @@ namespace CoreLib
             // Initially: everything is true
             var assignment = new HashSet<string>(CandidateConstants.Keys);
 
-            var prover = hi.prover;
+            var prover = hi.info.vcgen.prover;
             var reporter = new EmptyErrorReporter();
 
             // assert true to flush all one-time axioms, decls, etc
@@ -179,7 +180,7 @@ namespace CoreLib
 
                 prover.Push();
 
-                var hvc = new HoudiniVC(hi.implName2StratifiedInliningInfo[implName], impls, assignment);
+                var hvc = new HoudiniVC(hi.info.vcgen.implName2StratifiedInliningInfo[implName], impls, assignment);
                 var openCallSites = new HashSet<StratifiedCallSite>(hvc.CallSites);
                 prover.Assert(hvc.vcexpr, true);
 
@@ -221,7 +222,7 @@ namespace CoreLib
                     var nextOpenCallSites = new HashSet<StratifiedCallSite>();
                     foreach (var cs in openCallSites)
                     {
-                        var callee = new HoudiniVC(hi.implName2StratifiedInliningInfo[cs.callSite.calleeName], impls, assignment);
+                        var callee = new HoudiniVC(hi.info.vcgen.implName2StratifiedInliningInfo[cs.callSite.calleeName], impls, assignment);
                         var calleevc = cs.Attach(callee);
                         prover.Assert(prover.VCExprGen.Implies(cs.callSiteExpr, calleevc), true);
                         nextOpenCallSites.UnionWith(callee.CallSites);
@@ -252,7 +253,7 @@ namespace CoreLib
 
             HoudiniStats.Stop("MainLoop");
 
-            hi.Close();
+            hi.info.vcgen.Close();
 
             return assignment;
         }
