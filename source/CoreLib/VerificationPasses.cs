@@ -1449,7 +1449,7 @@ namespace cba
                 else
                 {
                     var houdiniStats = new HoudiniSession.HoudiniStatistics();
-                    Houdini houdini = new Houdini(new TraceWriter(), null, program, houdiniStats);
+                    Houdini houdini = new Houdini(Console.Out, null, program, houdiniStats);
                     outcome = houdini.PerformHoudiniInference( /* TODO: now returns Task */).Result;
                     Debug.Assert(outcome.ErrorCount == 0, "Something wrong with houdini");
 
@@ -1482,7 +1482,7 @@ namespace cba
 
                     Options.ReverseHoudiniWorklist = true;
                     var houdiniStats = new HoudiniSession.HoudiniStatistics();
-                    Houdini houdini = new Houdini(new TraceWriter(), null, origProg, houdiniStats);
+                    Houdini houdini = new Houdini(Console.Out, null, origProg, houdiniStats);
                     HoudiniOutcome outcomeReq = await houdini.PerformHoudiniInference();
                     Debug.Assert(outcomeReq.ErrorCount == 0, "Something wrong with houdini");
                     Options.ReverseHoudiniWorklist = false;
@@ -1845,7 +1845,7 @@ namespace cba
 
                 {
                     var houdiniStats = new HoudiniSession.HoudiniStatistics();
-                    Houdini houdini = new Houdini(new TraceWriter(), null, program, houdiniStats);
+                    Houdini houdini = new Houdini(Console.Out, null, program, houdiniStats);
                     outcome = await houdini.PerformHoudiniInference();
                     Debug.Assert(outcome.ErrorCount == 0, "Something wrong with houdini");
 
@@ -1875,7 +1875,7 @@ namespace cba
 
                     Options.ReverseHoudiniWorklist = true;
                     var houdiniStats = new HoudiniSession.HoudiniStatistics();
-                    Houdini houdini = new Houdini(new TraceWriter(), null, origProg, houdiniStats);
+                    Houdini houdini = new Houdini(Console.Out, null, origProg, houdiniStats);
                     HoudiniOutcome outcomeReq = await houdini.PerformHoudiniInference();
                     Debug.Assert(outcomeReq.ErrorCount == 0, "Something wrong with houdini");
                     Options.ReverseHoudiniWorklist = false;

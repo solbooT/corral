@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Diagnostics;
 using Microsoft.Boogie;
-//using BoogiePL;
 using System.Diagnostics.Contracts;
 using System.IO;
 using VC;
@@ -288,7 +287,6 @@ namespace cba.Util
             }
             procsHitRecBound = (vcgen as CoreLib.StratifiedInliningInfo).procsHitRecBound;
 
-            //PutBackAsserts(program);
             Debug.Assert(vcgen is CoreLib.StratifiedInlining);
             procsHitRecBound = (vcgen as CoreLib.StratifiedInlining).procsHitRecBound;
             CallTreeSize = (vcgen as CoreLib.StratifiedInlining).stats.numInlined;
@@ -389,7 +387,6 @@ namespace cba.Util
             Debug.Assert(outcome == VcOutcome.Correct);
 
             vcgen.Close();
-            Options.TheProverFactory.Close();
             return boolVars;
         }
 

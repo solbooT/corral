@@ -402,8 +402,8 @@ namespace CoreLib
                     {
                         foreach (var k in remaining)
                         {
-                            var b = recordingBool == null ? prover.Evaluate(constantToAssertedExpr[k]).Result
-                                : prover.Evaluate(recordingBool[k]).Result;
+                            bool b = recordingBool == null ? (bool)prover.Evaluate(constantToAssertedExpr[k]).Result
+                                : (bool)prover.Evaluate(recordingBool[k]).Result;
 
                             if (!b)
                             {
