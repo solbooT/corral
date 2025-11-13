@@ -8,6 +8,7 @@ using cba.Util;
 using Microsoft.Boogie.Houdini;
 using System.Threading.Tasks;
 using System.IO;
+using ModCollector;
 
 namespace cba
 {
@@ -1136,7 +1137,7 @@ namespace cba
                 program = (inputPrime as PersistentCBAProgram).getCBAProgram();
             }
 
-            BoogieUtil.DoModSetAnalysis(program);
+            ModCollector.Utils.msc.DoModSetAnalysis(program);
             EExpr.procsThatFail = BoogieUtil.procsThatMaySatisfyPredicate(program, c => BoogieUtil.isAssert(c));
 
             DoStaticAnalysis(program);
@@ -1447,7 +1448,6 @@ namespace cba
                 }
                 else
                 {
-
                     var houdiniStats = new HoudiniSession.HoudiniStatistics();
                     Houdini houdini = new Houdini(new TraceWriter(), null, program, houdiniStats);
                     outcome = houdini.PerformHoudiniInference( /* TODO: now returns Task */).Result;
@@ -2128,7 +2128,7 @@ namespace cba
             if (normalizeStatements) p.TopLevelDeclarations.OfType<Implementation>().ForEach(normalizeImpl);
  
             // Re-do modset analysis
-            BoogieUtil.DoModSetAnalysis(p);
+            ModCollector.Utils.msc.DoModSetAnalysis(p);
             
             // Eliminate local variables that are never used (i.e., their value is never read)
             varEliminator = new UnReadVarEliminator();
@@ -2232,7 +2232,7 @@ namespace cba
         {
 
             // Re-do modset analysis
-            BoogieUtil.DoModSetAnalysis(p);
+            ModCollector.Utils.msc.DoModSetAnalysis(p);
 
             // Eliminate local variables that are never used (i.e., their value is never read)
             varEliminator = new UnReadVarEliminator(true);

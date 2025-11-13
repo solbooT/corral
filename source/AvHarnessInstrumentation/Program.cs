@@ -433,7 +433,7 @@ namespace AvHarnessInstrumentation
             CommandLineOptions.DoModSetAnalysis = false;
 
             // Update mod sets
-            BoogieUtil.DoModSetAnalysis(init);
+            ModCollector.Utils.msc.DoModSetAnalysis(init);
 
             if (Options.AddMapSelectNonNullAssumptions)
                 (new Instrumentations.AssertMapSelectsNonNull()).Visit(init);

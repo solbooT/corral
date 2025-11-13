@@ -100,7 +100,7 @@ namespace SmackInst
             var program = BoogieUtil.ReadAndResolve(args[0], false);
 
             // SMACK does not add globals to modify clauses
-            //BoogieUtil.DoModSetAnalysis(program);
+            //ModCollector.Utils.msc.DoModSetAnalysis(program);
 
             if (checkMemSafety) {
                 Procedure checkProc = program.TopLevelDeclarations.OfType<Procedure>().Where(x => x.Name == "__SMACK_check_memory_safety").FirstOrDefault();

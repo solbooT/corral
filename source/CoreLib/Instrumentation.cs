@@ -2955,7 +2955,7 @@ namespace cba
             program.AddTopLevelDeclaration(assertsPassed);
             addMain(program);
 
-            BoogieUtil.DoModSetAnalysis(program);
+            ModCollector.Utils.msc.DoModSetAnalysis(program);
 
             // Set inline attribute
             // free requires assertsPassed == true;

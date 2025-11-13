@@ -323,7 +323,7 @@ namespace ProofMinimization
             foreach (var tup in fileToProg)
             {
                 var program = tup.Value.getProgram();
-                BoogieUtil.DoModSetAnalysis(program);
+                ModCollector.Utils.msc.DoModSetAnalysis(program);
                 var globals = new HashSet<string>(program.TopLevelDeclarations.OfType<GlobalVariable>().Select(g => g.Name));
 
                 var newconstants = new HashSet<Constant>();

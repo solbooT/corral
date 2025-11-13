@@ -542,7 +542,7 @@ namespace cba
                 throw new InternalError("Type errors");
             }
             vslice.VisitProgram(p as Program);
-            BoogieUtil.DoModSetAnalysis(p);
+            ModCollector.Utils.msc.DoModSetAnalysis(p);
 
             return p;
         }

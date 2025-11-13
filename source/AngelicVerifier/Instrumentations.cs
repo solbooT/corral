@@ -314,7 +314,7 @@ namespace AngelicVerifierNull
                 program.AddTopLevelDeclaration(assertsPassed);
                 var newMain = addMain(program);
 
-                BoogieUtil.DoModSetAnalysis(program);
+                ModCollector.Utils.msc.DoModSetAnalysis(program);
 
                 // Set inline attribute
                 // free requires assertsPassed == true;
@@ -654,7 +654,7 @@ namespace AngelicVerifierNull
             }
             tempSuppressedTokens = new HashSet<AssertToken>();
 
-            BoogieUtil.DoModSetAnalysis(currProg);
+            ModCollector.Utils.msc.DoModSetAnalysis(currProg);
         }
 
 
@@ -679,7 +679,7 @@ namespace AngelicVerifierNull
             
             SuppressToken(token);
 
-            BoogieUtil.DoModSetAnalysis(currProg);
+            ModCollector.Utils.msc.DoModSetAnalysis(currProg);
 
             suppressedTokens.Add(token);
 

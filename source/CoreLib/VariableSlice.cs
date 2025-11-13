@@ -671,7 +671,7 @@ namespace cba
 
             sliceGlobals = new VariableSlicing(VarSet.ToVarSet(globalsRead, node), gtinfo);
             node = sliceGlobals.VisitProgram(node);
-            BoogieUtil.DoModSetAnalysis(node);
+            ModCollector.Utils.msc.DoModSetAnalysis(node);
 
             return node;
         }

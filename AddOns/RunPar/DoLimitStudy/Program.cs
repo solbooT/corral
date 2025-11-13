@@ -1721,7 +1721,7 @@ namespace Microsoft.Boogie
             //foreach (Ensures ens in trainingProc.Ensures)
             //    templates.Add(new EExpr(ens));
 
-            //BoogieUtil.DoModSetAnalysis(program);
+            //ModCollector.Utils.msc.DoModSetAnalysis(program);
 
             //DoStaticAnalysis(program);
 

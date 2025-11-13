@@ -487,7 +487,7 @@ namespace CoreLib
             program.AddTopLevelDeclaration(U);
 
             // print program
-            BoogieUtil.DoModSetAnalysis(program);
+            ModCollector.Utils.msc.DoModSetAnalysis(program);
             BoogieUtil.PrintProgram(program, outfile);
 
             program = null;
