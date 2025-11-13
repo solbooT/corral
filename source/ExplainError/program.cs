@@ -1306,7 +1306,7 @@ namespace ExplainError
         {
             //create vcgen/proverInterface
             vcgen = new VCGen(prog, CommandLineOptions.ProverLogFilePath, CommandLineOptions.ProverLogFileAppend, new List<Checker>());
-            proverInterface = ProverInterface.CreateProver(prog, CommandLineOptions.ProverLogFilePath, CommandLineOptions.ProverLogFileAppend, CommandLineOptions.TimeLimit);
+            proverInterface = ProverInterface.CreateProver(null,prog, CommandLineOptions.ProverLogFilePath, CommandLineOptions.ProverLogFileAppend, CommandLineOptions.TimeLimit);
             translator = proverInterface.Context.BoogieExprTranslator;
             exprGen = proverInterface.Context.ExprGen;
             collector = new ConditionGeneration.CounterexampleCollector();

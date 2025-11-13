@@ -54,7 +54,7 @@ namespace cba
         public static string recordArgProcPrefix = "boogie_si_record";
         string recordIntArgProc;
         string recordBoolArgProc;
-        CommandLineOptions Options;
+        public CommandLineOptions Options;
 
         // Is Boogie going to give us a model
         static bool WillGetModel
@@ -1620,11 +1620,11 @@ namespace cba
                 {
                     if (Options.InlineDepth >= 0)
                     {
-                        Inliner.ProcessImplementation(null, Options, program, impl);
+                        Inliner.ProcessImplementation(Options, program, impl);
                     }
                     else
                     {
-                        CallInliner.ProcessImplementation(null, Options, program, impl);
+                        CallInliner.ProcessImplementation(program, impl);
                     }
                     
                 }
@@ -1644,12 +1644,12 @@ namespace cba
         public class CallInliner : Inliner
         {
             public CallInliner(Program program)
-                : base(program, null, -1)
+                : base(program, null, -1, null)
             { }
 
             new public static void ProcessImplementation(Program program, Implementation impl)
             {
-                ProcessImplementation(null, program, impl, new CallInliner(program));
+                ProcessImplementation(null, program, impl);
             }
         }
 

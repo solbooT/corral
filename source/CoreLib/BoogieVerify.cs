@@ -311,9 +311,9 @@ namespace cba.Util
 
             RemoveAsserts(program);
 
-            if (options.printProg)
+            if (Options.printProg)
             {
-                BoogieUtil.PrintProgram(program, options.progFileName);
+                BoogieUtil.PrintProgram(program, Options.progFileName);
             }
 
             //// ---------- Verify ----------------------------------------------------------------

@@ -693,7 +693,7 @@ namespace Trainer
 
             Debug.Assert(!System.IO.File.Exists(database));
             var summaries = new StubAnnotatedSummaryDictionary();
-            StubAnnotatedSummaryDictionary.CreateProver(z3exe);
+            StubAnnotatedSummaryDictionary.CreateProver(null,z3exe);
             if (useStubs)
                 predWithStubs.ForEach(tup => summaries.Add(tup.Item1, tup.Item2));
             else
@@ -753,7 +753,7 @@ namespace Trainer
 
             Debug.Assert(!System.IO.File.Exists(database));
             var summaries = new StubAnnotatedSummaryDictionary();
-            StubAnnotatedSummaryDictionary.CreateProver(z3exe);
+            StubAnnotatedSummaryDictionary.CreateProver(null,z3exe);
             if (useStubs)
                 predWithStubs.ForEach(tup => summaries.Add(tup.Item1, tup.Item2));
             else

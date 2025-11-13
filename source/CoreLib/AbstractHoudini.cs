@@ -50,7 +50,7 @@ namespace CoreLib {
             // TODO Options.ProverLogFilePath, Options.ProverLogFileAppend
             this.vcgen = new VerificationConditionGenerator(program, new List<Checker>());
             // TODO Options.ProverLogFilePath, Options.ProverLogFileAppend, Options.TimeLimit
-            this.prover = ProverInterface.CreateProver(program);
+            this.prover = ProverInterface.CreateProver(null,program);
             this.reporter = new AbstractHoudiniErrorReporter();
 
             var impls = new List<Implementation>(

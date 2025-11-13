@@ -245,7 +245,7 @@ namespace Microsoft.Boogie
 
             freshProgram.Emit(new TokenTextWriter("CombinedBPL.bpl", null));
 
-            prover = ProverInterface.CreateProver(freshProgram, "log.txt", true, CommandLineOptions.ProverKillTime);
+            prover = ProverInterface.CreateProver(null,freshProgram, "log.txt", true, CommandLineOptions.ProverKillTime);
 
             prover.AssertAxioms();
 
@@ -428,7 +428,7 @@ namespace Microsoft.Boogie
             summariesProgram.Typecheck(null);
             summariesProgram.Resolve();
             */
-            //prover = ProverInterface.CreateProver(summariesProgram, "log.txt", true, CommandLineOptions.ProverKillTime);
+            //prover = ProverInterface.CreateProver(null,summariesProgram, "log.txt", true, CommandLineOptions.ProverKillTime);
 
             List<Procedure> procList = new List<Procedure>();
             freshProgram.TopLevelDeclarations.ForEach<Declaration>(n => { if (n is Procedure) procList.Add(n as Procedure); });
