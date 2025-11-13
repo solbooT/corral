@@ -784,7 +784,7 @@ namespace CoreLib
             {
                 IndexC = new IndexComputer(SI.info.vcgen.program);
                 var impls = new Dictionary<string, Implementation>();
-                SI.implName2StratifiedInliningInfo.ForEach(tup => impls.Add(tup.Key, tup.Value.impl));
+                SI.info.implName2StratifiedInliningInfo.ForEach(tup => impls.Add(tup.Key, tup.Value.impl));
                 Disj = new ProgramDisjointness(impls);
 
                 currentDag = new DagOracle(SI.info.vcgen.program, Disj, SI.extraRecBound);
