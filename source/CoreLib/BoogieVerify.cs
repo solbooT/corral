@@ -299,7 +299,6 @@ namespace cba.Util
             }
 
             vcgen.Close();
-            Options.ProverFactory.Instance /* TODO: TheProverFactory API changed */.Close();
 
             return ret;
         }
@@ -750,7 +749,7 @@ namespace cba.Util
         }
     }
 
-    public class BoogieVerifyOptions
+    public class BoogieVerifyOptions 
     {
         // For eager inlining
         public int StratifiedInlining
@@ -778,6 +777,7 @@ namespace cba.Util
         public string ModelViewFile;
 
         public bool useFwdBck;
+        public int TimeLimit;
         public bool useDI;
 
         // Bound on maximum procs that can be inlined (0 = no bound)
@@ -808,6 +808,7 @@ namespace cba.Util
             useDI = false;
             extraFlags = new HashSet<string>();
             maxInlinedBound = 0;
+            TimeLimit = 0;
         }
 
         public BoogieVerifyOptions Copy()
@@ -828,6 +829,7 @@ namespace cba.Util
             ret.progFileName = progFileName;
             ret.useFwdBck = useFwdBck;
             ret.useDI = useDI;
+            ret.TimeLimit = TimeLimit;
             ret.maxInlinedBound = maxInlinedBound;
             ret.extraRecBound = new Dictionary<string, int>(ret.extraRecBound);
             ret.extraFlags.UnionWith(extraFlags);
