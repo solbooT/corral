@@ -7,7 +7,7 @@ using System.Diagnostics;
 using Microsoft.Boogie;
 using Microsoft.Boogie.VCExprAST;
 using VC;
-using Outcome = VC.VCGen.Outcome;
+using Outcome = VcOutcome;
 using cba.Util;
 using CoreLib;
 using Microsoft.Boogie.GraphUtil;

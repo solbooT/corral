@@ -1120,7 +1120,7 @@ namespace cba
             
             foreach (var impl in BoogieUtil.GetImplementations(p))
             {
-                impl.PruneUnreachableBlocks(ExecutionEngineOptions.Options);
+                impl.PruneUnreachableBlocks(Options);
             }
 
             // save RB

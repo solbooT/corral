@@ -138,7 +138,7 @@ namespace CoreLib {
             }
 
             prover.Close();
-            ProverFactory.Instance /* TODO: TheProverFactory API changed */.Close();
+            Options.ProverFactory.Instance /* TODO: TheProverFactory API changed */.Close();
         }
 
         private bool ProcessImpl(Implementation impl)
