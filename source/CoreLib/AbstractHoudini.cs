@@ -690,8 +690,6 @@ namespace CoreLib {
                     return VCExpressionGenerator.AndOp;
                 case BinaryOperator.Opcode.Or:
                     return VCExpressionGenerator.OrOp;
-                case BinaryOperator.Opcode.Subtype:
-                    return VCExpressionGenerator.SubtypeOp;
                 default:
                     Contract.Assert(false);
                     throw new NotImplementedException();
