@@ -114,9 +114,9 @@ namespace cba
 
             // remove non-free ensures and requires
             program.TopLevelDeclarations.OfType<Procedure>()
-                .ForEach(proc => proc.Ensures = proc.Ensures.Where(en => en.Free));
+                .ForEach(proc => proc.Ensures = proc.Ensures.Where(en => en.Free).ToList());
             program.TopLevelDeclarations.OfType<Procedure>()
-                .ForEach(proc => proc.Requires = proc.Requires.Where(en => en.Free));
+                .ForEach(proc => proc.Requires = proc.Requires.Where(en => en.Free).ToList());
             // remove assertions
             program.TopLevelDeclarations.OfType<Implementation>()
                 .ForEach(impl => impl.Blocks
@@ -125,7 +125,7 @@ namespace cba
                             var ac = c as AssertCmd;
                             if (ac == null) return c;
                             return new AssumeCmd(ac.tok, /*ac.Expr*/ Expr.True, ac.Attributes);
-                        })));
+                        })).ToList());
             // delete yield
             program.TopLevelDeclarations.OfType<Implementation>()
                 .ForEach(impl => impl.Blocks

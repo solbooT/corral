@@ -147,7 +147,7 @@ namespace cba
                 rest[i] = this.VisitDeclaration(rest[i]);
 
             // Remove globals that are not tracked
-            node.TopLevelDeclarations = globals.Where(x => isTrackedVariable(x as GlobalVariable));
+            node.TopLevelDeclarations = globals.Where(x => isTrackedVariable(x as GlobalVariable)).ToList();
 
             node.AddTopLevelDeclarations(rest);
 

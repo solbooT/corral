@@ -1421,7 +1421,7 @@ namespace cba
                             var uv = new VarsUsed();
                             uv.VisitRequiresSeq(proc.Requires);
                             requiresConstants.UnionWith(uv.varsUsed.Intersection(allConstants));
-                            proc.Requires = proc.Requires.Where(re => re.Free);
+                            proc.Requires = proc.Requires.Where(re => re.Free).ToList();
                         });
                     program.TopLevelDeclarations.OfType<Constant>()
                         .Where(c => requiresConstants.Contains(c.Name))
@@ -1670,7 +1670,7 @@ namespace cba
             });
 
             program.TopLevelDeclarations =
-                program.TopLevelDeclarations.Where(decl => !(decl is Implementation) || (implHasEnsures(decl as Implementation) && !ignoreImpl(decl as Implementation)));
+                program.TopLevelDeclarations.Where(decl => !(decl is Implementation) || (implHasEnsures(decl as Implementation) && !ignoreImpl(decl as Implementation))).ToList();
         }
 
         public override ErrorTrace mapBackTrace(ErrorTrace trace)
@@ -1824,7 +1824,7 @@ namespace cba
                             var uv = new VarsUsed();
                             uv.VisitRequiresSeq(proc.Requires);
                             requiresConstants.UnionWith(uv.varsUsed.Intersection(allConstants));
-                            proc.Requires = proc.Requires.Where(re => re.Free);
+                            proc.Requires = proc.Requires.Where(re => re.Free).ToList();
                         });
                     program.TopLevelDeclarations.OfType<Constant>()
                         .Where(c => requiresConstants.Contains(c.Name))
