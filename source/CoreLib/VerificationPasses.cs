@@ -54,7 +54,7 @@ namespace cba
         public static string recordArgProcPrefix = "boogie_si_record";
         string recordIntArgProc;
         string recordBoolArgProc;
-        VCGenOptions Options;
+        CommandLineOptions Options;
 
         // Is Boogie going to give us a model
         static bool WillGetModel
@@ -547,7 +547,7 @@ namespace cba
 
     public class ContractInfer : CompilerPass
     {
-        VCGenOptions Options;
+        public CommandLineOptions Options;
         public class EExpr 
         {
             public Expr expr;
@@ -1246,10 +1246,6 @@ namespace cba
                             var precondition = rhs.GetPrecondition(impl.Name) as StaticAnalysis.ConstantProp;
                             staticAnalysisPreconditions.Add(impl.Name, precondition.ToExpr(true));
                         }
-                        //Console.WriteLine("{0}:", impl.Name);
-                        //summary.Print(true);
-                        //Console.WriteLine("{0}:", impl.Name);
-                        //precondition.Print(true);
                     });
 
             Console.WriteLine("Static analysis took {0} s", rhs.computeTime.TotalSeconds.ToString("F2"));
@@ -1786,6 +1782,7 @@ namespace cba
             // Run Houdini
 
             HoudiniOptions options = new HoudiniOptions();
+            /*
             options.InlineDepth = InlineDepth;
             var old = Options.ProcedureInlining;
             Options.ProcedureInlining = Microsoft.Boogie.CoreOptions.Inlining.Spec;
@@ -1796,6 +1793,7 @@ namespace cba
             Options.ContractInfer = true;
             var oldTimeout = Options.TimeLimit;
             Options.TimeLimit = Math.Max(1, (HoudiniTimeout + 500) / 1000); // milliseconds -> seconds
+            */
 
             var time3 = DateTime.Now;
 
@@ -1914,31 +1912,6 @@ namespace cba
             Options.TimeLimit = oldTimeout;
             Options.PrintErrorModel = 0;
 
-            //#region debug static analysis
-
-            //if (!staticAnalysisConstants.IsSubsetOf(trueConstants))
-            //{
-            //    foreach (var c in staticAnalysisConstants.Difference(trueConstants))
-            //    {
-            //        Expr expr = null;
-            //        var proc = "";
-            //        foreach (var kvp in info)
-            //        {
-            //            if (!kvp.Value.ContainsKey(c)) continue;
-            //            expr = kvp.Value[c].expr;
-            //            proc = kvp.Key;
-            //            break;
-            //        }
-            //        Console.WriteLine("The following expr in {0} is not valid", proc);
-            //        expr.Emit(new TokenTextWriter(Console.Out, null));
-            //        Console.WriteLine();
-            //    }
-
-            //    Debug.Assert(false, "Bug in static analysis module");
-            //}
-            //#endregion
-
-            // Record new summaries
             int cia = 0;
             candAsserts.Keys.Where(s => trueConstants.Contains(s))
                 .ForEach(a =>

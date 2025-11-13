@@ -11,6 +11,7 @@ namespace cba
     // that were never reached.
     public class CoveragePass : VerificationPass
     {
+        //public VCGenOptions Options;
         // The set of procedures covered
         public HashSet<string> procsNotCovered { get; private set; }
 
