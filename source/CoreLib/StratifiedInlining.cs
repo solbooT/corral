@@ -522,7 +522,7 @@ namespace CoreLib
             var ret = new List<Tuple<StratifiedVC, Block>>();
 
             // This is most likely redundant
-            svc.info.vcgen.prover.Assert(svc.MustReach(svc.info.impl.Blocks[0], null /* TODO: add ControlFlowIdMap parameter */), true);
+            svc.info.vcgen.prover.Assert(svc.MustReach(svc.info.Implementation.Blocks[0], null /* TODO: add ControlFlowIdMap parameter */), true);
 
             if (!attachedVCInv.ContainsKey(svc))
                 return ret;
@@ -620,7 +620,7 @@ namespace CoreLib
                 var scs = attachedVCInv[vc];
                 ret = GetPersistentID(scs);
             }
-            return string.Format("{0}_262_{1}", ret, vc.info.impl.Name);
+            return string.Format("{0}_262_{1}", ret, vc.info.Implementation.Name);
         }
 
         // 'Attach' inlined from Boogie/StratifiedVC.cs (and made static)
@@ -780,24 +780,24 @@ namespace CoreLib
 
             IndexC = null;
             Disj = null;
-            currentDag = new DagOracle(SI.program, null);
+            currentDag = new DagOracle(SI.info.vcgen.program, null);
             vcNodeMap = new BijectiveDictionary<StratifiedVC, DagOracle.DagNode>();
             currentOptNodeMapping = new BijectiveDictionary<DagOracle.DagNode, DagOracle.DagNode>();
 
             if (!disabled)
             {
-                IndexC = new IndexComputer(SI.program);
+                IndexC = new IndexComputer(SI.info.vcgen.program);
                 var impls = new Dictionary<string, Implementation>();
                 SI.implName2StratifiedInliningInfo.ForEach(tup => impls.Add(tup.Key, tup.Value.impl));
                 Disj = new ProgramDisjointness(impls);
 
-                currentDag = new DagOracle(SI.program, Disj, SI.extraRecBound);
+                currentDag = new DagOracle(SI.info.vcgen.program, Disj, SI.extraRecBound);
 
                 strategy = PickStrategy();
                 
                 if (strategy == MERGING_STRATEGY.OPT && optimalDag == null)
                 {
-                    optimalDag = new DagOracle(SI.program, Disj, SI.extraRecBound);
+                    optimalDag = new DagOracle(SI.info.vcgen.program, Disj, SI.extraRecBound);
                     var tsize = optimalDag.ConstructCallDagOnTheFly(true, strategy);
                     Console.WriteLine("Constructed optimal dag, with {0} nodes (max {1})", optimalDag.ComputeSize(), tsize);
                 }
@@ -938,11 +938,11 @@ namespace CoreLib
             Debug.Assert(currentDag.Nodes.Count == 0);
 
             var rv = IndexC.GetMainRv();
-            var index = IndexC.GetIndex(vc.info.impl.Name, rv);
+            var index = IndexC.GetIndex(vc.info.Implementation.Name, rv);
             vcToRecVector.Add(vc, rv);
 
             // Add to dag
-            var node = new DagOracle.DagNode(index, vc.info.impl.Name, 1);
+            var node = new DagOracle.DagNode(index, vc.info.Implementation.Name, 1);
 
             vcNodeMap.Add(vc, node);
             currentDag.AddNode(node);
@@ -966,7 +966,7 @@ namespace CoreLib
             RegisterVC(vc);
 
             if (disabled) return;
-            Debug.Assert(cs.callSite.calleeName == vc.info.impl.Name);
+            Debug.Assert(cs.callSite.calleeName == vc.info.Implementation.Name);
 
             var n1 = vcNodeMap[containingVC[cs]];
 
@@ -975,7 +975,7 @@ namespace CoreLib
             vcToRecVector.Add(vc, rv2);
 
             // create node
-            var n2 = new DagOracle.DagNode(id2, vc.info.impl.Name, 1);
+            var n2 = new DagOracle.DagNode(id2, vc.info.Implementation.Name, 1);
 
             vcNodeMap.Add(vc, n2);
             currentDag.AddNode(n2);
@@ -2723,7 +2723,7 @@ namespace CoreLib
         private Absy Label2Absy(string procName, string label)
         {
             int id = int.Parse(label);
-            var l2a = si.implName2StratifiedInliningInfo[procName].label2absy;
+            var l2a = si.info.vcgen.implName2StratifiedInliningInfo[procName].label2absy;
             return (Absy)l2a[id];
         }
 
@@ -2742,7 +2742,7 @@ namespace CoreLib
             });
 
             var t2 =
-                System.Threading.Tasks.Task.Run(() => { si.prover.Close(); });
+                System.Threading.Tasks.Task.Run(() => { si.info.vcgen.prover.Close(); });
 
             System.Threading.Tasks.Task.WaitAll(t1, t2);
         }
@@ -2760,12 +2760,12 @@ namespace CoreLib
         {
             if (labels == null)
             {
-                labels = si.prover.CalculatePath(svc.id);
+                labels = si.info.vcgen.prover.CalculatePath(svc.id);
             }
             var ret = new List<Absy>();
             foreach (var label in labels)
             {
-                ret.Add(Label2Absy(svc.info.impl.Name, label));
+                ret.Add(Label2Absy(svc.info.Implementation.Name, label));
             }
             return ret;
         }
@@ -2775,7 +2775,7 @@ namespace CoreLib
             Debug.Assert(Options.UseProverEvaluate, "Must use prover evaluate option with boolControlVC"); 
             
             var ret = new List<Absy>();
-            var impl = svc.info.impl;
+            var impl = svc.info.Implementation;
             var block = impl.Blocks[0];
 
             while (true)
@@ -2891,7 +2891,7 @@ namespace CoreLib
             }
 
             Block lastBlock = (Block)absyList[absyList.Count - 2];
-            Counterexample newCounterexample = VerificationConditionGenerator.AssertCmdToCounterexample(assertCmd, lastBlock.TransferCmd, trace, null, model, svc.info.mvInfo, si.prover.Context);
+            Counterexample newCounterexample = VerificationConditionGenerator.AssertCmdToCounterexample(assertCmd, lastBlock.TransferCmd, trace, null, model, svc.info.mvInfo, si.info.vcgen.prover.Context);
             newCounterexample.AddCalleeCounterexample(CalleeCounterexamples);
             return newCounterexample;
         }
