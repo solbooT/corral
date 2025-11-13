@@ -158,7 +158,7 @@ namespace cba.Util
                 .Where(impl => QKeyValueExtensions.FindBoolAttribute(impl.Attributes, "entrypoint")));
 
 
-            VerificationConditionGenerator vcgen = null;
+            StratifiedVerificationConditionGeneratorBase vcgen = null;
             try
             {
                 Debug.Assert(Options.StratifiedInlining > 0);
@@ -288,14 +288,7 @@ namespace cba.Util
             procsHitRecBound = (vcgen as CoreLib.StratifiedInliningInfo).procsHitRecBound;
 
             Debug.Assert(vcgen is CoreLib.StratifiedInlining);
-            procsHitRecBound = (vcgen as CoreLib.StratifiedInlining).procsHitRecBound;
-            CallTreeSize = (vcgen as CoreLib.StratifiedInlining).stats.numInlined;
-            vcSize = (vcgen as CoreLib.StratifiedInlining).stats.vcSize;
-            if (Options.CallTree != null)
-            {
-                Options.CallTree = (vcgen as CoreLib.StratifiedInlining).GetCallTree();
-            }
-
+            
             vcgen.Close();
 
             return ret;

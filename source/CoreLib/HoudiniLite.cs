@@ -162,7 +162,6 @@ namespace CoreLib
             var assignment = new HashSet<string>(CandidateConstants.Keys);
 
             var prover = hi.info.vcgen.prover;
-            var reporter = new EmptyErrorReporter();
 
             // assert true to flush all one-time axioms, decls, etc
             prover.Assert(VCExpressionGenerator.True, true);

@@ -1780,20 +1780,6 @@ namespace cba
             Console.WriteLine("Running Houdini");
             // Run Houdini
 
-            HoudiniOptions options = new HoudiniOptions();
-            /*
-            options.InlineDepth = InlineDepth;
-            var old = Options.ProcedureInlining;
-            Options.ProcedureInlining = Microsoft.Boogie.CoreOptions.Inlining.Spec;
-            var si = Options.StratifiedInlining;
-            Options.StratifiedInlining = 0;
-            var oldErrorLimit = Options.ErrorLimit;
-            Options.ErrorLimit = 5;
-            Options.ContractInfer = true;
-            var oldTimeout = Options.TimeLimit;
-            Options.TimeLimit = Math.Max(1, (HoudiniTimeout + 500) / 1000); // milliseconds -> seconds
-            */
-
             var time3 = DateTime.Now;
 
             var trueConstants = new HashSet<string>();

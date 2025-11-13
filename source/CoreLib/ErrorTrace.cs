@@ -2049,7 +2049,7 @@ namespace cba
         private static Stack<Dictionary<int, ErrorTrace>> traceStack = new Stack<Dictionary<int, ErrorTrace>>();
 
         public InlineToTrace(Program program, InlineCallback cb)
-            :base(program, cb, -1)
+            :base(program, cb, -1, null)
         { }
 
         // Return callCmd -> callee trace
@@ -2112,7 +2112,7 @@ namespace cba
             var inliner = new InlineToTrace(program, null);
 
             traceStack.Push(FindCallsOnTrace(entryPoint, trace));
-            Inliner.ProcessImplementation(null, program, entryPoint, inliner);
+            Inliner.ProcessImplementation(null, program, entryPoint);
 
             foreach (var impl in program.TopLevelDeclarations.OfType<Implementation>())
             {
