@@ -163,7 +163,7 @@ namespace cba.Util
             try
             {
                 Debug.Assert(Options.StratifiedInlining > 0);
-                vcgen = new CoreLib.StratifiedInlining(program, Options.ProverLogFilePath, Options.ProverLogFileAppend, null);
+                vcgen = new CoreLib.StratifiedInlining(program, null);
             }
             catch (ProverException e)
             {
@@ -323,7 +323,7 @@ namespace cba.Util
             VC.StratifiedVCGenBase vcgen = null;
             try
             {
-                vcgen = new CoreLib.StratifiedInlining(program, Options.ProverLogFilePath, Options.ProverLogFileAppend, null);
+                vcgen = new CoreLib.StratifiedInlining(program, null);
             }
             catch (ProverException)
             {

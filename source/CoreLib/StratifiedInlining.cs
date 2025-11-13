@@ -219,10 +219,6 @@ namespace CoreLib
         /* initial analyses */
         public void RunInitialAnalyses(Program prog)
         {
-            //TokenTextWriter file = new TokenTextWriter("tmp1_"+DateTime.Now.Millisecond.ToString(, null)+".bpl");
-            //prog.Emit(file);
-            //file.Close();
-
             LocateAsserts locate = new LocateAsserts();
             assertMethods = locate.VisitIt(prog);
             mainProc = prog.TopLevelDeclarations.OfType<Implementation>()
