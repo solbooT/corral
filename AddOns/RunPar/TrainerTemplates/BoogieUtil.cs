@@ -1412,7 +1412,7 @@ namespace Microsoft.Boogie
             CommandLineOptions.ExtractLoopsUnrollIrreducible = false;
 
             // Extract loops, we don't want cycles in the CFG            
-            program.ExtractLoops(out irreducible);
+            irreducible = LoopExtractor.ExtractLoops(null, program);
             program.TopLevelDeclarations.OfType<Implementation>()
                 .Where(impl => !irreducible.Contains(impl.Name))
                 .ForEach(SSARename);

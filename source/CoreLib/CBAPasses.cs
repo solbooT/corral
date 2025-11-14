@@ -1120,7 +1120,7 @@ namespace cba
             
             foreach (var impl in BoogieUtil.GetImplementations(p))
             {
-                impl.PruneUnreachableBlocks(Options);
+                impl.PruneUnreachableBlocks(null);
             }
 
             // save RB
@@ -1129,10 +1129,10 @@ namespace cba
                 old  = BoogieVerify.irreducibleLoopUnroll;
 
             var procsWithIrreducibleLoops = new HashSet<string>();
-            var passInfo = p.ExtractLoops(out procsWithIrreducibleLoops);
+            procsWithIrreducibleLoops = LoopExtractor.ExtractLoops(null, p);
 
             // no loops found, then this transformation is identity
-            if (passInfo.Count() == 0 && procsWithIrreducibleLoops.Count == 0)
+            if (procsWithIrreducibleLoops.Count == 0)
                 return null;
 
             if (addUniqueCallLabels)

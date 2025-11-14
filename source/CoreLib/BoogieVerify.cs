@@ -115,7 +115,7 @@ namespace cba.Util
                 rb = BoogieVerify.irreducibleLoopUnroll; // rec bound option assign
 
             // Do loop extraction
-            var extractionInfo = program.ExtractLoops();
+            var extractionInfo = LoopExtractor.ExtractLoops(null, program);
 
             // TODO restore RB onto rec bound option
 
