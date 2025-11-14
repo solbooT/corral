@@ -288,7 +288,7 @@ namespace cba.Util
             procsHitRecBound = (vcgen as CoreLib.StratifiedInliningInfo).procsHitRecBound;
 
             Debug.Assert(vcgen is CoreLib.StratifiedInlining);
-            
+
             vcgen.Close();
 
             return ret;
@@ -310,7 +310,7 @@ namespace cba.Util
             //// ---------- Verify ----------------------------------------------------------------
             Debug.Assert(Options.StratifiedInlining > 0);
 
-            VC.StratifiedVCGenBase vcgen = null;
+            StratifiedVerificationConditionGeneratorBase vcgen = null;
             try
             {
                 vcgen = new CoreLib.StratifiedInlining(program, null);
@@ -767,7 +767,7 @@ namespace cba.Util
         public string ModelViewFile;
 
         public bool useFwdBck;
-        public int TimeLimit;
+        public uint TimeLimit;
         public bool useDI;
 
         // Bound on maximum procs that can be inlined (0 = no bound)

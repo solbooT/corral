@@ -125,7 +125,7 @@ namespace cba
                             var ac = c as AssertCmd;
                             if (ac == null) return c;
                             return new AssumeCmd(ac.tok, /*ac.Expr*/ Expr.True, ac.Attributes);
-                        })).ToList());
+                        })));
             // delete yield
             program.TopLevelDeclarations.OfType<Implementation>()
                 .ForEach(impl => impl.Blocks

@@ -56,7 +56,7 @@ namespace cba
 
         public void VisitImplementation(Implementation node)
         {
-            List<Block> blocks = node.Blocks;
+            List<Block> blocks = node.Blocks.ToList();
             
             clear();
             tinfo.Add(node.Name, new MergingInfo());

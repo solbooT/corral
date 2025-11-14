@@ -48,7 +48,7 @@ namespace CoreLib {
             this.name2Impl = BoogieUtil.nameImplMapping(program);
 
             // TODO Options.ProverLogFilePath, Options.ProverLogFileAppend
-            this.vcgen = new VerificationConditionGenerator(program, new Checker());
+            this.vcgen = new VerificationConditionGenerator(program, new VC.CheckerPool(null));
             // TODO Options.ProverLogFilePath, Options.ProverLogFileAppend, Options.TimeLimit
             this.prover = ProverInterface.CreateProver(null, program, "log.txt");
             this.reporter = new AbstractHoudiniErrorReporter();

@@ -1132,7 +1132,7 @@ namespace cba
             var passInfo = p.ExtractLoops(out procsWithIrreducibleLoops);
 
             // no loops found, then this transformation is identity
-            if (passInfo.Count == 0 && procsWithIrreducibleLoops.Count == 0)
+            if (passInfo.Count() == 0 && procsWithIrreducibleLoops.Count == 0)
                 return null;
 
             if (addUniqueCallLabels)
