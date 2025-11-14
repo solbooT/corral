@@ -49,8 +49,7 @@ namespace CoreLib {
 
             // TODO Options.ProverLogFilePath, Options.ProverLogFileAppend
             this.vcgen = new VerificationConditionGenerator(program, new VC.CheckerPool(null));
-            // TODO Options.ProverLogFilePath, Options.ProverLogFileAppend, Options.TimeLimit
-            this.prover = ProverInterface.CreateProver(null, program, "log.txt");
+            this.prover = ProverInterface.CreateProver(null, program, "prover.log", false/*append to file*/, 5/*seconds*/);
             this.reporter = new AbstractHoudiniErrorReporter();
 
             var impls = new List<Implementation>(
@@ -178,9 +177,7 @@ namespace CoreLib {
                 var vc = gen.AndSimp(env, summaryExpr);
                 vc = gen.Implies(vc, impl2VC[impl.Name]);
                 
-                //Console.WriteLine("Checking: {0}", vc);
-
-                prover.Check(impl.Name, vc, reporter); // TODO: BeginCheck is now async Check
+                prover.Check(impl.Name, vc, 0 /*dead parameter*/ , reporter); // TODO: BeginCheck is now async Check
                 SolverOutcome proverOutcome = prover.CheckOutcome(reporter); // TODO: CheckOutcome changed
                 if (reporter.model == null)
                     break;

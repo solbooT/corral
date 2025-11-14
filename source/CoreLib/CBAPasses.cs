@@ -1129,7 +1129,8 @@ namespace cba
                 old  = BoogieVerify.irreducibleLoopUnroll;
 
             var procsWithIrreducibleLoops = new HashSet<string>();
-            procsWithIrreducibleLoops = LoopExtractor.ExtractLoops(null, p);
+            // TODO migrate procsWithIrreducible with below function
+            var passInfo = LoopExtractor.ExtractLoops(null, p);
 
             // no loops found, then this transformation is identity
             if (procsWithIrreducibleLoops.Count == 0)

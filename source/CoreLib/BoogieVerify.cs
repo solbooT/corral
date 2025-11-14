@@ -267,7 +267,7 @@ namespace cba.Util
                         // Map the trace across loop extraction
                         if (vcgen is VerificationConditionGenerator)
                         {
-                            errors[i] = (vcgen as VerificationConditionGenerator).extractLoopTrace(errors[i], impl.Name, program, extractionInfo);
+                            errors[i] = (vcgen as VerificationConditionGenerator).ExtractLoopTrace(errors[i], impl.Name, program, extractionInfo);
                         }
 
                         if (errors[i] is AssertCounterexample)
@@ -631,7 +631,7 @@ namespace cba.Util
                     break;
             }
 
-            var ret = new AssertCounterexample(newTrace, null, null, trace.Model, trace.MvInfo, trace.Context /* TODO: add ProverContext parameter */);
+            var ret = new AssertCounterexample(null, newTrace, null, null, trace.Model, trace.MvInfo, trace.Context, null /* TODO: add ProverContext parameter */);
             ret.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */ = newTraceCallees;
 
             return ret;

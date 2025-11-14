@@ -532,12 +532,12 @@ namespace CoreLib
                 var key = Tuple.Create(vc, callblock);
                 if (prevAsserted != null && !prevAsserted.Contains(key))
                 {
-                    svc.info.vcgen.prover.Assert(vc.MustReach(callblock, null /* TODO: add ControlFlowIdMap parameter */), true);
+                    svc.info.vcgen.prover.Assert(vc.MustReach(callblock, new ControlFlowIdMap<Absy>()), true);
                     ret.Add(key);
                 }
                 iter = parent[iter];
             }
-            svc.info.vcgen.prover.Assert(svc.MustReach(svc.callSites.First(tup => tup.Value.Contains(iter, null /* TODO: add ControlFlowIdMap parameter */)).Key), true);
+            svc.info.vcgen.prover.Assert(svc.MustReach(svc.callSites.First(tup => tup.Value.Contains(iter, new ControlFlowIdMap<Absy>())).Key), true);
             return ret;
         }
 
