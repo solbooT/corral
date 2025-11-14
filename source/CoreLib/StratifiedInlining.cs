@@ -170,7 +170,7 @@ namespace CoreLib
         public static int StackDepthBound = 0;
 
         public Stats stats;
-
+        
         /* call-site to VC map -- used for trace construction */
         public Dictionary<StratifiedCallSite, StratifiedVC> attachedVC;
         public Dictionary<StratifiedVC, StratifiedCallSite> attachedVCInv;
@@ -784,7 +784,7 @@ namespace CoreLib
             {
                 IndexC = new IndexComputer(SI.info.vcgen.program);
                 var impls = new Dictionary<string, Implementation>();
-                SI.info.implName2StratifiedInliningInfo.ForEach(tup => impls.Add(tup.Key, tup.Value.impl));
+                SI.info.vcgen.implName2StratifiedInliningInfo.ForEach(tup => impls.Add(tup.Key, tup.Value.Implementation));
                 Disj = new ProgramDisjointness(impls);
 
                 currentDag = new DagOracle(SI.info.vcgen.program, Disj, SI.extraRecBound);
@@ -2889,7 +2889,7 @@ namespace CoreLib
             }
 
             Block lastBlock = (Block)absyList[absyList.Count - 2];
-            Counterexample newCounterexample = VerificationConditionGenerator.AssertCmdToCounterexample(null, assertCmd, lastBlock.TransferCmd, trace, null, model, svc.info.mvInfo, si.info.vcgen.prover.Context);
+            Counterexample newCounterexample = VerificationConditionGenerator.AssertCmdToCounterexample(null, assertCmd, lastBlock.TransferCmd, trace, null, model, svc.info.mvInfo, si.info.vcgen.prover.Context, null);
             newCounterexample.AddCalleeCounterexample(CalleeCounterexamples);
             return newCounterexample;
         }

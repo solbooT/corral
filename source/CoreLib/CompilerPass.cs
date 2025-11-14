@@ -737,9 +737,6 @@ namespace cba
         {
             var impls = program.TopLevelDeclarations.OfType<Implementation>();
 
-            if (Options.InlineDepth < 0)
-                return;
-
             foreach (Implementation impl in impls)
             {
                 var inlineEnsuresVisitor = new Microsoft.Boogie.Houdini.InlineEnsuresVisitor();

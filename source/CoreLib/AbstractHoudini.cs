@@ -177,8 +177,7 @@ namespace CoreLib {
                 var vc = gen.AndSimp(env, summaryExpr);
                 vc = gen.Implies(vc, impl2VC[impl.Name]);
                 
-                prover.Check(impl.Name, vc, 0 /*dead parameter*/ , reporter); // TODO: BeginCheck is now async Check
-                SolverOutcome proverOutcome = prover.Check(reporter).Result; // TODO: CheckOutcome changed
+                SolverOutcome proverOutcome = prover.Check(impl.Name, vc, reporter, 0, System.Threading.CancellationToken.None).Result;
                 if (reporter.model == null)
                     break;
                 
@@ -310,9 +309,10 @@ namespace CoreLib {
         {
             ModelViewInfo mvInfo;
             ControlFlowIdMap<Absy> label2absy = new ControlFlowIdMap<Absy>();
+            var run = new ImplementationRun(impl, new System.IO.StringWriter());
 
-            vcgen.ConvertCFG2DAG(impl);
-            vcgen.PassifyImpl(impl, out mvInfo);
+            new VCGeneration.Transformations.RemoveBackEdges(vcgen).ConvertCfg2Dag(run);
+            vcgen.PassifyImpl(run, out mvInfo);
 
             var gen = prover.VCExprGen;
             var vcexpr = vcgen.GenerateVC(impl, null, label2absy, prover.Context);

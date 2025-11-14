@@ -314,7 +314,6 @@ namespace CoreLib
         static HashSet<string> ProveCandidates(ProverInterface prover, Dictionary<string, VCExpr> constantToAssertedExpr, List<Tuple<string, VCExpr, VCExpr>> constantToAssumedExpr, HashSet<string> candidates)
         {
             var remaining = new HashSet<string>(candidates);
-            var reporter = new EmptyErrorReporter();
             var failed = new HashSet<string>();
 
             // for dual houdini, we have to iterate once around to the loop
@@ -390,8 +389,7 @@ namespace CoreLib
                     prover.Assert(torecord, true);
                 }
 
-                prover.Check();
-                var outcome = prover.Check( /* TODO: CheckOutcoreCore changed */reporter).Result;
+                var outcome = prover.Check("", VCExpressionGenerator.True, null, 0, System.Threading.CancellationToken.None).Result;
 
                 // check which ones failed
                 if (outcome == SolverOutcome.Invalid || outcome == SolverOutcome.Undetermined)

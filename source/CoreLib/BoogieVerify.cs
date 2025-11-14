@@ -181,15 +181,13 @@ namespace cba.Util
                 if (PrintImplsBeingVerified)
                     Log.WriteLine(Log.Verbose, "Verifying implementation " + impl.Name);
 
-                List<Counterexample> errors;
-
                 VcOutcome outcome;
 
                 try
                 {
                     var start = DateTime.Now;
 
-                    outcome = vcgen.VerifyImplementation(impl, out errors);
+                    outcome = vcgen.VerifyImplementation(impl, new VerifierCallback(new CoreOptions.ProverWarnings()), System.Threading.CancellationToken.None).Result;
 
                     var end = DateTime.Now;
 
@@ -202,15 +200,11 @@ namespace cba.Util
                 catch (VC.VCGenException e)
                 {
                     throw new InternalError("VCGenException: " + e.Message);
-                    //errors = null;
-                    //outcome = VcOutcome.Inconclusive;
                 }
                 catch (UnexpectedProverOutputException upo)
                 {
 
                     throw new InternalError("Unexpected prover output: " + upo.Message);
-                    //errors = null;
-                    //outcome = VcOutcome.Inconclusive;
                 }
 
                 switch (outcome)
@@ -218,73 +212,22 @@ namespace cba.Util
                     case VcOutcome.Correct:
                         break;
                     case VcOutcome.Errors:
+                        ret = ReturnStatus.NOK;
                         break;
                     case VcOutcome.Inconclusive:
                         throw new InternalError("z3 says inconclusive");
                     case VcOutcome.OutOfMemory:
-                        // wipe out any counterexamples
-                        timedOut.Add(impl.Name); errors = new List<Counterexample>();
+                        timedOut.Add(impl.Name);
                         break;
                     case VcOutcome.OutOfResource:
                     case VcOutcome.TimedOut:
-                        // wipe out any counterexamples
-                        timedOut.Add(impl.Name); errors = new List<Counterexample>();
+                        timedOut.Add(impl.Name);
                         break;
                     default:
                         throw new InternalError("z3 unknown response");
                 }
-
-                Log.WriteLine(Log.Debug, outcome.ToString());
-
-                Log.WriteLine(Log.Debug, (errors == null ? 0 : errors.Count) + " counterexamples.");
-                if (errors != null) ret = ReturnStatus.NOK;
-
-                // Print model
-                if (errors != null && errors.Count > 0 && errors[0].Model != null && Options.ModelViewFile != null)
-                {
-                    var model = errors[0].Model;
-                    var cnt = 0;
-                    model.States.ForEach(st =>
-                    {
-                        if (st.Name.StartsWith("corral"))
-                        {
-                            st.ChangeName(st.Name + "_" + cnt.ToString()); cnt++;
-                        }
-                    });
-
-                    using (var wr = new StreamWriter(Options.ModelViewFile, false))
-                    {
-                        model.Write(wr);
-                    }
-                }
-
-                if (errors != null && needErrorTraces)
-                {
-                    for (int i = 0; i < errors.Count; i++)
-                    {
-                        //errors[i].Print(1, Console.Out);
-
-                        // Map the trace across loop extraction
-                        if (vcgen is VerificationConditionGenerator)
-                        {
-                            errors[i] = (vcgen as VerificationConditionGenerator).ExtractLoopTrace(errors[i], impl.Name, program, extractionInfo);
-                        }
-
-                        if (errors[i] is AssertCounterexample)
-                        {
-                            // Special treatment for assert counterexamples for CBA: Reconstruct
-                            // trace in the input program.
-                            ReconstructImperativeTrace(errors[i], impl.Name, origProg);
-                            allErrors.Add(new BoogieAssertErrorTrace(errors[i] as AssertCounterexample, origProg[impl.Name], program));
-                        }
-                        else
-                        {
-                            allErrors.Add(new BoogieErrorTrace(errors[i], origProg[impl.Name], program));
-                        }
-                    }
-                }
-
             }
+
             procsHitRecBound = (vcgen as VC.StratifiedInliningInfo).procsHitRecBound;
 
             Debug.Assert(vcgen is CoreLib.StratifiedInlining);

@@ -1,0 +1,15 @@
+1. StratifiedInlining.cs:2724 - label2absy n'existe plus → Utiliser vcgen.Label2absy ou stocker label2absy localement
+2. StratifiedInlining.cs:2761 - CalculatePath() supprimé → Utiliser result.GetPath() du SolverOutcome
+3. BoogieVerify.cs:165,316 - Constructeur StratifiedInlining → Ajouter troisième paramètre (probablement CancellationToken ou options)
+4. BoogieVerify.cs:192 - Manque CancellationToken → Ajouter CancellationToken.None comme dernier paramètre
+5. BoogieVerify.cs:288 - Cast invalide → Accéder à siInfo.StratifiedInliningInfo ou restructurer
+6. AbstractHoudini.cs:180 - Manque CancellationToken → Ajouter CancellationToken.None comme dernier paramètre
+7. AbstractHoudini.cs:181 - Manque paramètre 'vc' → Passer l'objet VCExpr en premier paramètre à Check()
+8. StratifiedInlining.cs:2892 - Manque 'split' → Ajouter null ou new Split() comme dernier paramètre
+9. AbstractHoudini.cs:314 - ConvertCFG2DAG supprimé → Appeler PassifyImpl() ou gérer DAG différemment
+10. AbstractHoudini.cs:315 - Implementation → ImplementationRun → Créer ImplementationRun avec new ImplementationRun(impl, outputCollector)
+11. HoudiniLite.cs:73 - Constructeur StratifiedInlining → Ajouter troisième paramètre (CancellationToken ou options)
+12. StratifiedInlining.cs:787 - implName2StratifiedInliningInfo supprimé → Utiliser structure partagée ou passer en paramètre
+13. StratifiedInlining.cs:166 - Manque 'siInfo' → Passer this ou l'objet StratifiedInliningInfo approprié
+14. CompilerPass.cs:740 - Options non statique → Utiliser une instance ou rendre Options statique
+15. HoudiniLite.cs:317 - EmptyErrorReporter supprimé → Utiliser new NullErrorReporter() ou implémenter IErrorReporter vide
