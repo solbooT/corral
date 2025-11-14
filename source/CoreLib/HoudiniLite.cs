@@ -70,7 +70,7 @@ namespace CoreLib
         public static CommandLineOptions Options;
 
         public HoudiniInlining(Program program, string logFilePath, bool appendLogFile, Action<Implementation> PassiveImplInstrumentation) :
-            base(program, logFilePath, appendLogFile, PassiveImplInstrumentation)
+            base(program, PassiveImplInstrumentation)
         {
         }
 

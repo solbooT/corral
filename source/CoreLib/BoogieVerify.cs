@@ -285,7 +285,7 @@ namespace cba.Util
                 }
 
             }
-            procsHitRecBound = (vcgen as CoreLib.StratifiedInliningInfo).procsHitRecBound;
+            procsHitRecBound = (vcgen as VC.StratifiedInliningInfo).procsHitRecBound;
 
             Debug.Assert(vcgen is CoreLib.StratifiedInlining);
 

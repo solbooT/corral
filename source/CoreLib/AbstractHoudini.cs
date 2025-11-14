@@ -312,13 +312,13 @@ namespace CoreLib {
         private void GenVC(Implementation impl)
         {
             ModelViewInfo mvInfo;
-            Dictionary<int, Absy> label2absy;
+            ControlFlowIdMap<Absy> label2absy = new ControlFlowIdMap<Absy>();
 
             vcgen.ConvertCFG2DAG(impl);
             vcgen.PassifyImpl(impl, out mvInfo);
 
             var gen = prover.VCExprGen;
-            var vcexpr = vcgen.GenerateVC(impl, null, out label2absy, prover.Context);
+            var vcexpr = vcgen.GenerateVC(impl, null, label2absy, prover.Context);
 
             // Create a macro so that the VC can sit with the theorem prover
             Macro macro = new Macro(Token.NoToken, impl.Name + "Macro", new List<Variable>(), new Formal(Token.NoToken, new TypedIdent(Token.NoToken, "", Bpl.Type.Bool), false));
