@@ -537,7 +537,7 @@ namespace CoreLib
                 }
                 iter = parent[iter];
             }
-            svc.info.vcgen.prover.Assert(svc.MustReach(svc.callSites.First(tup => tup.Value.Contains(iter, new ControlFlowIdMap<Absy>())).Key), true);
+            svc.info.vcgen.prover.Assert(svc.MustReach(svc.callSites.First(tup => tup.Value.Contains(iter)).Key, new ControlFlowIdMap<Absy>()), true);
             return ret;
         }
 
@@ -2784,7 +2784,7 @@ namespace CoreLib
                 Block next = null;
                 foreach (var succ in gc.LabelTargets)
                 {
-                    var succtaken = svc.info.vcgen.prover.Evaluate(svc.blockToControlVar[succ]).Result;
+                    var succtaken = (bool)svc.info.vcgen.prover.Evaluate(svc.blockToControlVar[succ]).Result;
                     if (succtaken)
                     {
                         next = succ;
@@ -2889,7 +2889,7 @@ namespace CoreLib
             }
 
             Block lastBlock = (Block)absyList[absyList.Count - 2];
-            Counterexample newCounterexample = VerificationConditionGenerator.AssertCmdToCounterexample(assertCmd, lastBlock.TransferCmd, trace, null, model, svc.info.mvInfo, si.info.vcgen.prover.Context);
+            Counterexample newCounterexample = VerificationConditionGenerator.AssertCmdToCounterexample(null, assertCmd, lastBlock.TransferCmd, trace, null, model, svc.info.mvInfo, si.info.vcgen.prover.Context);
             newCounterexample.AddCalleeCounterexample(CalleeCounterexamples);
             return newCounterexample;
         }

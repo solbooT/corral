@@ -391,7 +391,7 @@ namespace CoreLib
                 }
 
                 prover.Check();
-                var outcome = prover.CheckAsync( /* TODO: CheckOutcoreCore changed */reporter);
+                var outcome = prover.Check( /* TODO: CheckOutcoreCore changed */reporter).Result;
 
                 // check which ones failed
                 if (outcome == SolverOutcome.Invalid || outcome == SolverOutcome.Undetermined)

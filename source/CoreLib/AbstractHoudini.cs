@@ -178,7 +178,7 @@ namespace CoreLib {
                 vc = gen.Implies(vc, impl2VC[impl.Name]);
                 
                 prover.Check(impl.Name, vc, 0 /*dead parameter*/ , reporter); // TODO: BeginCheck is now async Check
-                SolverOutcome proverOutcome = prover.CheckOutcome(reporter); // TODO: CheckOutcome changed
+                SolverOutcome proverOutcome = prover.Check(reporter).Result; // TODO: CheckOutcome changed
                 if (reporter.model == null)
                     break;
                 

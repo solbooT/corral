@@ -631,8 +631,8 @@ namespace cba.Util
                     break;
             }
 
-            var ret = new AssertCounterexample(null, newTrace, null, null, trace.Model, trace.MvInfo, trace.Context, null /* TODO: add ProverContext parameter */);
-            ret.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */ = newTraceCallees;
+            var ret = new AssertCounterexample(null, newTrace, null, null, trace.Model, trace.MvInfo, trace.Context, null);
+            ret.CalleeCounterexamples = newTraceCallees;
 
             return ret;
         }
