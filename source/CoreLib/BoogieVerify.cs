@@ -187,7 +187,7 @@ namespace cba.Util
                 {
                     var start = DateTime.Now;
 
-                    outcome = vcgen.VerifyImplementation(impl, new VerifierCallback(new CoreOptions.ProverWarnings()), System.Threading.CancellationToken.None).Result;
+                    outcome = vcgen.VerifyImplementation(new ImplementationRun(impl, System.Console.Out), new VerifierCallback(new CoreOptions.ProverWarnings()), System.Threading.CancellationToken.None).Result;
 
                     var end = DateTime.Now;
 
@@ -228,7 +228,8 @@ namespace cba.Util
                 }
             }
 
-            procsHitRecBound = (vcgen as VC.StratifiedInliningInfo).procsHitRecBound;
+            // TODOOOOO
+            // procsHitRecBound = (vcgen as VC.StratifiedInliningInfo).procsHitRecBound;
 
             Debug.Assert(vcgen is CoreLib.StratifiedInlining);
 
