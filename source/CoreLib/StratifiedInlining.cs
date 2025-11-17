@@ -163,12 +163,11 @@ namespace CoreLib
     ****************************************/
 
     /* stratified inlining technique */
-    public class StratifiedInlining : StratifiedVC
+    public class StratifiedInlining : StratifiedVerificationConditionGeneratorBase
     {
         public static readonly string ForceInlineAttr = "ForceInline";
         public static int StratifiedInliningVerbose = 0;
         public static int StackDepthBound = 0;
-
         public Stats stats;
         
         /* call-site to VC map -- used for trace construction */
@@ -214,6 +213,132 @@ namespace CoreLib
         public HashSet<string> GetCallTree()
         {
             return CallTree;
+        }
+
+        public StratifiedInlining(Program program, string logFilePath, bool appendLogFile, Action<Implementation> PassiveImplInstrumentation) :
+            base(program, logFilePath, appendLogFile, new List<Checker>(), PassiveImplInstrumentation)
+        {
+            stats = new Stats();
+
+            this.extraRecBound = new Dictionary<string, int>();
+            program.TopLevelDeclarations.OfType<Implementation>()
+                .ForEach(impl =>
+                {
+                    var b = QKeyValue.FindIntAttribute(impl.Attributes, BoogieVerify.ExtraRecBoundAttr, -1);
+                    if (b != -1) extraRecBound.Add(impl.Name, b);
+                });
+
+            if (cba.Util.BoogieVerify.Options.useFwdBck)
+            {
+                RunInitialAnalyses(program);
+            }
+
+            attachedVC = new Dictionary<StratifiedCallSite, StratifiedVC>();
+            attachedVCInv = new Dictionary<StratifiedVC, StratifiedCallSite>();
+            parent = new Dictionary<StratifiedCallSite, StratifiedCallSite>();
+            implementations = new HashSet<string>(implName2StratifiedInliningInfo.Keys);
+
+            forceInlineProcs = new HashSet<string>();
+
+            controlBoolean = new Dictionary<StratifiedVC, VCExpr>();
+            di = new DI(this, true);
+
+            if (BoogieVerify.Options.extraFlags.Contains("do") || BoogieVerify.Options.extraFlags.Contains("doslow"))
+            {
+                Console.WriteLine("============= DAG Oracle ============");
+                
+                var sttime = DateTime.Now;
+                DagOracle dago = null;
+                var treesize = 0;
+                
+                if (BoogieVerify.Options.extraFlags.Contains("doslow"))
+                {
+                    dago = DagOracle.ConstructCallDag(program, extraRecBound);
+                    dago.Dump("tree.dot");
+                    treesize = dago.ComputeSize();
+                    dago.Compress();
+                }
+                else
+                {
+                    dago = new DagOracle(program, extraRecBound);
+                    treesize = dago.ConstructCallDagOnTheFly(false, DI.PickStrategy());
+                }
+                var compresstime = (DateTime.Now - sttime);
+
+                Console.WriteLine("Compression: {0} {1}", dago.ComputeSize(), treesize == 0 ? dago.ComputeDagSizes() : treesize);
+                Console.WriteLine("Compression time: {0} seconds", compresstime.TotalSeconds.ToString("F2"));
+
+                dago.Dump("dag.dot");
+                Debug.Assert(treesize == 0 || treesize == dago.ComputeDagSizes());
+                dago.CheckSanity();
+                Console.WriteLine("Compressed dag sanity confirmed");
+                Console.WriteLine("=====================================");
+                throw new NormalExit("Done");
+            }
+        }
+
+        public override VcOutcome FindLeastToVerify(Implementation impl, ref HashSet<string> allBoolVars)
+        {
+            /* TODO
+            var name2VC = new Dictionary<string, StratifiedVC>();
+            var getSVC = new Func<string, StratifiedVC>(name =>
+                {
+                    if (name2VC.ContainsKey(name))
+                        return name2VC[name];
+                    var tt = new StratifiedVC(implName2StratifiedInliningInfo[name], implementations);
+                    name2VC.Add(name, tt);
+                    return tt;
+                });
+
+            Push();
+
+            StratifiedVC svc = getSVC(impl.Name);
+            HashSet<StratifiedCallSite> openCallSites = new HashSet<StratifiedCallSite>(svc.CallSites);
+            prover.Assert(svc.vcexpr, true);
+
+            HashSet<StratifiedCallSite> nextOpenCallSites;
+            while (openCallSites.Count != 0)
+            {
+                nextOpenCallSites = new HashSet<StratifiedCallSite>();
+                foreach (StratifiedCallSite scs in openCallSites)
+                {
+                    svc = getSVC(scs.callSite.calleeName);
+                    foreach (var newCallSite in svc.CallSites)
+                    {
+                        nextOpenCallSites.Add(newCallSite);
+                    }
+                    var toassert = scs.Attach(svc);
+                    toassert = prover.VCExprGen.Implies(scs.callSiteExpr, toassert);
+                    prover.Assert(toassert, true);
+                }
+                openCallSites = nextOpenCallSites;
+            }
+
+            // Find all the boolean constants
+            var allConsts = new HashSet<VCExprVar>();
+            foreach (var decl in program.TopLevelDeclarations)
+            {
+                var constant = decl as Constant;
+                if (constant == null) continue;
+                if (!allBoolVars.Contains(constant.Name)) continue;
+                var v = prover.Context.BoogieExprTranslator.LookupVariable(constant);
+                allConsts.Add(v);
+            }
+
+            // Now, lets start the algo
+            var min = refinementLoop(new EmptyErrorReporter(), new HashSet<VCExprVar>(), allConsts, allConsts);
+
+            var ret = new HashSet<string>();
+            foreach (var v in min)
+            {
+                ret.Add(v.Name);
+            }
+            allBoolVars = ret;
+
+            Pop();
+            
+            */
+            return VcOutcome.Correct;
         }
 
         /* initial analyses */
@@ -2718,12 +2843,14 @@ namespace CoreLib
             return svc.id;
         }
 
+        /* TODO
         private Absy Label2Absy(string procName, string label)
         {
             int id = int.Parse(label);
             var l2a = si.info.vcgen.implName2StratifiedInliningInfo[procName].label2absy;
             return (Absy)l2a[id];
         }
+        */
 
         public override void OnProverError(string message)
         {
@@ -2758,13 +2885,16 @@ namespace CoreLib
         {
             if (labels == null)
             {
-                labels = si.info.vcgen.prover.CalculatePath(svc.id);
+                // TODOOO
+                //labels = si.info.vcgen.prover.CalculatePath(svc.id, System.Threading.CancellationToken.None);
             }
             var ret = new List<Absy>();
+            /* TODOOOO
             foreach (var label in labels)
             {
                 ret.Add(Label2Absy(svc.info.Implementation.Name, label));
             }
+            */
             return ret;
         }
 

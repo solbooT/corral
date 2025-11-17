@@ -162,7 +162,7 @@ namespace cba.Util
             try
             {
                 Debug.Assert(Options.StratifiedInlining > 0);
-                vcgen = new CoreLib.StratifiedInlining(program, null);
+                vcgen = new CoreLib.StratifiedInlining(program, "prover.log", true, null);
             }
             catch (ProverException e)
             {
@@ -256,7 +256,7 @@ namespace cba.Util
             StratifiedVerificationConditionGeneratorBase vcgen = null;
             try
             {
-                vcgen = new CoreLib.StratifiedInlining(program, null);
+                vcgen = new CoreLib.StratifiedInlining(program, "prover.log", true, null);
             }
             catch (ProverException)
             {
