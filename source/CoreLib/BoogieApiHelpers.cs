@@ -11,6 +11,7 @@ using VC;
 using Microsoft.BaseTypes;
 using BType = Microsoft.Boogie.Type;
 using Microsoft.Boogie.GraphUtil;
+using System.Text.RegularExpressions;
 
 namespace CoreLib
 {
@@ -80,6 +81,11 @@ namespace CoreLib
                 }
             }
             return null;
+        }
+        public static bool UserWantsToCheckRoutine(string methodFullname)
+        {
+            Func<string, bool> match = s => Regex.IsMatch(methodFullname, "^" + Regex.Escape(s).Replace(@"\*", ".*") + "$");
+            return (Clo.clo.ProcsToCheck.Count == 0 || Clo.clo.ProcsToCheck.Any(match)) && !Clo.clo.ProcsToIgnore.Any(match);
         }
     }
 }

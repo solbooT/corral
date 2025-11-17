@@ -1280,7 +1280,7 @@ namespace ExplainError
         private static bool CheckSanity(Implementation impl)
         {
             if (impl == null) { returnStatus = STATUS.ILLEGAL; return false; }
-            if (!Clo.clo.UserWantsToCheckRoutine(impl.Name))
+            if (!CoreLib.BoogieApiHelpers.UserWantsToCheckRoutine(impl.Name))
             {
                 returnStatus = STATUS.ILLEGAL; return false;
             }
