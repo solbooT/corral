@@ -32,7 +32,7 @@ namespace ExplainError
         public void Run()
         {
             Console.WriteLine("Performing ControlFlowDependencyPrePass.....\n");
-            (new ModSetCollector()).DoModSetAnalysis(prog);
+            (new ModSetCollector(null)).DoModSetAnalysis(prog);
             prog.Implementations.ForEach(impl => (new SplitBranchBlocks(impl)).Run());
             prog.Implementations.ForEach(impl => (new IntraProcModSetComputerPerImpl(this, impl)).Run());
             // Add place holders for variables/blocks

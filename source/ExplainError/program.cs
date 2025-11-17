@@ -1155,10 +1155,16 @@ namespace ExplainError
             string[] args;
             //Custom parser to look and remove RootCause specific options
             var help = ParseArgs(oldArgs, out args);
+            /* TODOOO
             CommandLineOptions.Install(new CommandLineOptions());
             CommandLineOptions.RunningBoogieFromCommandLine = true;
             CommandLineOptions.TypeEncodingMethod = CommandLineOptions.TypeEncoding.Monomorphic;
             CommandLineOptions.Parse(args);
+
+            Clo.clo.RunningBoogieFromCommandLine = true;
+            Clo.clo.TypeEncodingMethod = CommandLineOptions.TypeEncoding.Monomorphic;
+            */
+            Clo.clo = CommandLineOptions.FromArguments(System.Console.Out, args);
             return !help;
         }
         public static bool CheckBooleanFlag(string s, string flagName, ref bool flag, bool valueWhenPresent)
@@ -1305,7 +1311,7 @@ namespace ExplainError
         private static void CreateProver()
         {
             //create vcgen/proverInterface
-            vcgen = new VCGen(prog, CommandLineOptions.ProverLogFilePath, CommandLineOptions.ProverLogFileAppend, new List<Checker>());
+            vcgen = new VCGen(prog, Clo.clo.ProverLogFilePath, Clo.clo.ProverLogFileAppend, new List<Checker>());
             proverInterface = ProverInterface.CreateProver(null,prog, CommandLineOptions.ProverLogFilePath, CommandLineOptions.ProverLogFileAppend, CommandLineOptions.TimeLimit);
             translator = proverInterface.Context.BoogieExprTranslator;
             exprGen = proverInterface.Context.ExprGen;
@@ -1352,8 +1358,7 @@ namespace ExplainError
                 ref List<Counterexample> cexList)
             {
                 //this creates a z3 process per vcgen
-                var checkers = new List<Checker>();
-                VC.VCGen vcgen = new VC.VCGen(prog, CommandLineOptions.ProverLogFilePath, CommandLineOptions.ProverLogFileAppend, checkers);
+                VerificationConditionGenerator vcgen = new VerificationConditionGenerator(prog, CommandLineOptions.ProverLogFilePath, CommandLineOptions.ProverLogFileAppend, new CheckerPool(null));
                 //make deep copy of the blocks
                 var tmpBlocks = new List<Block>();
                 foreach (Block b in i.Blocks)
@@ -1372,11 +1377,7 @@ namespace ExplainError
                 var outcome = vcgen.VerifyImplementation((Implementation)i, out cexList);
                 var reset = new ResetVerificationState();
                 reset.Visit(i);
-                foreach (Checker checker in checkers)
-                {
-                    //Contract.Assert(checker != null);
-                    checker.Close();
-                }
+                
                 vcgen.Close();
                 i.Blocks = tmpBlocks;
                 i.LocVars = tmpLocVars;
