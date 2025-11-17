@@ -901,24 +901,24 @@ namespace CoreLib
 
             IndexC = null;
             Disj = null;
-            currentDag = new DagOracle(SI.info.vcgen.program, null);
+            currentDag = new DagOracle(SI.program, null);
             vcNodeMap = new BijectiveDictionary<StratifiedVC, DagOracle.DagNode>();
             currentOptNodeMapping = new BijectiveDictionary<DagOracle.DagNode, DagOracle.DagNode>();
 
             if (!disabled)
             {
-                IndexC = new IndexComputer(SI.info.vcgen.program);
+                IndexC = new IndexComputer(SI.program);
                 var impls = new Dictionary<string, Implementation>();
-                SI.info.vcgen.implName2StratifiedInliningInfo.ForEach(tup => impls.Add(tup.Key, tup.Value.Implementation));
+                SI.implName2StratifiedInliningInfo.ForEach(tup => impls.Add(tup.Key, tup.Value.Implementation));
                 Disj = new ProgramDisjointness(impls);
 
-                currentDag = new DagOracle(SI.info.vcgen.program, Disj, SI.extraRecBound);
+                currentDag = new DagOracle(SI.program, Disj, SI.extraRecBound);
 
                 strategy = PickStrategy();
                 
                 if (strategy == MERGING_STRATEGY.OPT && optimalDag == null)
                 {
-                    optimalDag = new DagOracle(SI.info.vcgen.program, Disj, SI.extraRecBound);
+                    optimalDag = new DagOracle(SI.program, Disj, SI.extraRecBound);
                     var tsize = optimalDag.ConstructCallDagOnTheFly(true, strategy);
                     Console.WriteLine("Constructed optimal dag, with {0} nodes (max {1})", optimalDag.ComputeSize(), tsize);
                 }
@@ -2867,7 +2867,7 @@ namespace CoreLib
             });
 
             var t2 =
-                System.Threading.Tasks.Task.Run(() => { si.info.vcgen.prover.Close(); });
+                System.Threading.Tasks.Task.Run(() => { si.prover.Close(); });
 
             System.Threading.Tasks.Task.WaitAll(t1, t2);
         }
@@ -3019,7 +3019,7 @@ namespace CoreLib
             }
 
             Block lastBlock = (Block)absyList[absyList.Count - 2];
-            Counterexample newCounterexample = VerificationConditionGenerator.AssertCmdToCounterexample(null, assertCmd, lastBlock.TransferCmd, trace, null, model, svc.info.mvInfo, si.info.vcgen.prover.Context, null);
+            Counterexample newCounterexample = VerificationConditionGenerator.AssertCmdToCounterexample(null, assertCmd, lastBlock.TransferCmd, trace, null, model, svc.info.mvInfo, si.prover.Context, null);
             newCounterexample.AddCalleeCounterexample(CalleeCounterexamples);
             return newCounterexample;
         }
