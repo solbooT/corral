@@ -83,10 +83,10 @@ namespace ExplainError
         static private Implementation currImpl;
         static private Expr currPre; //the current pre under consideration
         /* vcgen related state */
-        static private VCGen vcgen;
+        static private VerificationConditionGenerator vcgen;
         static private ProverInterface proverInterface;
         //static private ProverInterface.ErrorHandler handler;
-        static private ConditionGeneration.CounterexampleCollector collector;
+        static private ConditionGeneration.CounterExampleCollector collector;
         static private Boogie2VCExprTranslator translator;
         static private VCExpressionGenerator exprGen;
 
@@ -1348,7 +1348,7 @@ namespace ExplainError
                 return result;
             }
             //routines for querying the verifier
-            public static VC.ConditionGeneration.Outcome MyVerifyImplementation(Implementation i,
+            public static VcOutcome MyVerifyImplementation(Implementation i,
                 ref List<Counterexample> cexList)
             {
                 //this creates a z3 process per vcgen
@@ -1382,7 +1382,7 @@ namespace ExplainError
                 i.LocVars = tmpLocVars;
                 return outcome;
             }
-            public static VC.ConditionGeneration.Outcome MyVerifyImplementation(Implementation i)
+            public static VcOutcome MyVerifyImplementation(Implementation i)
             {
                 List<Counterexample> cexs = new List<Counterexample>();
                 return MyVerifyImplementation(i, ref cexs);
