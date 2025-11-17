@@ -481,7 +481,8 @@ namespace ExplainError
                     oldExpr.ToString().Contains("!="))) continue;
 
                 assumeCmd.Expr = Expr.Not(oldExpr);
-                prog.Resolve(); prog.Typecheck(null); //TODO: perhaps move this inside MyVerifyImplementation?
+                prog.Resolve(Clo.clo);
+                prog.Typecheck(null); //TODO: perhaps move this inside MyVerifyImplementation?
                 Console.WriteLine("Checking the assume {0} ", assumeCmd);
                 if (VCVerifier.MyVerifyImplementation(currImpl) == VcOutcome.Correct)
                 {
@@ -1261,7 +1262,7 @@ namespace ExplainError
                 Console.WriteLine("WARNING: Error opening file \"{0}\": {1}", fname, e.Message);
                 return false;
             }
-            errCount = prog.Resolve();
+            errCount = prog.Resolve(Clo.clo);
             if (errCount > 0)
             {
                 Console.WriteLine("WARNING: {0} name resolution errors in {1}", errCount, fname);
@@ -1279,7 +1280,7 @@ namespace ExplainError
         private static bool CheckSanity(Implementation impl)
         {
             if (impl == null) { returnStatus = STATUS.ILLEGAL; return false; }
-            if (!CommandLineOptions.UserWantsToCheckRoutine(impl.Name))
+            if (!Clo.clo.UserWantsToCheckRoutine(impl.Name))
             {
                 returnStatus = STATUS.ILLEGAL; return false;
             }
@@ -1311,8 +1312,8 @@ namespace ExplainError
         private static void CreateProver()
         {
             //create vcgen/proverInterface
-            vcgen = new VCGen(prog, Clo.clo.ProverLogFilePath, Clo.clo.ProverLogFileAppend, new List<Checker>());
-            proverInterface = ProverInterface.CreateProver(null,prog, CommandLineOptions.ProverLogFilePath, CommandLineOptions.ProverLogFileAppend, CommandLineOptions.TimeLimit);
+            vcgen = new VerificationConditionGenerator(prog, Clo.clo.ProverLogFilePath, Clo.clo.ProverLogFileAppend, new List<Checker>());
+            proverInterface = ProverInterface.CreateProver(null,prog, Clo.clo.ProverLogFilePath, Clo.clo.ProverLogFileAppend, Clo.clo.TimeLimit);
             translator = proverInterface.Context.BoogieExprTranslator;
             exprGen = proverInterface.Context.ExprGen;
             // TODOO collector = new ConditionGeneration.CounterexampleCollector();
@@ -1341,12 +1342,12 @@ namespace ExplainError
                 var cexList = new List<Counterexample>();
                 prog.AddTopLevelDeclaration(i);
                 prog.AddTopLevelDeclaration(p);
-                prog.Resolve();
+                prog.Resolve(Clo.clo);
                 prog.Typecheck(null);
                 var result = (MyVerifyImplementation(i, ref cexList) == VC.VcOutcome.Correct);
                 prog.RemoveTopLevelDeclaration(i);
                 prog.RemoveTopLevelDeclaration(p);
-                prog.Resolve();
+                prog.Resolve(Clo.clo);
                 prog.Typecheck(null);
                 Console.Write(".");
                 if (verbose) Console.WriteLine("CheckIfExprFalse: input {0}, output {1}", e.ToString(), result);
@@ -1358,7 +1359,7 @@ namespace ExplainError
                 ref List<Counterexample> cexList)
             {
                 //this creates a z3 process per vcgen
-                VerificationConditionGenerator vcgen = new VerificationConditionGenerator(prog, CommandLineOptions.ProverLogFilePath, CommandLineOptions.ProverLogFileAppend, new CheckerPool(null));
+                VerificationConditionGenerator vcgen = new VerificationConditionGenerator(prog, Clo.clo.ProverLogFilePath, Clo.clo.ProverLogFileAppend, new CheckerPool(null));
                 //make deep copy of the blocks
                 var tmpBlocks = new List<Block>();
                 foreach (Block b in i.Blocks)
@@ -1374,7 +1375,7 @@ namespace ExplainError
                     i.Blocks = i.OriginalBlocks;
                     i.LocVars = i.OriginalLocVars;
                 }
-                var outcome = vcgen.VerifyImplementation((Implementation)i, out cexList);
+                var outcome = vcgen.VerifyImplementation(new ImplementationRun(i, System.Console.Out), /*TODO cexList */new VerifierCallback(Clo.clo.PrintProverWarnings), System.Threading.CancellationToken.None).Result;
                 var reset = new ResetVerificationState();
                 reset.Visit(i);
                 

@@ -183,7 +183,7 @@ namespace ExplainError
             private void FindBranchJoinPairs()
             {
                 impl.ComputePredecessorsForBlocks();
-                var blockGraph = parent.prog.ProcessLoops(impl);
+                var blockGraph = parent.prog.ProcessLoops(Clo.clo, impl);
                 //(branch node) n -> all nodes for which n is the immediate dominator (then, else, join-if-not-return)
                 var immDomMap = blockGraph.ImmediateDominatorMap;
                 #region Other dominator datastructures, not used
