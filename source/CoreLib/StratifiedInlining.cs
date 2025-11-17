@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
 using System.Diagnostics;
 using Microsoft.Boogie;
 using Microsoft.Boogie.VCExprAST;
@@ -216,7 +217,7 @@ namespace CoreLib
         }
 
         public StratifiedInlining(Program program, string logFilePath, bool appendLogFile, Action<Implementation> PassiveImplInstrumentation) :
-            base(program, logFilePath, appendLogFile, new List<Checker>(), PassiveImplInstrumentation)
+            base(System.Console.Out, null, program, logFilePath, appendLogFile, new CheckerPool(null), PassiveImplInstrumentation)
         {
             stats = new Stats();
 
