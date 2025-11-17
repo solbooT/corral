@@ -85,8 +85,8 @@ namespace ExplainError
         /* vcgen related state */
         static private VerificationConditionGenerator vcgen;
         static private ProverInterface proverInterface;
-        //static private ProverInterface.ErrorHandler handler;
-        static private ConditionGeneration.CounterExampleCollector collector;
+        // TODOOO static private ConditionGeneration.CounterExampleCollector collector;
+
         static private Boogie2VCExprTranslator translator;
         static private VCExpressionGenerator exprGen;
 
@@ -483,7 +483,7 @@ namespace ExplainError
                 assumeCmd.Expr = Expr.Not(oldExpr);
                 prog.Resolve(); prog.Typecheck(null); //TODO: perhaps move this inside MyVerifyImplementation?
                 Console.WriteLine("Checking the assume {0} ", assumeCmd);
-                if (VCVerifier.MyVerifyImplementation(currImpl) == ConditionGeneration.Outcome.Correct)
+                if (VCVerifier.MyVerifyImplementation(currImpl) == VcOutcome.Correct)
                 {
                     Console.WriteLine("Evals to true");
                     assumeCmd.Expr = Expr.True;
@@ -639,7 +639,7 @@ namespace ExplainError
             Expr disjunct = ExprListSetToDNFExpr(preInDnfForm);
             var oldCmds = new List<Cmd>(currImpl.Blocks[0].Cmds);
             currImpl.Blocks[0].Cmds.Insert(0, BoogieAstFactory.MkAssume(ExprUtil.Not(disjunct)));
-            var result = (VCVerifier.MyVerifyImplementation(currImpl) == VC.ConditionGeneration.Outcome.Correct);
+            var result = (VCVerifier.MyVerifyImplementation(currImpl) == VC.VcOutcome.Correct);
             Console.WriteLine("Disjunct = {0}, IsNecessary= {1}", disjunct, result);
             currImpl.Blocks[0].Cmds = new List<Cmd>(oldCmds); //restore the cmds 
             if (!result) return false; //sanity check that the entire CNF is a block to start with
@@ -652,7 +652,7 @@ namespace ExplainError
                 tmp.Remove(d); //remove 1 element and check the rest
                 disjunct = ExprListSetToDNFExpr(tmp);
                 currImpl.Blocks[0].Cmds.Insert(0, BoogieAstFactory.MkAssume(ExprUtil.Not(disjunct)));
-                result = (VCVerifier.MyVerifyImplementation(currImpl) == VC.ConditionGeneration.Outcome.Correct);
+                result = (VCVerifier.MyVerifyImplementation(currImpl) == VC.VcOutcome.Correct);
                 Console.WriteLine("Disjunct = {0}, IsNecessary= {1}", disjunct, result);
                 if (!result) retain.Add(d); //necessary
                 currImpl.Blocks[0].Cmds = oldCmds; //restore the cmds 
@@ -1309,7 +1309,7 @@ namespace ExplainError
             proverInterface = ProverInterface.CreateProver(null,prog, CommandLineOptions.ProverLogFilePath, CommandLineOptions.ProverLogFileAppend, CommandLineOptions.TimeLimit);
             translator = proverInterface.Context.BoogieExprTranslator;
             exprGen = proverInterface.Context.ExprGen;
-            collector = new ConditionGeneration.CounterexampleCollector();
+            // TODOO collector = new ConditionGeneration.CounterexampleCollector();
         }
         /// <summary>
         /// Class for asking semantic questions for the verifier (carried over from almost correct specs)
@@ -1337,7 +1337,7 @@ namespace ExplainError
                 prog.AddTopLevelDeclaration(p);
                 prog.Resolve();
                 prog.Typecheck(null);
-                var result = (MyVerifyImplementation(i, ref cexList) == VC.ConditionGeneration.Outcome.Correct);
+                var result = (MyVerifyImplementation(i, ref cexList) == VC.VcOutcome.Correct);
                 prog.RemoveTopLevelDeclaration(i);
                 prog.RemoveTopLevelDeclaration(p);
                 prog.Resolve();
@@ -1490,14 +1490,14 @@ namespace ExplainError
         {
             var vu = new VarsUsed();
             vu.Visit(c);
-            return vu.Vars.Any(v => QKeyValue.FindBoolAttribute(v.Attributes, "guardvar"));
+            return vu.Vars.Any(v => QKeyValueExtensions.FindBoolAttribute(v.Attributes, "guardvar"));
         }
 
         private static bool ContainsPropertyMap(Expr c)
         {
             var vu = new VarsUsed();
             vu.Visit(c);
-            return vu.Vars.Any(v => (QKeyValue.FindBoolAttribute(v.Attributes, "propertyMap") && v.TypedIdent.Type.IsMap));
+            return vu.Vars.Any(v => (QKeyValueExtensions.FindBoolAttribute(v.Attributes, "propertyMap") && v.TypedIdent.Type.IsMap));
         }
         private static bool ContainsTypeStateVar(Expr c)
         {
@@ -1513,8 +1513,8 @@ namespace ExplainError
             var x1 = expr.Args[1] as IdentifierExpr;
             if (x0 == null && x1 == null) return false;
             
-            if (x0 != null && QKeyValue.FindBoolAttribute(x0.Decl.Attributes, "typestatevar")) return true;
-            if (x1 != null && QKeyValue.FindBoolAttribute(x1.Decl.Attributes, "typestatevar")) return true;
+            if (x0 != null && QKeyValueExtensions.FindBoolAttribute(x0.Decl.Attributes, "typestatevar")) return true;
+            if (x1 != null && QKeyValueExtensions.FindBoolAttribute(x1.Decl.Attributes, "typestatevar")) return true;
 
 
             return false;
@@ -1618,9 +1618,9 @@ namespace ExplainError
         {
             if (((AssumeCmd) assumeCmd).Expr.ToString() == Expr.True.ToString()) return false;
             //only consider assume wiht {:partition} tags
-            if (!QKeyValue.FindBoolAttribute(assumeCmd.Attributes, "partition")) return false;
+            if (!QKeyValueExtensions.FindBoolAttribute(assumeCmd.Attributes, "partition")) return false;
             if (ignoreAllAssumes) return false;
-            if(onlySlicAssumes) return QKeyValue.FindBoolAttribute(assumeCmd.Attributes, "slic");
+            if(onlySlicAssumes) return QKeyValueExtensions.FindBoolAttribute(assumeCmd.Attributes, "slic");
             return true;
         }
         private static HashSet<Expr> FilteredAtoms(Implementation currImpl, Expr t, out Expr e)
