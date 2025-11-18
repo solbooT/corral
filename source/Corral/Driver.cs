@@ -153,8 +153,6 @@ namespace cba
 
             // Initialize Boogie
             Clo.clo.PrintInstrumented = true;
-            Clo.clo.ProcedureInlining = Clo.clo.Inlining.Assume;
-            Clo.clo.TypeEncodingMethod = Clo.clo.TypeEncoding.Monomorphic;
 
             // /noRemoveEmptyBlocks is needed for field refinement. It ensures that
             // we get an actual path in the program (so that we can concretize it)
@@ -730,13 +728,13 @@ namespace cba
             ModCollector.Utils.msc.DoModSetAnalysis(init);
 
             // Now we can typecheck
-            Clo.clo.DoModSetAnalysis = true;
+            // TODO ?? Clo.clo.DoModSetAnalysis = true;
             if (BoogieUtil.TypecheckProgram(init, config.inputFile))
             {
                 BoogieUtil.PrintProgram(init, "error.bpl");
                 throw new InvalidProg("Cannot typecheck " + config.inputFile);
             }
-            Clo.clo.DoModSetAnalysis = false;
+            // TODO ?? Clo.clo.DoModSetAnalysis = false;
 
             //BoogieUtil.PrintProgram(init, "temp.bpl");
 

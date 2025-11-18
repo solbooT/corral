@@ -46,7 +46,7 @@ namespace cba
             }
 
             StaticInliningAndUnrollingPass cp3 = null;
-            if (GlobalConfig.staticInlining > 0) cp3 = new StaticInliningAndUnrollingPass(new StaticSettings(CommandLineOptions.RecursionBound, CommandLineOptions.RecursionBound));
+            if (GlobalConfig.staticInlining > 0) cp3 = new StaticInliningAndUnrollingPass(new StaticSettings(/*RecursionBound??*/999, 999));
 
             ContractInfer ciPass = null;
 
@@ -375,8 +375,8 @@ namespace cba
             
             if (GlobalConfig.explainQuantifiers != null)
             {
-                old_logfile = CommandLineOptions.ProverLogFilePath;
-                CommandLineOptions.ProverLogFilePath = GlobalConfig.explainQuantifiers;
+                old_logfile = Clo.clo.ProverLogFilePath;
+                Clo.clo.ProverLogFilePath = GlobalConfig.explainQuantifiers;
             }
 
             startTime = DateTime.Now;
@@ -389,11 +389,11 @@ namespace cba
 
             GlobalConfig.InferPass = ci;
             BoogieVerify.recordTempTime = false;
-            //CommandLineOptions.ModelViewFile = null;
+            //Clo.clo.ModelViewFile = null;
 
             if (GlobalConfig.explainQuantifiers != null)
             {
-                CommandLineOptions.ProverLogFilePath = old_logfile;
+                Clo.clo.ProverLogFilePath = old_logfile;
             }
 
             Stats.pathVerificationTime += (DateTime.Now - startTime);
@@ -412,7 +412,7 @@ namespace cba
             BoogieVerify.Options = progVerifyOptions;
 
             // AL: adding logging
-            //CommandLineOptions.ProverLogFilePath = "logProg";
+            //Clo.clo.ProverLogFilePath = "logProg";
             startTime = DateTime.Now;
         }
 
@@ -430,7 +430,7 @@ namespace cba
             refinement = true;
 
             // AL: adding logging
-            //CommandLineOptions.ProverLogFilePath = "logRefine";
+            //Clo.clo.ProverLogFilePath = "logRefine";
 
         }
 
