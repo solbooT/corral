@@ -870,7 +870,7 @@ namespace cba
         {
             // Its strange if main is a loop; but still we cannot check loops that
             // have asserts inside them
-            if (QKeyValue.FindBoolAttribute(impl.Attributes, "entrypoint"))
+            if (QKeyValueExtensions.FindBoolAttribute(impl.Attributes, "entrypoint"))
                 return false;
 
             Log.WriteLine(Log.Debug, "CL: Examining {0}", impl.Name);

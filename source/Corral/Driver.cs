@@ -152,9 +152,9 @@ namespace cba
             boogieOptions += string.Format("/recursionBound:{0} ", config.recursionBound);
 
             // Initialize Boogie
-            CommandLineOptions.PrintInstrumented = true;
-            CommandLineOptions.ProcedureInlining = CommandLineOptions.Inlining.Assume;
-            CommandLineOptions.TypeEncodingMethod = CommandLineOptions.TypeEncoding.Monomorphic;
+            Clo.clo.PrintInstrumented = true;
+            Clo.clo.ProcedureInlining = Clo.clo.Inlining.Assume;
+            Clo.clo.TypeEncodingMethod = Clo.clo.TypeEncoding.Monomorphic;
 
             // /noRemoveEmptyBlocks is needed for field refinement. It ensures that
             // we get an actual path in the program (so that we can concretize it)
@@ -199,8 +199,8 @@ namespace cba
             if (BoogieUtil.InitializeBoogie(boogieOptions))
                 throw new InternalError("Cannot initialize Boogie");
 
-            if (CommandLineOptions.UseProverEvaluate)
-                CommandLineOptions.StratifiedInliningWithoutModels = true;
+            if (Clo.clo.UseProverEvaluate)
+                Clo.clo.StratifiedInliningWithoutModels = true;
 
             GlobalConfig.corralStartTime = DateTime.Now;
         }
@@ -214,7 +214,6 @@ namespace cba
             Console.WriteLine("Corral program verifier version {0}", VersionInfo());
 
             Configs config = Configs.parseCommandLine(args);
-            CommandLineOptions.Install(new CommandLineOptions());
 
             if (!System.IO.File.Exists(config.inputFile))
             {
@@ -246,7 +245,7 @@ namespace cba
                 // abstract away globals (except for thread_locals)
                 var thread_locals = new HashSet<string>(inputProg.getProgram()
                     .TopLevelDeclarations.OfType<GlobalVariable>()
-                    .Where(gv => QKeyValue.FindBoolAttribute(gv.Attributes, LanguageSemantics.ThreadLocalAttr))
+                    .Where(gv => QKeyValueExtensions.FindBoolAttribute(gv.Attributes, LanguageSemantics.ThreadLocalAttr))
                     .Select(gv => gv.Name));
                 var abs = new VariableSlicePass(VarSet.ToVarSet(thread_locals, inputProg.getProgram()));
 
@@ -337,7 +336,7 @@ namespace cba
                 {
                     elPass = new ExtractLoopsPass(true);
                     curr = elPass.run(curr);
-                    CommandLineOptions.ExtractLoops = false;
+                    Clo.clo.ExtractLoops = false;
                 }
             }
             else
@@ -482,7 +481,7 @@ namespace cba
             var prog = program.getCBAProgram();
 
             // walk the trace and program in lock step -- find the failing assertion
-            var location = ErrorTrace.FindCmd(prog, trace, c => (c is AssumeCmd) && QKeyValue.FindBoolAttribute((c as AssumeCmd).Attributes, RewriteAsserts.AssertIdentificationAttribute));
+            var location = ErrorTrace.FindCmd(prog, trace, c => (c is AssumeCmd) && QKeyValueExtensions.FindBoolAttribute((c as AssumeCmd).Attributes, RewriteAsserts.AssertIdentificationAttribute));
             Debug.Assert(location != null);
 
             // Disable assert
@@ -575,7 +574,7 @@ namespace cba
                 if (config.mainProcName == null)
                 {
                     config.mainProcName = init.TopLevelDeclarations.OfType<NamedDeclaration>()
-                        .Where(nd => QKeyValue.FindBoolAttribute(nd.Attributes, "entrypoint"))
+                        .Where(nd => QKeyValueExtensions.FindBoolAttribute(nd.Attributes, "entrypoint"))
                         .Select(nd => nd.Name)
                         .FirstOrDefault();                        
                 }
@@ -731,13 +730,13 @@ namespace cba
             ModCollector.Utils.msc.DoModSetAnalysis(init);
 
             // Now we can typecheck
-            CommandLineOptions.DoModSetAnalysis = true;
+            Clo.clo.DoModSetAnalysis = true;
             if (BoogieUtil.TypecheckProgram(init, config.inputFile))
             {
                 BoogieUtil.PrintProgram(init, "error.bpl");
                 throw new InvalidProg("Cannot typecheck " + config.inputFile);
             }
-            CommandLineOptions.DoModSetAnalysis = false;
+            Clo.clo.DoModSetAnalysis = false;
 
             //BoogieUtil.PrintProgram(init, "temp.bpl");
 
@@ -745,7 +744,7 @@ namespace cba
             var globals = BoogieUtil.GetGlobalVariables(init);
             foreach (var g in globals)
             {
-                if (QKeyValue.FindBoolAttribute(g.Attributes, LanguageSemantics.ThreadLocalAttr))
+                if (QKeyValueExtensions.FindBoolAttribute(g.Attributes, LanguageSemantics.ThreadLocalAttr))
                     config.trackedVars.Add(g.Name);
             }
 
@@ -778,7 +777,7 @@ namespace cba
             }
             foreach (var impl in program.TopLevelDeclarations.OfType<Implementation>())
             {
-                if (CommandLineOptions.UserWantsToCheckRoutine(impl.Name) && !impl.SkipVerification)
+                if (Clo.clo.UserWantsToCheckRoutine(impl.Name) && !impl.SkipVerification)
                 {
                     CodeExprInliner.ProcessImplementation(null, program, impl);
                 }
@@ -807,7 +806,7 @@ namespace cba
                 }
             }
 
-            new public static void ProcessImplementation(null, Program program, Implementation impl)
+            new public static void ProcessImplementation(Program program, Implementation impl)
             {
                 var ce = new CodeExprInliner(program);
                 ProcessImplementation(null, program, impl, ce);
@@ -848,11 +847,11 @@ namespace cba
 
         public static void InlineProcedures(Program program)
         {
-            var si = CommandLineOptions.StratifiedInlining;
-            CommandLineOptions.StratifiedInlining = 0;
+            var si = Clo.clo.StratifiedInlining;
+            Clo.clo.StratifiedInlining = 0;
             ExecutionEngine.EliminateDeadVariables(program);
             ExecutionEngine.Inline(program);
-            CommandLineOptions.StratifiedInlining = si;
+            Clo.clo.StratifiedInlining = si;
         }
 
         // Stats: LOC on trace and number of branches
@@ -929,7 +928,7 @@ namespace cba
             else
             {
                 var eps = program.TopLevelDeclarations.OfType<Implementation>()
-                    .Where(impl => QKeyValue.FindBoolAttribute(impl.Attributes, "entrypoint"));
+                    .Where(impl => QKeyValueExtensions.FindBoolAttribute(impl.Attributes, "entrypoint"));
                 var epsCount = eps.Count();
                 if (epsCount > 1)
                     throw new InvalidInput("Multiple entrypoints specified");
@@ -938,7 +937,7 @@ namespace cba
                 {
                     // look for procedure
                     var epsp = program.TopLevelDeclarations.OfType<Procedure>()
-                        .Where(proc => QKeyValue.FindBoolAttribute(proc.Attributes, "entrypoint"));
+                        .Where(proc => QKeyValueExtensions.FindBoolAttribute(proc.Attributes, "entrypoint"));
                     if (epsp.Count() > 1)
                         throw new InvalidInput("Multiple entrypoints specified");
                     if (epsp.Count() == 0)
@@ -1001,7 +1000,7 @@ namespace cba
             // extract loops
             var elPass = new ExtractLoopsPass(true);
             curr = elPass.run(curr);
-            CommandLineOptions.ExtractLoops = false;
+            Clo.clo.ExtractLoops = false;
             passes.Add(elPass);
 
             var currProg = curr.getCBAProgram();
@@ -1189,8 +1188,8 @@ namespace cba
                 var rcalls = new RewriteCallCmdsPass();
                 ptrace = rcalls.run(ptrace);
 
-                //var ul = CommandLineOptions.UseLabels;
-                //CommandLineOptions.UseLabels = true;
+                //var ul = Clo.clo.UseLabels;
+                //Clo.clo.UseLabels = true;
 
                 // Refine
                 Stats.beginTime();
@@ -1206,7 +1205,7 @@ namespace cba
                 
                 ProgTransformation.PersistentProgram.FreeParserMemory();
 
-                //CommandLineOptions.UseLabels = ul;
+                //Clo.clo.UseLabels = ul;
             }
             var endTime = DateTime.Now;
 
@@ -1455,7 +1454,7 @@ namespace cba
             var newDecls = new List<Declaration>();
             foreach (var decl in program.TopLevelDeclarations)
             {
-                if (!QKeyValue.FindBoolAttribute(decl.Attributes, "template"))
+                if (!QKeyValueExtensions.FindBoolAttribute(decl.Attributes, "template"))
                 {
                     newDecls.Add(decl);
                     continue;
@@ -1585,7 +1584,7 @@ namespace cba
 
                 refinementState.Add(new TraceMapping(tinfo));
 
-                //CommandLineOptions.SimplifyLogFilePath = "log";
+                //Clo.clo.SimplifyLogFilePath = "log";
 
                 // Check if true bug. Otherwise, gather variables to track                
                 if (optRefinementLoop)
