@@ -1312,7 +1312,7 @@ namespace ExplainError
         private static void CreateProver()
         {
             //create vcgen/proverInterface
-            vcgen = new VerificationConditionGenerator(prog, Clo.clo.ProverLogFilePath, Clo.clo.ProverLogFileAppend, new List<Checker>());
+            vcgen = new VerificationConditionGenerator(prog, new CheckerPool(Clo.clo));
             proverInterface = ProverInterface.CreateProver(null,prog, Clo.clo.ProverLogFilePath, Clo.clo.ProverLogFileAppend, Clo.clo.TimeLimit);
             translator = proverInterface.Context.BoogieExprTranslator;
             exprGen = proverInterface.Context.ExprGen;
@@ -1332,7 +1332,7 @@ namespace ExplainError
             public static bool CheckIfExprFalse(Implementation impl, Expr e)
             {//checks if e <=> false semantically
                 var blks = new List<Block>();
-                blks.Add(new Block());
+                // TODOOO blks.Add(new Block(Token.NoToken));
                 var i = new Implementation(Token.NoToken, "DummyCheckForFalse", impl.Proc.TypeParameters, impl.Proc.InParams, impl.Proc.OutParams, new List<Variable>(), new List<Block>());
                 i.OriginalBlocks = blks;
                 i.OriginalLocVars = new List<Variable>();
@@ -1359,7 +1359,7 @@ namespace ExplainError
                 ref List<Counterexample> cexList)
             {
                 //this creates a z3 process per vcgen
-                VerificationConditionGenerator vcgen = new VerificationConditionGenerator(prog, Clo.clo.ProverLogFilePath, Clo.clo.ProverLogFileAppend, new CheckerPool(null));
+                VerificationConditionGenerator vcgen = new VerificationConditionGenerator(prog, new CheckerPool(Clo.clo));
                 //make deep copy of the blocks
                 var tmpBlocks = new List<Block>();
                 foreach (Block b in i.Blocks)
