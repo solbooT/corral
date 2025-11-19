@@ -393,7 +393,7 @@ namespace cba
                         graph.AddEdge(kvp.Key, tgt);
                 }));
 
-            if (!Graph<string>.Acyclic(graph, proc))
+            if (!Graph<string>.Acyclic(graph))
                 return false;
 
             return true;
@@ -437,7 +437,7 @@ namespace cba
 
             // set strong array theory
             var ua_old = Clo.clo.UseArrayTheory;
-            Clo.clo.useArrayAxioms = true;
+            // todo Clo.clo.UseArrayTheory = true;
 
             var to = Clo.clo.TimeLimit;
             Clo.clo.TimeLimit = 5;
@@ -471,9 +471,6 @@ namespace cba
                     currHistory.semanticallyFailedLoops.Add(impl.Name);
                 }
             }
-
-            // Reset options
-            Clo.clo.UseArrayTheory = ua_old;
 
             Clo.clo.TimeLimit = to;
 

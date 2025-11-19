@@ -197,7 +197,7 @@ namespace ProgTransformation
                 programStream = new MemoryStream();
 
                 StreamWriter writer = new StreamWriter(programStream as MemoryStream);
-                p.Emit(new TokenTextWriter(writer, null));
+                p.Emit(new TokenTextWriter(writer, Clo.clo));
                 writer.Flush();
             }
 
@@ -273,7 +273,7 @@ namespace ProgTransformation
                 }
             }
 
-            if (ret.Resolve(null) != 0)
+            if (ret.Resolve(Clo.clo) != 0)
             {
                 writeToFile("error.bpl");
                 throw new InternalError("Illegal program given to PersistentProgram");

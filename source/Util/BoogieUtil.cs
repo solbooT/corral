@@ -29,14 +29,14 @@ namespace cba.Util
     {
         public static void PrintProgram(Program p, string filename)
         {
-            var outFile = new TokenTextWriter(filename, null);
+            var outFile = new TokenTextWriter(filename, new CommandLineOptions(Console.Out, new ConsolePrinter()));
             p.Emit(outFile);
             outFile.Close();
         }
 
         public static bool ResolveProgram(Program p, string filename)
         {
-            int errorCount = p.Resolve(null);
+            int errorCount = p.Resolve(new CommandLineOptions(Console.Out, new ConsolePrinter()));
             if (errorCount != 0)
                 Console.WriteLine(errorCount + " name resolution errors in " + filename);
             return errorCount != 0;
@@ -44,7 +44,7 @@ namespace cba.Util
 
         public static bool TypecheckProgram(Program p, string filename)
         {
-            int errorCount = p.Typecheck(null);
+            int errorCount = p.Typecheck(Clo.clo);
             if (errorCount != 0)
             {
                 PrintProgram(p, "error.bpl");

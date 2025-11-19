@@ -645,7 +645,7 @@ namespace cba
             globalsRead = new HashSet<string>();
 
             // Typecheck -- needed for variable abstraction
-            if (node.Typecheck(null) != 0)
+            if (node.Typecheck(Clo.clo) != 0)
             {
                 BoogieUtil.PrintProgram(node, "error.bpl");
                 throw new InternalError("Type errors");

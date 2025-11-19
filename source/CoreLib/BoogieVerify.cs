@@ -17,7 +17,7 @@ namespace cba.Util
         public static readonly string ExtraRecBoundAttr = "SIextraRecBound";
 
         // Verification Options
-        public static BoogieVerifyOptions Options;
+        public static BoogieVerifyOptions Options = new BoogieVerifyOptions();
 
         // Unrolling for irreducible loops (default behavior: recursion bound)
         public static int irreducibleLoopUnroll = -1;
@@ -115,7 +115,7 @@ namespace cba.Util
                 rb = BoogieVerify.irreducibleLoopUnroll; // rec bound option assign
 
             // Do loop extraction
-            var extractionInfo = LoopExtractor.ExtractLoops(null, program);
+            var extractionInfo = LoopExtractor.ExtractLoops(Clo.clo, program);
 
             // TODO restore RB onto rec bound option
 
@@ -162,7 +162,7 @@ namespace cba.Util
             try
             {
                 Debug.Assert(Options.StratifiedInlining > 0);
-                vcgen = new CoreLib.StratifiedInlining(program, "prover.log", true, null);
+                vcgen = new CoreLib.StratifiedInlining(program, Clo.clo.ProverLogFilePath, Clo.clo.ProverLogFileAppend, delegate(Implementation m) { });
             }
             catch (ProverException e)
             {

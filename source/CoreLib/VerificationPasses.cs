@@ -54,7 +54,6 @@ namespace cba
         public static string recordArgProcPrefix = "boogie_si_record";
         string recordIntArgProc;
         string recordBoolArgProc;
-        public CommandLineOptions Options;
 
         // Is Boogie going to give us a model
         static bool WillGetModel
@@ -131,7 +130,7 @@ namespace cba
             BoogieVerify.Options.Set();
 
             // An important pass for recording the value of int variables
-            Debug.Assert(Options.StratifiedInlining > 0);
+            Debug.Assert(BoogieVerify.Options.StratifiedInlining > 0);
             if(WillGetModel)
               recordVarsTransformation(p, p.mainProcName);
 

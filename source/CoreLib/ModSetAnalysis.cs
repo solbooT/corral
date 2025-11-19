@@ -59,7 +59,10 @@ namespace ModCollector
                 }
                 else
                 {
-                    modSets.Add(proc, new HashSet<Variable>());
+                    if (!modSets.ContainsKey(proc))
+                    {
+                        modSets.Add(proc, new HashSet<Variable>());
+                    }
                 }
             }
 

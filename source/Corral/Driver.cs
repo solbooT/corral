@@ -194,8 +194,10 @@ namespace cba
             if (config.printBoogieFlags)
                 Console.WriteLine("Using Boogie flags: {0}", boogieOptions);
 
+            /* TODO API ??
             if (BoogieUtil.InitializeBoogie(boogieOptions))
                 throw new InternalError("Cannot initialize Boogie");
+            */
 
             if (Clo.clo.UseProverEvaluate)
                 Clo.clo.StratifiedInliningWithoutModels = true;
@@ -728,13 +730,12 @@ namespace cba
             ModCollector.Utils.msc.DoModSetAnalysis(init);
 
             // Now we can typecheck
-            // TODO ?? Clo.clo.DoModSetAnalysis = true;
+            Clo.clo.InferModifies = true;
             if (BoogieUtil.TypecheckProgram(init, config.inputFile))
             {
                 BoogieUtil.PrintProgram(init, "error.bpl");
                 throw new InvalidProg("Cannot typecheck " + config.inputFile);
             }
-            // TODO ?? Clo.clo.DoModSetAnalysis = false;
 
             //BoogieUtil.PrintProgram(init, "temp.bpl");
 
@@ -775,9 +776,9 @@ namespace cba
             }
             foreach (var impl in program.TopLevelDeclarations.OfType<Implementation>())
             {
-                if (Clo.clo.UserWantsToCheckRoutine(impl.Name) && !impl.SkipVerification)
+                if (CoreLib.BoogieApiHelpers.UserWantsToCheckRoutine(impl.Name) && !impl.IsSkipVerification(Clo.clo))
                 {
-                    CodeExprInliner.ProcessImplementation(null, program, impl);
+                    CodeExprInliner.ProcessImplementation(Clo.clo, program, impl);
                 }
             }
             foreach (var impl in program.TopLevelDeclarations.OfType<Implementation>())
@@ -793,7 +794,7 @@ namespace cba
             Dictionary<Declaration, QKeyValue> declToAnnotations;
 
             public CodeExprInliner(Program program)
-                : base(program, null, -1)
+                : base(program, null, -1, null)
             {
                 this.declToAnnotations = new Dictionary<Declaration, QKeyValue>();
                 // save annotation
@@ -806,9 +807,7 @@ namespace cba
 
             new public static void ProcessImplementation(Program program, Implementation impl)
             {
-                var ce = new CodeExprInliner(program);
-                ProcessImplementation(null, program, impl, ce);
-                ce.RestoreAnnotations();
+                ProcessImplementation(null, program, impl);
             }
 
             public override Expr VisitCodeExpr(CodeExpr node)
@@ -847,8 +846,9 @@ namespace cba
         {
             var si = Clo.clo.StratifiedInlining;
             Clo.clo.StratifiedInlining = 0;
-            ExecutionEngine.EliminateDeadVariables(program);
-            ExecutionEngine.Inline(program);
+            var engine = ExecutionEngine.CreateWithoutSharedCache(Clo.clo);
+            engine.EliminateDeadVariables(program);
+            engine.Inline(program);
             Clo.clo.StratifiedInlining = si;
         }
 

@@ -536,7 +536,7 @@ namespace cba
             // Type information is needed in some cases. For instance, the Command
             // Mem[x] := untracked-expr is converted to havoc temp; Mem[x] := temp. Here
             // we need the type of "untracked-expr" or of "Mem[x]"
-            if (p.Typecheck(null) != 0)
+            if (p.Typecheck(Clo.clo) != 0)
             {
                 p.Emit(new TokenTextWriter("error.bpl", null));
                 throw new InternalError("Type errors");

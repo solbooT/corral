@@ -8,6 +8,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ProgTransformation\ProgTransformation.csproj" />
     <ProjectReference Include="..\Util\CorralUtil.csproj" />
+    <ProjectReference Include="..\OptionUtils\OptionUtils.csproj" />
   </ItemGroup>
 
 </Project>

@@ -56,13 +56,13 @@ namespace cba
             procsNotCovered.Remove(p.mainProcName);
 
             // Iterate and gather procedures that can be reached
-            int oldErrorLimit = Options.ErrorLimit;
+            int oldErrorLimit = Clo.clo.ErrorLimit;
 
             var done = false;
             do
             {
                 // Set the number of traces returned by boogie in one shot                
-                Options.ErrorLimit = procsNotCovered.Count();
+                Clo.clo.ErrorLimit = procsNotCovered.Count();
 
                 var covered = iterateComputation(input as PersistentCBAProgram, procsNotCovered);
                 if (covered.Count == 0)
@@ -79,7 +79,7 @@ namespace cba
                 }
             } while (!done);
 
-            Options.ErrorLimit = oldErrorLimit;
+            Clo.clo.ErrorLimit = oldErrorLimit;
 
             return null;            
         }

@@ -217,7 +217,7 @@ namespace CoreLib
         }
 
         public StratifiedInlining(Program program, string logFilePath, bool appendLogFile, Action<Implementation> PassiveImplInstrumentation) :
-            base(System.Console.Out, null, program, logFilePath, appendLogFile, new CheckerPool(null), PassiveImplInstrumentation)
+            base(System.Console.Out, Clo.clo, program, logFilePath, appendLogFile, new CheckerPool(Clo.clo), PassiveImplInstrumentation)
         {
             stats = new Stats();
 
