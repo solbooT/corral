@@ -162,6 +162,13 @@ namespace cba.Util
             try
             {
                 Debug.Assert(Options.StratifiedInlining > 0);
+                /*
+                Debug.Assert(program != null);
+                Debug.Assert(Clo.clo.ProverLogFilePath != null);
+                Debug.Assert(Clo.clo.ProverLogFileAppend != null);
+                Debug.Assert(Clo.clo.TheProverFactory != null);
+                */
+
                 vcgen = new CoreLib.StratifiedInlining(program, Clo.clo.ProverLogFilePath, Clo.clo.ProverLogFileAppend, delegate(Implementation m) { });
             }
             catch (ProverException e)
@@ -234,6 +241,7 @@ namespace cba.Util
             Debug.Assert(vcgen is CoreLib.StratifiedInlining);
 
             vcgen.Close();
+            Clo.clo.TheProverFactory.Close();
 
             return ret;
         }
@@ -324,6 +332,7 @@ namespace cba.Util
             Debug.Assert(outcome == VcOutcome.Correct);
 
             vcgen.Close();
+            Clo.clo.TheProverFactory.Close();
             return boolVars;
         }
 

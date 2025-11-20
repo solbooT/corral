@@ -153,7 +153,10 @@ namespace cba
 
             // Initialize Boogie
             Clo.clo.PrintInstrumented = true;
-
+            Clo.clo.ProverLogFileAppend = true;
+            Clo.clo.ProverLogFilePath = "prover.log";
+            Clo.clo.TheProverFactory = ProverFactory.Load("SMTLib");
+            
             // /noRemoveEmptyBlocks is needed for field refinement. It ensures that
             // we get an actual path in the program (so that we can concretize it)
             boogieOptions +=
