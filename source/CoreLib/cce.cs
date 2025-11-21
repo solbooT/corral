@@ -6,11 +6,11 @@ using System.Diagnostics.Contracts;
 /// <summary>
 /// A class containing static methods to extend the functionality of Code Contracts
 /// </summary>
-public static class cce
+public static class ccecorral
 {
   //[Pure]
   //public static bool NonNullElements<T>(Microsoft.Dafny.Graph<T> collection) {
-  //  return collection != null && cce.NonNullElements(collection.TopologicallySortedComponents());
+  //  return collection != null && ccecorral.NonNullElements(collection.TopologicallySortedComponents());
   //}
   [Pure]
   public static T NonNull<T>(T t) where T : class
@@ -29,7 +29,7 @@ public static class cce
   [Pure]
   public static bool NonNullDictionaryAndValues<TKey, TValue>(IDictionary<TKey, TValue> collection) where TValue : class
   {
-    return collection != null && cce.NonNullElements(collection.Values);
+    return collection != null && ccecorral.NonNullElements(collection.Values);
   }
 
   //[Pure]
@@ -46,11 +46,11 @@ public static class cce
   [Pure]
   public static bool NonNullElements<T>(IEnumerable<T> collection, bool nullability) where T : class
   {
-    return (nullability && collection == null) || cce.NonNullElements(collection);
+    return (nullability && collection == null) || ccecorral.NonNullElements(collection);
     //Should be the same as:
     /*if(nullability&&collection==null)
      * return true;
-     * return cce.NonNullElements(collection)
+     * return ccecorral.NonNullElements(collection)
      */
   }
 
@@ -75,7 +75,7 @@ public static class cce
 
   //[Pure]
   //public static bool NonNullElements<T>(Graphing.Graph<T> graph) {
-  //  return cce.NonNullElements(graph.TopologicalSort());
+  //  return ccecorral.NonNullElements(graph.TopologicalSort());
   //}
   [Pure]
   public static void BeginExpose(object o)

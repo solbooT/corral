@@ -385,6 +385,7 @@ namespace cba
                 var refinementState = new RefinementState(curr, config.trackedVars, config.useLocalVariableAbstraction);
 
                 ErrorTrace cexTrace = null;
+                curr.writeToFile("refined.bpl");
                 checkAndRefine(curr, refinementState, printTrace, out cexTrace);
 
                 ////////////////////////////////////
@@ -1541,6 +1542,7 @@ namespace cba
 
             refinementState.Push();
 
+            var i = 0; 
             while (true)
             {
                 refinementState.Push();
@@ -1559,6 +1561,8 @@ namespace cba
                 // This records the transformation made when "curr" is
                 // transformed to "counterexample"
                 InsertionTrans tinfo = null;
+
+                prog.writeToFile($"refined{++i}.bpl");
 
                 bool success =
                     CBADriver.checkProgram(ref prog, refinementState.getVars(), true, out counterexample, out tinfo, out cexTrace);

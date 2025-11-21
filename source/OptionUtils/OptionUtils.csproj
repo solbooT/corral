@@ -5,4 +5,8 @@
     <AssemblyName>OptionUtils</AssemblyName>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Boogie\ExecutionEngine\ExecutionEngine.csproj" />
+  </ItemGroup>
+
 </Project>

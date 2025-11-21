@@ -194,6 +194,7 @@ namespace cba.Util
                 {
                     var start = DateTime.Now;
 
+                    Console.WriteLine(impl.Name);
                     outcome = vcgen.VerifyImplementation(new ImplementationRun(impl, System.Console.Out), new VerifierCallback(new CoreOptions.ProverWarnings()), System.Threading.CancellationToken.None).Result;
 
                     var end = DateTime.Now;

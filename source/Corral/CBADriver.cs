@@ -80,6 +80,7 @@ namespace cba
                 recordK.IntersectWith(trackedVars.Variables);
             }
 
+            curr.writeToFile("refined2.bpl");
             // Now verify  
             VerificationPass cp4 = new VerificationPass(true, recordK);
             curr = cp4.run(curr);

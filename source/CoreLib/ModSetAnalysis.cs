@@ -19,8 +19,8 @@ namespace ModCollector
         [ContractInvariantMethod]
         void ObjectInvariant()
         {
-            Contract.Invariant(cce.NonNullDictionaryAndValues(modSets));
-            Contract.Invariant(Contract.ForAll(modSets.Values, v => cce.NonNullElements(v)));
+            Contract.Invariant(ccecorral.NonNullDictionaryAndValues(modSets));
+            Contract.Invariant(Contract.ForAll(modSets.Values, v => ccecorral.NonNullElements(v)));
         }
 
         public ModSetCollector()
@@ -112,7 +112,7 @@ namespace ModCollector
         private void ProcessVariable(Variable var)
         {
             Procedure /*!*/
-              localProc = cce.NonNull(enclosingProc);
+              localProc = ccecorral.NonNull(enclosingProc);
             if (var == null)
                 return;
             if (!(var is GlobalVariable))

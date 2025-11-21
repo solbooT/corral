@@ -26,7 +26,7 @@ namespace ProgTransformation
         private static int passCount = 0;
 
         // Debug flag: all compiler pass outputs are written to file
-        public static bool writeAllFiles = false;
+        public static bool writeAllFiles = true;
 
         public TransformationPass()
         {
@@ -48,12 +48,13 @@ namespace ProgTransformation
             if (writeAllFiles)
             {
                 string outfile = "tr" + passCount + "intput.bpl";
-                input.writeToFile(outfile);
+                input.writeToFile("refined3.bpl");
             }
+
+            input.writeToFile("refined3.bpl");
 
             Log.WriteMemUsage();
             Log.WriteLine(Log.Debug, "Running transformation pass " + passCount.ToString() + ": " + passName);
-            //Log.WriteLine(Log.Normal, "Running transformation pass " + passCount.ToString() + ": " + passName); 
 
             Program outp = runPass(getInput(input)); 
 
