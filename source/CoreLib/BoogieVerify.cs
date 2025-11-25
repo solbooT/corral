@@ -1,4 +1,7 @@
 ﻿using System;
+using PersistentProgram = ProgTransformation.PersistentProgram;
+using PersistentProgramDup = ProgTransformation.PersistentProgramDup;
+using PersistentProgramIO = ProgTransformation.PersistentProgramIO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -56,6 +59,9 @@ namespace cba.Util
         {
             var to = new List<string>();
 
+            //(new PersistentProgramDup(program)).writeToFile("refined6.bpl");
+            (new PersistentProgramIO(program)).writeToFile("refined6.bpl");
+
             ReturnStatus ret = BoogieVerify.Verify(program, true, out allErrors, out to, isCBA);
 
             if (to.Count != 0)
@@ -82,6 +88,8 @@ namespace cba.Util
                                           out List<string> timedOut,
                                           bool isCBA = false)
         {
+
+
             ReturnStatus ret = ReturnStatus.OK;
             allErrors = new List<BoogieErrorTrace>();
             timedOut = new List<string>();
@@ -194,6 +202,7 @@ namespace cba.Util
                 {
                     var start = DateTime.Now;
 
+
                     outcome = vcgen.VerifyImplementation(new ImplementationRun(impl, System.Console.Out), new VerifierCallback(new CoreOptions.ProverWarnings()), System.Threading.CancellationToken.None).Result;
 
                     var end = DateTime.Now;
@@ -212,6 +221,10 @@ namespace cba.Util
                 {
 
                     throw new InternalError("Unexpected prover output: " + upo.Message);
+                }
+                catch (Exception e)
+                {
+                   throw new Exception("BOUM"); 
                 }
 
                 switch (outcome)
