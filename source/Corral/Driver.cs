@@ -157,6 +157,7 @@ namespace cba
             Clo.clo.ProverLogFilePath = "prover.smt2";
             Clo.clo.TheProverFactory = ProverFactory.Load("SMTLib");
             Clo.clo.TypeEncodingMethod = CoreOptions.TypeEncoding.Arguments;
+            Clo.RecBound = 500; // default
             
             // /noRemoveEmptyBlocks is needed for field refinement. It ensures that
             // we get an actual path in the program (so that we can concretize it)

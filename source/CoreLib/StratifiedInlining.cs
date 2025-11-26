@@ -1817,8 +1817,8 @@ namespace CoreLib
         bool HasExceededRecBound(string impl, int bound)
         {
             if (!extraRecBound.ContainsKey(impl))
-                return (bound > 999 /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */);
-            return bound > 999 /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */ + extraRecBound[impl];
+                return (bound > Clo.RecBound /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */);
+            return bound > Clo.RecBound /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */ + extraRecBound[impl];
         }
 
         // Returns the size of the fully expanded tree

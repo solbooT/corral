@@ -1711,7 +1711,7 @@ namespace cba
 
             if (ExtractLoops)
             {
-                var rb = 999 /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */;
+                var rb = Clo.RecBound /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */;
             }
 
             program = new CBAProgram(BoogieUtil.ReResolve(program), program.mainProcName, program.contextBound);
@@ -2460,7 +2460,7 @@ namespace cba
                     tc.LabelTargets = new List<Block>(tc.LabelNames.Select(s => l2b[s]));
                 }
 
-                mainCopy.Blocks = LoopUnroll.UnrollLoops(mainCopy.Blocks[0], 999 /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */, false);
+                mainCopy.Blocks = LoopUnroll.UnrollLoops(mainCopy.Blocks[0], Clo.RecBound /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */, false);
 
                 // detect loops
                 l2b = BoogieUtil.labelBlockMapping(mainCopy);

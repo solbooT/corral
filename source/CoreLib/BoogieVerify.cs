@@ -110,14 +110,14 @@ namespace cba.Util
             Options.Set();
 
             // save RB
-            var rb = 999; // rec bound
+            var rb = Clo.RecBound; // rec bound
             if (BoogieVerify.irreducibleLoopUnroll >= 0)
-                rb = BoogieVerify.irreducibleLoopUnroll; // rec bound option assign
+                Clo.RecBound = BoogieVerify.irreducibleLoopUnroll; // rec bound option assign
 
             // Do loop extraction
             var extractionInfo = LoopExtractor.ExtractLoops(Clo.clo, program);
 
-            // TODO restore RB onto rec bound option
+            Clo.RecBound = rb;
 
             // set bounds
             if (Options.extraRecBound != null)

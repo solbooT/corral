@@ -795,7 +795,7 @@ namespace cba
                     program.RemoveTopLevelDeclaration(impl);
                     program.RemoveTopLevelDeclaration(impl.Proc);
 
-                    for (int i = 0; i < 999 /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */; i++)
+                    for (int i = 0; i < Clo.RecBound ; i++)
                     {
                         var dup = new FixedDuplicator(true);
                         var nimpl = dup.VisitImplementation(impl);
@@ -832,14 +832,14 @@ namespace cba
                                     continue;
                                 }
                                 newcmds.Add(
-                                    new CallCmd(ccmd.tok, ccmd.callee + string.Format("#{0}", 999 /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */ - 1),
+                                    new CallCmd(ccmd.tok, ccmd.callee + string.Format("#{0}", Clo.RecBound - 1),
                                         ccmd.Ins, ccmd.Outs, ccmd.Attributes, ccmd.IsAsync));
                             }
                             blk.Cmds = newcmds;
                         }
                     }
 
-                    for (int i = 0; i < 999 /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */; i++)
+                    for (int i = 0; i < Clo.RecBound /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */; i++)
                     {
                         var impl = implCopies[Tuple.Create(name, i)];
                         foreach (var blk in impl.Blocks)

@@ -7,4 +7,5 @@ using Microsoft.Boogie;
 public static class Clo 
 {
     public static CommandLineOptions clo = new CommandLineOptions(System.Console.Out, new ConsolePrinter());
+    public static int RecBound = 500;
 }

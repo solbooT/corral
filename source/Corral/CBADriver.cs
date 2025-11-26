@@ -46,7 +46,7 @@ namespace cba
             }
 
             StaticInliningAndUnrollingPass cp3 = null;
-            if (GlobalConfig.staticInlining > 0) cp3 = new StaticInliningAndUnrollingPass(new StaticSettings(/*RecursionBound??*/999, 999));
+            if (GlobalConfig.staticInlining > 0) cp3 = new StaticInliningAndUnrollingPass(new StaticSettings(/*RecursionBound??*/Clo.RecBound, Clo.RecBound));
 
             ContractInfer ciPass = null;
 
