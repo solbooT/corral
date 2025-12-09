@@ -370,7 +370,7 @@ namespace cba
             {
                 if (policy.hasGlobalVarsToInstrument(en.Condition))
                 {
-                    en.Condition.Emit(new TokenTextWriter(Console.Out, null));
+                    en.Condition.Emit(new TokenTextWriter(Console.Out, Clo.clo));
                     throw new InternalError("Cannot yet instrument ensures annotations that have global variables");
                 }
                 // convert expr to: !assertsPassed || expr
@@ -382,7 +382,7 @@ namespace cba
             {
                 if (policy.hasGlobalVarsToInstrument(re.Condition))
                 {
-                    re.Condition.Emit(new TokenTextWriter(Console.Out, null));
+                    re.Condition.Emit(new TokenTextWriter(Console.Out, Clo.clo));
                     throw new InternalError("Cannot yet instrument requires annotations that have global variables");
                 }
             }
@@ -652,7 +652,7 @@ namespace cba
 
                     if (policy.hasOldGlobalVarsToInstrument(cmd))
                     {
-                        cmd.Emit(new TokenTextWriter(Console.Out, null), 0);
+                        cmd.Emit(new TokenTextWriter(Console.Out, Clo.clo), 0);
                         throw new InternalError("Cannot yet handle \"old\" variables");
                     }
 
@@ -1022,7 +1022,7 @@ namespace cba
 
                     if (policy.hasOldGlobalVarsToInstrument(cmd))
                     {
-                        cmd.Emit(new TokenTextWriter(Console.Out, null), 0);
+                        cmd.Emit(new TokenTextWriter(Console.Out, Clo.clo), 0);
                         throw new InternalError("Cannot yet handle \"old\" variables");
                     }
 

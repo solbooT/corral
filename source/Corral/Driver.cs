@@ -156,7 +156,8 @@ namespace cba
             Clo.clo.ProverLogFileAppend = true;
             Clo.clo.ProverLogFilePath = "prover.smt2";
             Clo.clo.TheProverFactory = ProverFactory.Load("SMTLib");
-            Clo.clo.TypeEncodingMethod = CoreOptions.TypeEncoding.Arguments;
+            Clo.clo.ProcedureInlining = CoreOptions.Inlining.Assume;
+            Clo.clo.TypeEncodingMethod = CoreOptions.TypeEncoding.Monomorphic;
             Clo.RecBound = 500; // default
             
             // /noRemoveEmptyBlocks is needed for field refinement. It ensures that
@@ -199,15 +200,34 @@ namespace cba
             if (config.printBoogieFlags)
                 Console.WriteLine("Using Boogie flags: {0}", boogieOptions);
 
-            /* TODO API ??
-            if (BoogieUtil.InitializeBoogie(boogieOptions))
+
+            if (InitializeBoogie(boogieOptions))
+            {
                 throw new InternalError("Cannot initialize Boogie");
-            */
+            }
 
             if (Clo.clo.UseProverEvaluate)
                 Clo.clo.StratifiedInliningWithoutModels = true;
 
             GlobalConfig.corralStartTime = DateTime.Now;
+        }
+        public static bool InitializeBoogie(string clo)
+        {
+            Clo.clo.RunningBoogieFromCommandLine = true;
+
+            var quotes = clo.Split(new char[] { '\"' }, StringSplitOptions.RemoveEmptyEntries);
+            var args = new List<string>();
+            for (int i = 0; i < quotes.Length; i++)
+            {
+                if (i == 0 || i == quotes.Length - 1)
+                    args.AddRange(quotes[i].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
+                else
+                    args.Add(quotes[i]);
+            }
+
+            Clo.clo.Parse(args.ToArray());
+
+            return false;
         }
 
         public static int run(string[] args) 
@@ -601,7 +621,7 @@ namespace cba
             {
                 BoogieVerify.removeAsserts = false;
                 var err = new List<BoogieErrorTrace>();
-                init.Typecheck(null);
+                init.Typecheck(Clo.clo);
 
                 BoogieVerify.Options = new BoogieVerifyOptions();
                 BoogieVerify.Options.NonUniformUnfolding = config.NonUniformUnfolding;
@@ -800,7 +820,7 @@ namespace cba
             Dictionary<Declaration, QKeyValue> declToAnnotations;
 
             public CodeExprInliner(Program program)
-                : base(program, null, -1, null)
+                : base(program, null, -1, Clo.clo)
             {
                 this.declToAnnotations = new Dictionary<Declaration, QKeyValue>();
                 // save annotation
@@ -813,7 +833,7 @@ namespace cba
 
             new public static void ProcessImplementation(Program program, Implementation impl)
             {
-                ProcessImplementation(null, program, impl);
+                ProcessImplementation(Clo.clo, program, impl);
             }
 
             public override Expr VisitCodeExpr(CodeExpr node)
@@ -1752,6 +1772,8 @@ namespace cba
             return true;
 
         }
+
+
 
         // Returns the set of all global variables in the program, as well as the ones
         // that need to be tracked initially (according to command-line arguments)

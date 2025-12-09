@@ -569,7 +569,7 @@ namespace AngelicVerifierNull
 
                 if (cba.PrintSdvPath.abortMessage != null)
                 {
-                    var am = new TokenTextWriter(filename + ".txt", null);
+                    var am = new TokenTextWriter(filename + ".txt", Clo.clo);
                     am.WriteLine(cba.PrintSdvPath.abortMessage);
                     am.Close();
                 }
@@ -584,7 +584,7 @@ namespace AngelicVerifierNull
 
                 if (cba.PrintSdvPath.abortMessage != null)
                 {
-                    var am = new TokenTextWriter(filename + ".txt", null);
+                    var am = new TokenTextWriter(filename + ".txt", Clo.clo);
                     am.WriteLine(cba.PrintSdvPath.abortMessage);
                     am.Close();
                 }

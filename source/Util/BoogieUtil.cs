@@ -428,7 +428,7 @@ namespace cba.Util
             using (var writer = new System.IO.MemoryStream())
             {
                 var st = new System.IO.StreamWriter(writer);
-                var tt = new TokenTextWriter(st, null);
+                var tt = new TokenTextWriter(st, Clo.clo);
                 p.Emit(tt);
                 writer.Flush();
                 st.Flush();
@@ -459,7 +459,7 @@ namespace cba.Util
 
         public static void PrintGlobalVariables(Program p)
         {
-            TokenTextWriter log = new TokenTextWriter(Console.Out, null);
+            TokenTextWriter log = new TokenTextWriter(Console.Out, Clo.clo);
             foreach (Declaration d in p.TopLevelDeclarations)
             {
                 if (d is GlobalVariable)

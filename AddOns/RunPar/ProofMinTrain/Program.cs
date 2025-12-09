@@ -476,7 +476,7 @@ namespace ProofMinTrain
                 if (aexpr.Item1 != null)
                 {
                     var sw = new StringWriter();
-                    aexpr.Item1.Emit(new TokenTextWriter(sw, null));
+                    aexpr.Item1.Emit(new TokenTextWriter(sw, Clo.clo));
                     sw.Close();
                     annotationStr = sw.ToString();
                 }
@@ -889,7 +889,7 @@ namespace ProofMinTrain
     {
         public static void PrintProgram(Program p, string filename)
         {
-            var outFile = new TokenTextWriter(filename, null);
+            var outFile = new TokenTextWriter(filename, Clo.clo);
             p.Emit(outFile);
             outFile.Close();
         }

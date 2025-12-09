@@ -359,7 +359,7 @@ namespace cba
         private static void setupPrint(PersistentCBAProgram program, ErrorTrace trace, string file)
         {
             // Set output files
-            pathFile = file == null ? null : new TokenTextWriter(file + "_trace.txt", null);
+            pathFile = file == null ? null : new TokenTextWriter(file + "_trace.txt", Clo.clo);
             if(pathFile != null) program.writeToFile(file + ".bpl");
             Program prog = program.getProgram();
 

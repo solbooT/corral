@@ -120,7 +120,7 @@ namespace cba.Util
 
             if (debugOut == null)
             {
-                debugOut = new TokenTextWriter("corraldebug.out", null);
+                debugOut = new TokenTextWriter("corraldebug.out", Clo.clo);
             }
         }
 
@@ -141,7 +141,7 @@ namespace cba.Util
                 init();
                 return debugOut;
             }
-            return new TokenTextWriter(Console.Out, null);
+            return new TokenTextWriter(Console.Out, Clo.clo);
         }
 
         public static bool Write(int level, string msg, params object[] args)

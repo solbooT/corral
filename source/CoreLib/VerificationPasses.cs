@@ -1534,7 +1534,7 @@ namespace cba
                         break;
                     }
                     Console.WriteLine("The following expr in {0} is not valid", proc);
-                    expr.Emit(new TokenTextWriter(Console.Out, null));
+                    expr.Emit(new TokenTextWriter(Console.Out, Clo.clo));
                     Console.WriteLine();
                 }
 

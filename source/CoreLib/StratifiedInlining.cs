@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -342,6 +342,336 @@ namespace CoreLib
             return VcOutcome.Correct;
         }
 
+        // ========== Stratified Inlining Verification Methods ==========
+
+        public override async Task<VcOutcome> VerifyImplementation(ImplementationRun run, VerifierCallback callback, System.Threading.CancellationToken cancellationToken)
+        {
+            var impl = run.Implementation;
+            startTime = DateTime.UtcNow;
+
+            procsHitRecBound = new HashSet<string>();
+
+            // Find all procedures that are "forced inline"
+            forceInlineProcs.UnionWith(program.TopLevelDeclarations.OfType<Implementation>()
+                .Where(p => BoogieUtil.checkAttrExists(ForceInlineAttr, p.Attributes) || BoogieUtil.checkAttrExists(ForceInlineAttr, p.Proc.Attributes))
+                .Select(p => p.Name));
+
+            // assert true to flush all one-time axioms, decls, etc
+            prover.Assert(VCExpressionGenerator.True, true);
+
+            MacroSI.PRINT_DEBUG("Starting forward approach...");
+
+            di = new DI(this, BoogieVerify.Options.useFwdBck || !BoogieVerify.Options.useDI);
+
+            Push();
+
+            svc = new StratifiedVC(implName2StratifiedInliningInfo[impl.Name], implementations);
+            di.RegisterMain(svc);
+            HashSet<StratifiedCallSite> openCallSites = new HashSet<StratifiedCallSite>(svc.CallSites);
+            prover.Assert(svc.vcexpr, true);
+            
+            VcOutcome outcome;
+            var reporter = new StratifiedInliningErrorReporter(callback, this, svc);
+            reporter.Options = Clo.clo;
+
+            #region Eager inlining 
+            for (int i = 1; i < cba.Util.BoogieVerify.Options.StratifiedInlining && openCallSites.Count > 0; i++) 
+            {
+                var nextOpenCallSites = new HashSet<StratifiedCallSite>();
+                foreach (StratifiedCallSite scs in openCallSites)
+                {
+                    if (HasExceededRecursionDepth(scs, Clo.RecBound)) continue;
+
+                    var ss = Expand(scs);
+                    if(ss != null) nextOpenCallSites.UnionWith(ss.CallSites);
+                }
+                openCallSites = nextOpenCallSites;
+            }
+            #endregion
+
+            #region Repopulate Call Tree
+            if (cba.Util.BoogieVerify.Options.CallTree != null && di.disabled)
+            {
+                while(true)
+                {
+                    var toAdd = new HashSet<StratifiedCallSite>();
+                    var toRemove = new HashSet<StratifiedCallSite>();
+                    foreach (StratifiedCallSite scs in openCallSites)
+                    {
+                        if(!cba.Util.BoogieVerify.Options.CallTree.Contains(GetPersistentID(scs))) continue;
+                        toRemove.Add(scs);
+                        var ss = Expand(scs);
+                        if (ss != null) toAdd.UnionWith(ss.CallSites);
+                        MacroSI.PRINT_DETAIL(string.Format("Eagerly inlining: {0}", scs.callSite.calleeName), 2);
+                    }
+                    openCallSites.ExceptWith(toRemove);
+                    openCallSites.UnionWith(toAdd);
+                    if (toRemove.Count == 0) break;
+                } 
+            }
+            #endregion
+            
+            // Stratified Search
+            int currRecursionBound = (BoogieVerify.Options.extraFlags.Contains("MaxRec") || BoogieVerify.Options.NonUniformUnfolding) ? Clo.RecBound : 1;
+            while (true)
+            {
+                procsHitRecBound = new HashSet<string>();
+
+                outcome = await Fwd(openCallSites, reporter, true, currRecursionBound, cancellationToken);
+
+                // timeout?
+                if (outcome == VcOutcome.Inconclusive || outcome == VcOutcome.OutOfMemory || outcome == VcOutcome.TimedOut)
+                    break;
+
+                // reached bound? (use Correct + procsHitRecBound check since ReachedBound doesn't exist in Boogie 3.x)
+                if (outcome == VcOutcome.Correct && procsHitRecBound.Count > 0 && currRecursionBound < Clo.RecBound)
+                {
+                    if(StratifiedInliningVerbose > 0)
+                        Console.WriteLine("SI: Exhausted recursion bound of {0}", currRecursionBound);
+                    currRecursionBound++;
+                    continue;
+                }
+
+                break;
+            }
+
+            Pop();
+
+            if(BoogieVerify.Options.extraFlags.Contains("DiCheckSanity"))
+                di.CheckSanity();
+
+            if(!di.disabled)
+                Console.WriteLine("Time spent inside DI: {0} sec", di.timeTaken.TotalSeconds.ToString("F2"));
+
+            if (StratifiedInliningVerbose > 1)
+                stats.print();
+
+            #region Stash call tree
+            if (cba.Util.BoogieVerify.Options.CallTree != null)
+            {
+                CallTree = new HashSet<string>();
+                var callsites = new HashSet<StratifiedCallSite>();
+                callsites.UnionWith(parent.Keys);
+                callsites.UnionWith(parent.Values);
+                callsites.ExceptWith(openCallSites);
+                callsites.ToList().ForEach(scs => CallTree.Add(GetPersistentID(scs)));
+
+                prevMain = impl.Name;
+                prevDag = di.GetDag();
+            }
+            #endregion
+            
+            return outcome;
+        }
+
+        private async Task<VcOutcome> CheckVC(StratifiedInliningErrorReporter reporter, System.Threading.CancellationToken cancellationToken)
+        {
+            stats.calls++;
+            var stopwatch = Stopwatch.StartNew();
+            var outcome = await prover.Check("stratified_vc", VCExpressionGenerator.True, reporter, 1, cancellationToken);
+            stats.time += stopwatch.ElapsedTicks;
+            return ConditionGeneration.ProverInterfaceOutcomeToConditionGenerationOutcome(outcome);
+        }
+
+        private async Task<VcOutcome> CheckVC(List<VCExpr> softAssumptions, StratifiedInliningErrorReporter reporter, System.Threading.CancellationToken cancellationToken)
+        {
+            stats.calls++;
+            var stopwatch = Stopwatch.StartNew();
+            var result = await prover.CheckAssumptions(new List<VCExpr>(), softAssumptions, reporter, cancellationToken);
+            stats.time += stopwatch.ElapsedTicks;
+            return ConditionGeneration.ProverInterfaceOutcomeToConditionGenerationOutcome(result.Item1);
+        }
+
+        // Inline
+        private StratifiedVC Expand(StratifiedCallSite scs)
+        {
+            return Expand(scs, null, true, false);
+        }
+
+        private StratifiedVC Expand(StratifiedCallSite scs, string name, bool DoSubst, bool dontMerge)
+        {
+            MacroSI.PRINT_DEBUG("    ~ extend callsite " + scs.callSite.calleeName);
+            Debug.Assert(DoSubst || di.disabled);
+            var candidate = dontMerge ? null : di.FindMergeCandidate(scs);
+            StratifiedVC ret = null;
+
+            if (candidate == null)
+            {
+                stats.numInlined++;
+                var newSvc = new StratifiedVC(implName2StratifiedInliningInfo[scs.callSite.calleeName], implementations);
+
+                foreach (var newCallSite in newSvc.CallSites)
+                {
+                    parent[newCallSite] = scs;
+                }
+                VCExpr toassert;
+
+                if (di.disabled)
+                {
+                    if (DoSubst)
+                        toassert = prover.VCExprGen.Implies(scs.callSiteExpr, scs.Attach(newSvc));
+                    else
+                        toassert = prover.VCExprGen.Implies(scs.callSiteExpr, prover.VCExprGen.And(
+                        newSvc.vcexpr, AttachByEquality(scs, newSvc)));
+                }
+                else
+                {
+                    var cb = GetControlBoolean(newSvc);
+                    toassert = AttachByEquality(scs, newSvc);
+                    toassert = prover.VCExprGen.Implies(scs.callSiteExpr, prover.VCExprGen.And(cb, toassert));
+                    toassert = prover.VCExprGen.And(prover.VCExprGen.Implies(cb, newSvc.vcexpr), toassert);
+                }
+
+                prover.LogComment("Inlining " + scs.callSite.calleeName + " from " + (parent.ContainsKey(scs) ? attachedVC[parent[scs]].info.Implementation.Name : "main"));
+
+                di.Expanded(scs, newSvc);
+                stats.vcSize += SizeComputingVisitor.ComputeSize(toassert);
+
+                if (name != null)
+                    prover.AssertNamed(toassert, true, name);
+                else
+                    prover.Assert(toassert, true);
+
+                attachedVC[scs] = newSvc;
+                attachedVCInv[newSvc] = scs;
+                ret = newSvc;
+            }
+            else
+            {
+                Merge(scs, candidate);
+                ret = null;
+            }
+            return ret;
+        }
+
+        public async Task<VcOutcome> Fwd(HashSet<StratifiedCallSite> openCallSites, StratifiedInliningErrorReporter reporter, bool main, int recBound, System.Threading.CancellationToken cancellationToken)
+        {
+            VcOutcome outcome = VcOutcome.Inconclusive;
+
+            ForceInline(openCallSites, recBound);
+
+            var boundHit = false;
+            while (true)
+            {
+                // Check cancellation
+                if (cancellationToken.IsCancellationRequested)
+                    return VcOutcome.TimedOut;
+
+                // Check timeout
+                if (BoogieVerify.Options.TimeLimit != 0)
+                {
+                    if ((DateTime.UtcNow - startTime).TotalMilliseconds > BoogieVerify.Options.TimeLimit)
+                    {
+                        return VcOutcome.TimedOut;
+                    }
+                }
+
+                // Bound on max procs inlined
+                if (BoogieVerify.Options.maxInlinedBound != 0 &&
+                    stats.numInlined > BoogieVerify.Options.maxInlinedBound)
+                {
+                    return VcOutcome.Correct; // Bound hit - treated as correct up to this point
+                }
+
+                MacroSI.PRINT_DEBUG("  - underapprox");
+                boundHit = false;
+
+                // underapproximate query
+                Push();
+
+                foreach (StratifiedCallSite cs in openCallSites)
+                {
+                    prover.Assert(cs.callSiteExpr, false);
+                }
+
+                MacroSI.PRINT_DEBUG("    - check");
+                reporter.reportTrace = main;
+                outcome = await CheckVC(reporter, cancellationToken);
+                Pop();
+                MacroSI.PRINT_DEBUG("    - checked: " + outcome);
+                if (outcome != VcOutcome.Correct) break;
+
+                MacroSI.PRINT_DEBUG("  - overapprox");
+                // overapproximate query
+                Push();
+                var softAssumptions = new List<VCExpr>();
+                foreach (StratifiedCallSite cs in openCallSites)
+                {
+                    // Stop if we've reached the recursion bound or the stack-depth bound
+                    if (HasExceededRecursionDepth(cs, recBound) ||
+                        (StackDepthBound > 0 && StackDepth(cs) > StackDepthBound))
+                    {
+                        prover.Assert(cs.callSiteExpr, false);
+                        procsHitRecBound.Add(cs.callSite.calleeName);
+                        boundHit = true;
+                    }
+                    // Non-uniform unfolding
+                    if (BoogieVerify.Options.NonUniformUnfolding && RecursionDepth(cs) > 1)
+                        softAssumptions.Add(prover.VCExprGen.Not(cs.callSiteExpr));
+                }
+                MacroSI.PRINT_DEBUG("    - check");
+                reporter.reportTrace = false;
+                reporter.callSitesToExpand = new List<StratifiedCallSite>();
+                outcome = BoogieVerify.Options.NonUniformUnfolding ? 
+                    await CheckVC(softAssumptions, reporter, cancellationToken) :
+                    await CheckVC(reporter, cancellationToken);
+                Pop();
+                MacroSI.PRINT_DEBUG("    - checked: " + outcome);
+                if (outcome != VcOutcome.Errors)
+                {
+                    // boundHit is tracked via procsHitRecBound; outcome stays Correct
+                    break; // done
+                }
+                if (reporter.callSitesToExpand.Count == 0)
+                    return VcOutcome.Inconclusive;
+
+                var toExpand = reporter.callSitesToExpand;
+                if (BoogieVerify.Options.extraFlags.Contains("SiStingy"))
+                {
+                    var min = toExpand.Select(cs => RecursionDepth(cs)).Min();
+                    toExpand = toExpand.Where(cs => RecursionDepth(cs) == min).ToList();
+                }
+                foreach (var expandScs in toExpand)
+                {
+                    openCallSites.Remove(expandScs);
+                    var expandedSvc = Expand(expandScs);
+                    if (expandedSvc != null)
+                    {
+                        openCallSites.UnionWith(expandedSvc.CallSites);
+                        if (cba.Util.BoogieVerify.Options.useFwdBck) MustNotFail(expandScs, expandedSvc);
+                    }
+                }
+
+                ForceInline(openCallSites, recBound);
+            }
+            return outcome;
+        }
+
+        void ForceInline(HashSet<StratifiedCallSite> openCallSites, int recBound)
+        {
+            do
+            {
+                // force inline
+                var toExpand = new HashSet<StratifiedCallSite>(openCallSites.Where(cs => forceInlineProcs.Contains(cs.callSite.calleeName)));
+                // filter away ones that have reached the bound
+                toExpand.RemoveWhere(cs => HasExceededRecursionDepth(cs, recBound) ||
+                        (StackDepthBound > 0 && StackDepth(cs) > StackDepthBound));
+                if (toExpand.Count == 0) break;
+
+                foreach (var expandScs in toExpand)
+                {
+                    openCallSites.Remove(expandScs);
+                    var expandedSvc = Expand(expandScs);
+                    if (expandedSvc != null)
+                    {
+                        openCallSites.UnionWith(expandedSvc.CallSites);
+                        if (cba.Util.BoogieVerify.Options.useFwdBck) MustNotFail(expandScs, expandedSvc);
+                    }
+                }
+
+            } while (true);
+        }
+
         /* initial analyses */
         public void RunInitialAnalyses(Program prog)
         {
@@ -420,15 +750,14 @@ namespace CoreLib
         protected void Push()
         {
             stats.stacksize++;
-            svc.info.vcgen.prover.Push();
+            prover.Push();
         }
 
         /* for measuring Z3 stack */
         protected void Pop()
         {
             stats.stacksize--;
-            svc.info.vcgen.prover.Pop();
-
+            prover.Pop();
         }
 
         struct SiState

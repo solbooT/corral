@@ -10,6 +10,35 @@ namespace Microsoft.Boogie
 {
     public class BoogieUtil
     {
+        public static void DoModSetAnalysis(Program p)
+        {
+            (new ModSetCollector()).DoModSetAnalysis(p);
+        }
+
+        public static void PrintProgram(Program p, string filename)
+        {
+            var outFile = new TokenTextWriter(filename, Clo.clo);
+            p.Emit(outFile);
+            outFile.Close();
+        }
+        
+        public static void Initializefoo(string clo)
+        {
+            CommandLineOptions.RunningBoogieFromCommandLine = true;
+
+            var quotes = clo.Split(new char[] { '\"' }, StringSplitOptions.RemoveEmptyEntries);
+            var args = new List<string>();
+            for (int i = 0; i < quotes.Length; i++)
+            {
+                if (i == 0 || i == quotes.Length - 1)
+                    args.AddRange(quotes[i].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
+                else
+                    args.Add(quotes[i]);
+            }
+
+            CommandLineOptions.Parse(args.ToArray());
+        }
+        
         public static bool InitializeBoogie(string clo)
         {
             CommandLineOptions.RunningBoogieFromCommandLine = true;
@@ -27,18 +56,6 @@ namespace Microsoft.Boogie
             CommandLineOptions.Parse(args.ToArray());
 
             return false;
-        }
-
-        public static void DoModSetAnalysis(Program p)
-        {
-            (new ModSetCollector()).DoModSetAnalysis(p);
-        }
-
-        public static void PrintProgram(Program p, string filename)
-        {
-            var outFile = new TokenTextWriter(filename, null);
-            p.Emit(outFile);
-            outFile.Close();
         }
 
         public static bool ResolveProgram(Program p, string filename)
@@ -374,7 +391,7 @@ namespace Microsoft.Boogie
 
         public static void PrintGlobalVariables(Program p)
         {
-            TokenTextWriter log = new TokenTextWriter(Console.Out, null);
+            TokenTextWriter log = new TokenTextWriter(Console.Out, Clo.clo);
             foreach (Declaration d in p.TopLevelDeclarations)
             {
                 if (d is GlobalVariable)
