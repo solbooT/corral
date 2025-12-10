@@ -158,6 +158,7 @@ namespace cba
             Clo.clo.TheProverFactory = ProverFactory.Load("SMTLib");
             Clo.clo.ProcedureInlining = CoreOptions.Inlining.Assume;
             Clo.clo.TypeEncodingMethod = CoreOptions.TypeEncoding.Monomorphic;
+            Clo.clo.StratifiedInlining = 1; // Required for ImmediatelyAcceptCommands (opens log file early)
             Clo.RecBound = 500; // default
             
             // /noRemoveEmptyBlocks is needed for field refinement. It ensures that
@@ -239,6 +240,7 @@ namespace cba
             Console.WriteLine("Corral program verifier version {0}", VersionInfo());
 
             Configs config = Configs.parseCommandLine(args);
+            //Clo.clo.Install(new CommandLineOptions(System.Console.Out, new ConsolePrinter()));
 
             if (!System.IO.File.Exists(config.inputFile))
             {

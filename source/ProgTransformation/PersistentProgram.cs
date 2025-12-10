@@ -325,7 +325,7 @@ namespace ProgTransformation
             FixedDuplicator dup = new FixedDuplicator();
             Program ret = dup.VisitProgram(program);
 
-            if (ret.Resolve(null) != 0 || ret.Typecheck(null) != 0)
+            if (ret.Resolve(null) != 0 || ret.Typecheck(Clo.clo) != 0)
             {
                 BoogieUtil.PrintProgram(ret, "error.bpl");
                 throw new InternalError("Illegal program given to PersistentProgram");

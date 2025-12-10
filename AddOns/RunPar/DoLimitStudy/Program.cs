@@ -239,7 +239,7 @@ namespace Microsoft.Boogie
 
             freshProgram = ExecutionEngine.ParseBoogieProgram(fileList, false);
             int errCount1 = freshProgram.Resolve();
-            int errCount2 = freshProgram.Typecheck(null);
+            int errCount2 = freshProgram.Typecheck(Clo.clo);
 
             Contract.Assert(errCount1 == 0 && errCount2 == 0);
 
@@ -264,7 +264,7 @@ namespace Microsoft.Boogie
             fileList.Add(dualityFixPointFile);
             Program summaryProgram = ExecutionEngine.ParseBoogieProgram(fileList, false);
             //int errCount1 = summaryProgram.Resolve();
-            //int errCount2 = summaryProgram.Typecheck(null);
+            //int errCount2 = summaryProgram.Typecheck(Clo.clo);
 
             //Contract.Assert(errCount1 == 0 && errCount2 == 0);
 
@@ -406,9 +406,9 @@ namespace Microsoft.Boogie
                 //summariesProgram.TopLevelDeclarations.Add(gv);
             }
 
-            //summariesProgram.Typecheck(null);
+            //summariesProgram.Typecheck(Clo.clo);
             int errCount1 = summariesProgram.Resolve();
-            //int errCount2 = summariesProgram.Typecheck(null);
+            //int errCount2 = summariesProgram.Typecheck(Clo.clo);
 
             summariesProgram.Emit(new TokenTextWriter("final.bpl", Clo.clo));
 
@@ -425,7 +425,7 @@ namespace Microsoft.Boogie
             fileList.Add(dualityFPFile);
 
             Program summariesProgram = ExecutionEngine.ParseBoogieProgram(fileList, false);
-            summariesProgram.Typecheck(null);
+            summariesProgram.Typecheck(Clo.clo);
             summariesProgram.Resolve();
             */
             //prover = ProverInterface.CreateProver(null,summariesProgram, "log.txt", true, CommandLineOptions.ProverKillTime);
@@ -571,7 +571,7 @@ namespace Microsoft.Boogie
                 //Contract.Assert(false);
 
                 newfreshProgram.Resolve();
-                newfreshProgram.Typecheck(null);
+                newfreshProgram.Typecheck(Clo.clo);
                 Dictionary<string, List<Expr>> houdiniOutSummaries = DoPredAbsInductiveSummaries(freshProgram, prover, environmentVariables, insertedSummaryType);
 #if true
 
@@ -604,7 +604,7 @@ namespace Microsoft.Boogie
                 RuleTemplateDB.dump();
 
                 newfreshProgram.Resolve();
-                newfreshProgram.Typecheck(null);
+                newfreshProgram.Typecheck(Clo.clo);
                 Dictionary<string, List<Expr>> houdiniOutSummaries = DoPredAbsInductiveSummariesLearntTemplates(freshProgram, prover, environmentVariables, insertedSummaryType);
 
 #if true
@@ -1476,7 +1476,7 @@ namespace Microsoft.Boogie
 
                 houdiniProgram = ExecutionEngine.ParseBoogieProgram(new List<string> { "AbsHoudIn.bpl" }, false);
                 int errCount1 = houdiniProgram.Resolve();
-                int errCount2 = houdiniProgram.Typecheck(null);
+                int errCount2 = houdiniProgram.Typecheck(Clo.clo);
 
                 Contract.Assert(errCount1 == 0 && errCount2 == 0);
             }
@@ -1602,7 +1602,7 @@ namespace Microsoft.Boogie
 
             Program houdiniProgram = ExecutionEngine.ParseBoogieProgram(new List<string> { filename }, false);
             int errCount1 = houdiniProgram.Resolve();
-            int errCount2 = houdiniProgram.Typecheck(null);
+            int errCount2 = houdiniProgram.Typecheck(Clo.clo);
 
             Contract.Assert(errCount1 == 0 && errCount2 == 0);
 
@@ -1916,7 +1916,7 @@ namespace Microsoft.Boogie
 
                 houdiniProgram = ExecutionEngine.ParseBoogieProgram(new List<string> { "AbsHoudIn.bpl" }, false);
                 int errCount1 = houdiniProgram.Resolve();
-                int errCount2 = houdiniProgram.Typecheck(null);
+                int errCount2 = houdiniProgram.Typecheck(Clo.clo);
 
                 Contract.Assert(errCount1 == 0 && errCount2 == 0);
             }
