@@ -1,7 +1,0 @@
-
-int foo (
-  int x
-)
-{
-	assert irql_current == 0;
-}
