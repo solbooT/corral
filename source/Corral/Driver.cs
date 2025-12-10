@@ -155,11 +155,10 @@ namespace cba
             Clo.clo.PrintInstrumented = true;
             Clo.clo.ProverLogFileAppend = true;
             Clo.clo.ProverLogFilePath = "prover.smt2";
-            Clo.clo.TheProverFactory = ProverFactory.Load("SMTLib");
             Clo.clo.ProcedureInlining = CoreOptions.Inlining.Assume;
             Clo.clo.TypeEncodingMethod = CoreOptions.TypeEncoding.Monomorphic;
-            Clo.clo.StratifiedInlining = 1; // Required for ImmediatelyAcceptCommands (opens log file early)
-            Clo.RecBound = 500; // default
+            //Clo.clo.StratifiedInlining = 1; // Required for ImmediatelyAcceptCommands (opens log file early)
+            //Clo.RecBound = 500; // default
             
             // /noRemoveEmptyBlocks is needed for field refinement. It ensures that
             // we get an actual path in the program (so that we can concretize it)

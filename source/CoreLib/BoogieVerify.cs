@@ -41,10 +41,10 @@ namespace cba.Util
 
         public static void setTimeOut(uint TO)
         {
-            Options.TimeLimit = 0;
+            Clo.clo.TimeLimit = 0;
             if (TO > 0)
             {
-                Options.TimeLimit = TO;
+                Clo.clo.TimeLimit = TO;
             }
         }
 
@@ -189,13 +189,13 @@ namespace cba.Util
                 {
                     var start = DateTime.Now;
 
-                    Console.WriteLine(impl.Name);
+                    Console.WriteLine($"verifying {impl.Name}");
                     (outcome, errors, _) = vcgen.VerifyImplementationDirectly(new ImplementationRun(impl, System.Console.Out), System.Threading.CancellationToken.None).Result;
 
                     var end = DateTime.Now;
 
                     TimeSpan elapsed = end - start;
-                    Log.WriteLine(Log.Debug, string.Format("  [{0} s]  ", elapsed.TotalSeconds));
+                    Console.WriteLine(string.Format("  [{0} s]  ", elapsed.TotalSeconds));
 
                     verificationTime += elapsed;
                     if (recordTempTime) tempTime += elapsed;
@@ -231,16 +231,61 @@ namespace cba.Util
                     default:
                         throw new InternalError("z3 unknown response");
                 }
+
+
+            Log.WriteLine(Log.Debug, (errors == null ? 0 : errors.Count) + " counterexamples.");
+            if (errors.Count != 0) ret = ReturnStatus.NOK;
+
+
+            // Print model
+            if (errors != null && errors.Count > 0 && errors[0].Model != null && Clo.clo.ModelViewFile != null)
+            {
+                var model = errors[0].Model;
+                var cnt = 0;
+                model.States.ForEach(st =>
+                                    {
+                                        if (st.Name.StartsWith("corral"))
+                                        {
+                                            st.ChangeName(st.Name + "_" + cnt.ToString()); cnt++;
+                                        }
+                                    });
+
+                using (var wr = new StreamWriter(Clo.clo.ModelViewFile, false))
+                {
+                    model.Write(wr);
+                }
+            }
+
+            if (errors != null && needErrorTraces)
+            {
+                for (int i = 0; i < errors.Count; i++)
+                {
+                        //errors[i].Print(1, Console.Out);
+                        // Map the trace across loop extraction
+                        if (vcgen is VC.VerificationConditionGenerator)
+                        {
+                            errors[i] = (vcgen as VC.VerificationConditionGenerator).ExtractLoopTrace(errors[i], impl.Name, program, extractionInfo);
+                        }
+
+                        if (errors[i] is AssertCounterexample)
+                    {
+                        // Special treatment for assert counterexamples for CBA: Reconstruct
+                        // trace in the input program.
+                        ReconstructImperativeTrace(errors[i], impl.Name, origProg);
+                        allErrors.Add(new BoogieAssertErrorTrace(errors[i] as AssertCounterexample, origProg[impl.Name], program));
+                    }
+                    else
+                    {
+                        allErrors.Add(new BoogieErrorTrace(errors[i], origProg[impl.Name], program));
+                    }
+                }
+            }
             }
 
             // TODOOOOO
             // procsHitRecBound = (vcgen as VC.StratifiedInliningInfo).procsHitRecBound;
 
-            Debug.Assert(vcgen is CoreLib.StratifiedInlining);
-
-
-            Log.WriteLine(Log.Debug, (errors == null ? 0 : errors.Count) + " counterexamples.");
-            if (errors.Count != 0) ret = ReturnStatus.NOK;
+            
 
             vcgen.Close();
             Clo.clo.TheProverFactory.Close();
@@ -248,95 +293,6 @@ namespace cba.Util
             return ret;
         }
 
-        // Assumptions:
-        //  - Program has no recursion
-        public static HashSet<string> FindLeastToVerify(Program program, HashSet<string> boolVars)
-        {
-            Debug.Assert(program != null);
-
-            RemoveAsserts(program);
-
-            if (Options.printProg)
-            {
-                BoogieUtil.PrintProgram(program, Options.progFileName);
-            }
-
-            //// ---------- Verify ----------------------------------------------------------------
-            Debug.Assert(Options.StratifiedInlining > 0);
-
-            StratifiedVerificationConditionGeneratorBase vcgen = null;
-            try
-            {
-                vcgen = new CoreLib.StratifiedInlining(program, "prover.log", true, null);
-            }
-            catch (ProverException)
-            {
-                Log.WriteLine(Log.Error, "ProverException: {0}");
-                return new HashSet<string>();
-            }
-
-            var mains = program.TopLevelDeclarations
-                .OfType<Implementation>()
-                .Where(impl => QKeyValueExtensions.FindBoolAttribute(impl.Attributes, "entrypoint"));
-
-            if (mains.Count() != 1)
-                throw new InternalError("Wrong number of entrypoints for FindLeastToverify");
-
-            var main = mains.First();
-
-            VcOutcome outcome;
-
-            try
-            {
-                var start = DateTime.Now;
-
-                outcome = vcgen.FindLeastToVerify(main, ref boolVars);
-
-                var end = DateTime.Now;
-
-                TimeSpan elapsed = end - start;
-                Log.WriteLine(Log.Debug, string.Format("  [{0} s]  ", elapsed.TotalSeconds));
-
-                verificationTime += elapsed;
-                if (recordTempTime) tempTime += elapsed;
-            }
-            catch (VC.VCGenException e)
-            {
-                throw new InternalError("VCGenException: " + e.Message);
-                //errors = null;
-                //outcome = VcOutcome.Inconclusive;
-            }
-            catch (UnexpectedProverOutputException upo)
-            {
-
-                throw new InternalError("Unexpected prover output: " + upo.Message);
-                //errors = null;
-                //outcome = VcOutcome.Inconclusive;
-            }
-
-            switch (outcome)
-            {
-                case VcOutcome.Correct:
-                    break;
-                case VcOutcome.Errors:
-                    Debug.Assert(false);
-                    break;
-                case VcOutcome.Inconclusive:
-                    throw new InternalError("z3 says inconclusive");
-                case VcOutcome.OutOfMemory:
-                    throw new InternalError("z3 out of memory");
-                case VcOutcome.OutOfResource:
-                case VcOutcome.TimedOut:
-                    throw new InternalError("z3 timed out");
-                default:
-                    throw new InternalError("z3 unknown response");
-            }
-            Debug.Assert(outcome == VcOutcome.Correct);
-
-            vcgen.Close();
-            Clo.clo.TheProverFactory.Close();
-            return boolVars;
-        }
 
         private static void DFS(Block root, Block parent, Func<Block, IEnumerable<Block>> Succ, Dictionary<Block, int> color, Dictionary<Block, Block> parentTree, List<Block> cycle)
         {
@@ -498,6 +454,96 @@ namespace cba.Util
 
         }
 
+        // Assumptions:
+        //  - Program has no recursion
+        public static HashSet<string> FindLeastToVerify(Program program, HashSet<string> boolVars)
+        {
+            Debug.Assert(program != null);
+
+            RemoveAsserts(program);
+
+            if (Options.printProg)
+            {
+                BoogieUtil.PrintProgram(program, Options.progFileName);
+            }
+
+            //// ---------- Verify ----------------------------------------------------------------
+            Debug.Assert(Options.StratifiedInlining > 0);
+
+            StratifiedVerificationConditionGeneratorBase vcgen = null;
+            try
+            {
+                vcgen = new CoreLib.StratifiedInlining(program, "prover.log", true, null);
+            }
+            catch (ProverException)
+            {
+                Log.WriteLine(Log.Error, "ProverException: {0}");
+                return new HashSet<string>();
+            }
+
+            var mains = program.TopLevelDeclarations
+                .OfType<Implementation>()
+                .Where(impl => QKeyValueExtensions.FindBoolAttribute(impl.Attributes, "entrypoint"));
+
+            if (mains.Count() != 1)
+                throw new InternalError("Wrong number of entrypoints for FindLeastToverify");
+
+            var main = mains.First();
+
+            VcOutcome outcome;
+
+            try
+            {
+                var start = DateTime.Now;
+
+                outcome = vcgen.FindLeastToVerify(main, ref boolVars);
+
+                var end = DateTime.Now;
+
+                TimeSpan elapsed = end - start;
+                Log.WriteLine(Log.Debug, string.Format("  [{0} s]  ", elapsed.TotalSeconds));
+
+                verificationTime += elapsed;
+                if (recordTempTime) tempTime += elapsed;
+            }
+            catch (VC.VCGenException e)
+            {
+                throw new InternalError("VCGenException: " + e.Message);
+                //errors = null;
+                //outcome = VcOutcome.Inconclusive;
+            }
+            catch (UnexpectedProverOutputException upo)
+            {
+
+                throw new InternalError("Unexpected prover output: " + upo.Message);
+                //errors = null;
+                //outcome = VcOutcome.Inconclusive;
+            }
+
+            switch (outcome)
+            {
+                case VcOutcome.Correct:
+                    break;
+                case VcOutcome.Errors:
+                    Debug.Assert(false);
+                    break;
+                case VcOutcome.Inconclusive:
+                    throw new InternalError("z3 says inconclusive");
+                case VcOutcome.OutOfMemory:
+                    throw new InternalError("z3 out of memory");
+                case VcOutcome.OutOfResource:
+                case VcOutcome.TimedOut:
+                    throw new InternalError("z3 timed out");
+                default:
+                    throw new InternalError("z3 unknown response");
+            }
+            Debug.Assert(outcome == VcOutcome.Correct);
+
+            vcgen.Close();
+            Clo.clo.TheProverFactory.Close();
+            return boolVars;
+        }
+
         // Computes the set of unique procs inlined by looking at the inlined call tree
         public static HashSet<string> UniqueProcsInlined()
         {
@@ -586,7 +632,7 @@ namespace cba.Util
                     break;
             }
 
-            var ret = new AssertCounterexample(null, newTrace, null, null, trace.Model, trace.MvInfo, trace.Context, null);
+            var ret = new AssertCounterexample(Clo.clo, newTrace, null, null, trace.Model, trace.MvInfo, trace.Context, null);
             ret.CalleeCounterexamples = newTraceCallees;
 
             return ret;
@@ -1006,5 +1052,6 @@ namespace cba.Util
         }
 
     }
+
 
 }
