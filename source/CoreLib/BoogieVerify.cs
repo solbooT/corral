@@ -162,13 +162,6 @@ namespace cba.Util
             try
             {
                 Debug.Assert(Options.StratifiedInlining > 0);
-                /*
-                Debug.Assert(program != null);
-                Debug.Assert(Clo.clo.ProverLogFilePath != null);
-                Debug.Assert(Clo.clo.ProverLogFileAppend != null);
-                Debug.Assert(Clo.clo.TheProverFactory != null);
-                */
-
                 vcgen = new CoreLib.StratifiedInlining(program, Clo.clo.ProverLogFilePath, Clo.clo.ProverLogFileAppend, delegate(Implementation m) { });
             }
             catch (ProverException e)
@@ -183,6 +176,8 @@ namespace cba.Util
             if (mains.Count > 1)
                 Console.WriteLine("Verifying {0} impls", mains.Count);
 
+            List<Counterexample> errors = new List<Counterexample>();
+
             foreach (var impl in mains)
             {
                 if (PrintImplsBeingVerified)
@@ -195,7 +190,7 @@ namespace cba.Util
                     var start = DateTime.Now;
 
                     Console.WriteLine(impl.Name);
-                    outcome = vcgen.VerifyImplementation(new ImplementationRun(impl, System.Console.Out), new VerifierCallback(new CoreOptions.ProverWarnings()), System.Threading.CancellationToken.None).Result;
+                    (outcome, errors, _) = vcgen.VerifyImplementationDirectly(new ImplementationRun(impl, System.Console.Out), System.Threading.CancellationToken.None).Result;
 
                     var end = DateTime.Now;
 
@@ -226,10 +221,12 @@ namespace cba.Util
                         throw new InternalError("z3 says inconclusive");
                     case VcOutcome.OutOfMemory:
                         timedOut.Add(impl.Name);
+                        errors = new List<Counterexample>();
                         break;
                     case VcOutcome.OutOfResource:
                     case VcOutcome.TimedOut:
                         timedOut.Add(impl.Name);
+                        errors = new List<Counterexample>();
                         break;
                     default:
                         throw new InternalError("z3 unknown response");
@@ -240,6 +237,10 @@ namespace cba.Util
             // procsHitRecBound = (vcgen as VC.StratifiedInliningInfo).procsHitRecBound;
 
             Debug.Assert(vcgen is CoreLib.StratifiedInlining);
+
+
+            Log.WriteLine(Log.Debug, (errors == null ? 0 : errors.Count) + " counterexamples.");
+            if (errors.Count != 0) ret = ReturnStatus.NOK;
 
             vcgen.Close();
             Clo.clo.TheProverFactory.Close();
