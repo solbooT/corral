@@ -839,7 +839,7 @@ namespace cba
                         }
                     }
 
-                    for (int i = 0; i < Clo.RecBound /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */; i++)
+                    for (int i = 0; i < Clo.RecBound ; i++)
                     {
                         var impl = implCopies[Tuple.Create(name, i)];
                         foreach (var blk in impl.Blocks)

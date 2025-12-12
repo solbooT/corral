@@ -759,10 +759,10 @@ namespace cba.Util
                     newTrace.Add(currOrigBlock);
                 }
 
-                if (trace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */.ContainsKey(currLocation))
+                if (trace.CalleeCounterexamples .ContainsKey(currLocation))
                 {
                     // find the corresponding call in origBlock
-                    var calleeInfo = trace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[currLocation];
+                    var calleeInfo = trace.CalleeCounterexamples [currLocation];
                     var calleeName = trace.GetCalledProcName( /* TODO: method name changed */trace.Trace[currLocation.numBlock].Cmds[currLocation.numInstr]);
                     while (currOrigInstr < currOrigBlock.Cmds.Count)
                     {
@@ -819,7 +819,7 @@ namespace cba.Util
                     //b.Emit(new TokenTextWriter(Console.Out, null), 0);
                     for (int numInstr = 0; numInstr < b.Cmds.Count; numInstr++)
                     {
-                        if (trace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */.ContainsKey(new TraceLocation(numBlock, numInstr)))
+                        if (trace.CalleeCounterexamples .ContainsKey(new TraceLocation(numBlock, numInstr)))
                         {
                             throw new InternalError("BoogieVerify: An intermediate block has a procedure call");
                         }
@@ -837,17 +837,17 @@ namespace cba.Util
                     for (int numInstr = 0; numInstr < b.Cmds.Count; numInstr++)
                     {
                         var loc = new TraceLocation(numBlock, numInstr);
-                        if (trace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */.ContainsKey(loc))
+                        if (trace.CalleeCounterexamples .ContainsKey(loc))
                         {
                             Cmd c = b.Cmds[numInstr];
                             var calleeName = trace.GetCalledProcName( /* TODO: method name changed */c);
-                            var calleeTrace = trace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].Counterexample;
+                            var calleeTrace = trace.CalleeCounterexamples [loc].Counterexample;
                             ReconstructImperativeTrace(calleeTrace, calleeName, origProg);
                             calleeTraces.Add(
                                 new Duple<string, CalleeCounterexampleInfo>(
                                     calleeName,
                                     new CalleeCounterexampleInfo(calleeTrace,
-                                        trace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].Args)
+                                        trace.CalleeCounterexamples [loc].Args)
                                         ));
                         }
                     }
@@ -890,7 +890,7 @@ namespace cba.Util
             }
             trace.Trace = newBlocks;
             // reset other info. Safe thing to do unless we know what it is
-            trace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */ = newCalleeTraces;
+            trace.CalleeCounterexamples  = newCalleeTraces;
         }
     }
 
@@ -1148,7 +1148,7 @@ namespace cba.Util
         public bool verifyTrace(out Program newProg)
         {
             // Currently, this only works for intraprocedural traces
-            Debug.Assert(acex.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */.Count == 0);
+            Debug.Assert(acex.CalleeCounterexamples .Count == 0);
 
             HashSet<string> calledProcs;
             Implementation traceImpl = getImplementation(out calledProcs);

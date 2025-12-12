@@ -329,10 +329,10 @@ namespace cba
                     var loc = new TraceLocation(i, numInstr);
                     ErrorTraceInstr instr = null;
 
-                    if (btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */.ContainsKey(loc))
+                    if (btrace.CalleeCounterexamples .ContainsKey(loc))
                     {
                         ErrorTrace calleeTrace = constructErrorTrace(
-                             btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].Counterexample, (c as CallCmd).Proc.Name, true, ref captureStateIndex);
+                             btrace.CalleeCounterexamples [loc].Counterexample, (c as CallCmd).Proc.Name, true, ref captureStateIndex);
                         var info = new InstrInfo();
                         var cc = c as CallCmd;
                         Debug.Assert(cc != null);
@@ -340,10 +340,10 @@ namespace cba
                         if (cc.Proc.Name == recordIntArgProc || cc.Proc.Name == recordBoolArgProc )
                         {
                             Debug.Assert(recordTransformationHappened);
-                            Debug.Assert(btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].Args.Count == 1);
+                            Debug.Assert(btrace.CalleeCounterexamples [loc].Args.Count == 1);
                             Debug.Assert(cc.Ins[0] is IdentifierExpr);
 
-                            var modelVal = btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].Args[0];
+                            var modelVal = btrace.CalleeCounterexamples [loc].Args[0];
                             object v = null;
                             if (cc.Proc.Name == recordIntArgProc && modelVal is Model.Integer)
                             {
@@ -379,10 +379,10 @@ namespace cba
                         }
                         if (cc.Proc.Name.StartsWith(recordArgProcPrefix))
                         {
-                            Debug.Assert(btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].Args.Count == 1);
+                            Debug.Assert(btrace.CalleeCounterexamples [loc].Args.Count == 1);
                             //Debug.Assert(cc.Ins[0] is IdentifierExpr);
 
-                            var v = btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].Args[0];
+                            var v = btrace.CalleeCounterexamples [loc].Args[0];
                             if (v != null)
                             {
                                 info.addVal("si_arg", v);
@@ -446,10 +446,10 @@ namespace cba
                 var c = lastBlk.Cmds[i];
                 var loc = new TraceLocation(btrace.Trace.Count - 1, i);
                 ErrorTraceInstr instr = null;
-                if (btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */.ContainsKey(loc))
+                if (btrace.CalleeCounterexamples .ContainsKey(loc))
                 {
                     var calleeTrace = constructErrorTrace(
-                        btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].Counterexample, (c as CallCmd).Proc.Name, true, ref captureStateIndex);
+                        btrace.CalleeCounterexamples [loc].Counterexample, (c as CallCmd).Proc.Name, true, ref captureStateIndex);
                     var info = new InstrInfo();
 
                     var cc = c as CallCmd;
@@ -458,10 +458,10 @@ namespace cba
                     if (cc.Proc.Name == recordIntArgProc || cc.Proc.Name == recordBoolArgProc)
                     {
                         Debug.Assert(recordTransformationHappened);
-                        Debug.Assert(btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].Args.Count == 1);
+                        Debug.Assert(btrace.CalleeCounterexamples [loc].Args.Count == 1);
                         Debug.Assert(cc.Ins[0] is IdentifierExpr);
 
-                        var modelVal = btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].Args[0];
+                        var modelVal = btrace.CalleeCounterexamples [loc].Args[0];
                         object v = null;
                         if (cc.Proc.Name == recordIntArgProc && modelVal is Model.Integer)
                         {
@@ -497,10 +497,10 @@ namespace cba
                     }
                     else if (cc.Proc.Name.StartsWith(recordArgProcPrefix))
                     {
-                        Debug.Assert(btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].Args.Count == 1);
+                        Debug.Assert(btrace.CalleeCounterexamples [loc].Args.Count == 1);
                         //Debug.Assert(cc.Ins[0] is IdentifierExpr);
 
-                        var v = btrace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].Args[0];
+                        var v = btrace.CalleeCounterexamples [loc].Args[0];
                         if (v != null)
                         {
                             info.addVal("si_arg", v);
@@ -1711,7 +1711,7 @@ namespace cba
 
             if (ExtractLoops)
             {
-                var rb = Clo.RecBound /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */;
+                var rb = Clo.RecBound;
             }
 
             program = new CBAProgram(BoogieUtil.ReResolve(program), program.mainProcName, program.contextBound);
@@ -2460,7 +2460,7 @@ namespace cba
                     tc.LabelTargets = new List<Block>(tc.LabelNames.Select(s => l2b[s]));
                 }
 
-                mainCopy.Blocks = LoopUnroll.UnrollLoops(mainCopy.Blocks[0], Clo.RecBound /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */, false);
+                mainCopy.Blocks = LoopUnroll.UnrollLoops(mainCopy.Blocks[0], Clo.RecBound , false);
 
                 // detect loops
                 l2b = BoogieUtil.labelBlockMapping(mainCopy);

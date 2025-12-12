@@ -61,6 +61,11 @@ namespace Microsoft.Boogie.SMTLib
       // we feed the axioms when BeginCheck is called.
       return 0;
     }
+ 
+    public override async Task<SolverOutcome> CheckOutcome(ErrorHandler handler, CancellationToken cancellationToken)
+    {
+        return CheckSat(cancellationToken).Result;
+    }
 
     public override async Task<SolverOutcome> Check(string descriptiveName, VCExpr vc, ErrorHandler handler, int errorLimit,
       CancellationToken cancellationToken)
@@ -134,7 +139,7 @@ namespace Microsoft.Boogie.SMTLib
       return Process.SendRequestsAndCloseInput(sanitizedRequests, cancellationToken);
     }
 
-    private async Task<SolverOutcome> CheckSat(CancellationToken cancellationToken)
+    public async Task<SolverOutcome> CheckSat(CancellationToken cancellationToken)
     {
       var requests = new List<string>();
       requests.Add("(check-sat)");
@@ -227,7 +232,7 @@ namespace Microsoft.Boogie.SMTLib
     // `(get-value ControlFlow)` rather than the full result of `(get-model)`.
     // At some point we should do experiments to see whether that's at all
     // faster.
-    private string[] CalculatePath(int controlFlowConstant, Model model)
+    public string[] CalculatePath(int controlFlowConstant, Model model)
     {
       var path = new List<string>();
 

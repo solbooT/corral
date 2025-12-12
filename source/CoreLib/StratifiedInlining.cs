@@ -176,7 +176,7 @@ namespace CoreLib
         public Dictionary<StratifiedVC, StratifiedCallSite> attachedVCInv;
 
         /* VC of main */
-        private StratifiedVC svc;
+        private StratifiedVC mainVC;
 
         /*  Parent linking -- used only for computing the recursion depth */
         public Dictionary<StratifiedCallSite, StratifiedCallSite> parent;        
@@ -318,10 +318,10 @@ namespace CoreLib
         public int StackDepth(StratifiedCallSite cs)
         {
             int i = 1;
-            StratifiedCallSite iter = cs;
-            while (parent.ContainsKey(iter))
+            StratifiedCallSite ForEach = cs;
+            while (parent.ContainsKey(ForEach))
             {
-                iter = parent[iter]; /* previous callsite */
+                ForEach = parent[ForEach]; /* previous callsite */
                 i++;
             }
             return i;
@@ -331,11 +331,11 @@ namespace CoreLib
         public int RecursionDepth(StratifiedCallSite cs)
         {
             int i = 1;
-            StratifiedCallSite iter = cs;
-            while (parent.ContainsKey(iter))
+            StratifiedCallSite ForEach = cs;
+            while (parent.ContainsKey(ForEach))
             {
-                iter = parent[iter]; /* previous callsite */
-                if (iter.callSite.calleeName == cs.callSite.calleeName)
+                ForEach = parent[ForEach]; /* previous callsite */
+                if (ForEach.callSite.calleeName == cs.callSite.calleeName)
                     i++; /* recursion */
             }
             return i;
@@ -574,11 +574,9 @@ namespace CoreLib
                 return totaltime;
             }
         }
-        // Comment TODO
         public VcOutcome MustReachSplitStyle(HashSet<StratifiedCallSite> openCallSites, StratifiedInliningErrorReporter reporter)
         {
-            /* TODO
-            Outcome outcome = Outcome.Inconclusive;
+            VcOutcome outcome = VcOutcome.Inconclusive;
             reporter.reportTraceIfNothingToExpand = true;
 
             int treesize = 0;
@@ -598,8 +596,8 @@ namespace CoreLib
             var PrevAsserted = new Func<HashSet<Tuple<StratifiedVC, Block>>>(() =>
             {
                 var ret = new HashSet<Tuple<StratifiedVC, Block>>();
-                prevMustAsserted.ToList().Iter(ls =>
-                    ls.Iter(tup => ret.Add(tup)));
+                prevMustAsserted.ToList().ForEach(ls =>
+                    ls.ForEach(tup => ret.Add(tup)));
                 return ret;
             });
 
@@ -613,7 +611,7 @@ namespace CoreLib
                     {
                         var disj = di.DisjointNodes(n);
 
-                        disj.Iter(m => di.DeleteNode(m));
+                        disj.ForEach(m => di.DeleteNode(m));
                     }
                 });
 
@@ -656,14 +654,14 @@ namespace CoreLib
                             maxVcScore = score;
                         }
                     }
-                    toRemove.Iter(vc => attachedVCInv.Remove(vc));
+                    toRemove.ForEach(vc => attachedVCInv.Remove(vc));
 
                     var scs = attachedVCInv[maxVc];
                     Debug.Assert(!openCallSites.Contains(scs));
 
                     var desc = sizes[maxVc];
                     var cnt = 0;
-                    openCallSites.Iter(cs => cnt += desc.Contains(containingVC(cs)) ? 1 : 0);
+                    openCallSites.ForEach(cs => cnt += desc.Contains(containingVC(cs)) ? 1 : 0);
                     
                     // Push & Block
                     MacroSI.PRINT("{0}>>> Pushing Block({1}, {2}, {3}, {4}, {5})", indent(decisions.Count), scs.callSite.calleeName, sizes[maxVc].Count, disj[maxVc], size, stats.numInlined);
@@ -691,7 +689,7 @@ namespace CoreLib
                 {
                     // Stop if we've reached the recursion bound or
                     // the stack-depth bound (if there is one)
-                    if (HasExceededRecursionDepth(cs, CommandLineOptions.Clo.RecursionBound) ||
+                    if (HasExceededRecursionDepth(cs, Clo.RecBound) ||
                         (StackDepthBound > 0 &&
                         StackDepth(cs) > StackDepthBound))
                     {
@@ -705,31 +703,31 @@ namespace CoreLib
 
                 MacroSI.PRINT_DEBUG("    - checked: " + outcome);
 
-                if (outcome != Outcome.Correct && outcome != Outcome.Errors)
+                if (outcome != VcOutcome.Correct && outcome != VcOutcome.Errors)
                 {
                     timeGraph.AddEdgeDone(decisions.Count == 0 ? "" : decisions.Peek().decisionType.ToString());
                     break; // done (T/O)
                 }
 
-                if (outcome == Outcome.Errors && reporter.callSitesToExpand.Count == 0)
+                if (outcome == VcOutcome.Errors && reporter.callSitesToExpand.Count == 0)
                 {
                     timeGraph.AddEdgeDone(decisions.Count == 0 ? "" : decisions.Peek().decisionType.ToString());
                     break; // done (error found)
                 }
 
-                if (outcome == Outcome.Errors)
+                if (outcome == VcOutcome.Errors)
                 {
                     foreach (var scs in reporter.callSitesToExpand)
                     {
                         openCallSites.Remove(scs);
                         var svc = Expand(scs, null, true, true);
                         if (svc != null) openCallSites.UnionWith(svc.CallSites);
-                        Debug.Assert(!cba.Util.BoogieVerify.options.useFwdBck);
+                        Debug.Assert(!cba.Util.BoogieVerify.Options.useFwdBck);
                     }
                 }
                 else
                 {
-                    // outcome == Outcome.Correct
+                    // outcome == VcOutcome.Correct
                     Decision topDecision = null;
                     SiState topState = SiState.SaveState(this, openCallSites);
                     timeGraph.AddEdgeDone(decisions.Count == 0 ? "" : decisions.Peek().decisionType.ToString());
@@ -807,17 +805,15 @@ namespace CoreLib
             }
             Console.WriteLine();
 
-            if (outcome == Outcome.Correct && reachedBound) return Outcome.ReachedBound;
+            if (outcome == VcOutcome.Correct && reachedBound) return VcOutcome.Correct;
             return outcome;
-            */
-            return VcOutcome.Correct;
+            //return VcOutcome.Correct;
         }
 
         // Comment TODO
         public VcOutcome MustReachStyle(HashSet<StratifiedCallSite> openCallSites, StratifiedInliningErrorReporter reporter)
         {
-            /* TODO
-            Outcome outcome = Outcome.Inconclusive;
+            VcOutcome outcome = VcOutcome.Inconclusive;
             reporter.reportTraceIfNothingToExpand = true;
 
             var backtrackingPoints = new Stack<SiState>();
@@ -834,8 +830,8 @@ namespace CoreLib
             var PrevAsserted = new Func<HashSet<Tuple<StratifiedVC, Block>>>(() =>
                 {
                     var ret = new HashSet<Tuple<StratifiedVC, Block>>();
-                    prevMustAsserted.ToList().Iter(ls =>
-                        ls.Iter(tup => ret.Add(tup)));
+                    prevMustAsserted.ToList().ForEach(ls =>
+                        ls.ForEach(tup => ret.Add(tup)));
                     return ret;
                 });
             
@@ -856,7 +852,7 @@ namespace CoreLib
                 {                    
                     // Stop if we've reached the recursion bound or
                     // the stack-depth bound (if there is one)
-                    if (HasExceededRecursionDepth(cs, CommandLineOptions.Clo.RecursionBound) ||
+                    if (HasExceededRecursionDepth(cs, Clo.RecBound) ||
                         (StackDepthBound > 0 &&
                         StackDepth(cs) > StackDepthBound))
                     {
@@ -870,17 +866,17 @@ namespace CoreLib
 
                 MacroSI.PRINT_DEBUG("    - checked: " + outcome);
 
-                if (outcome != Outcome.Correct && outcome != Outcome.Errors)
+                if (outcome != VcOutcome.Correct && outcome != VcOutcome.Errors)
                 {
                     break; // done (T/O)
                 }
 
-                if (outcome == Outcome.Errors && reporter.callSitesToExpand.Count == 0)
+                if (outcome == VcOutcome.Errors && reporter.callSitesToExpand.Count == 0)
                 {
-                    return Outcome.Errors; // done (error found)
+                    return VcOutcome.Errors; // done (error found)
                 }
 
-                if (outcome == Outcome.Errors)
+                if (outcome == VcOutcome.Errors)
                 {
                     // pick one to inline
                     while (reporter.callSitesToExpand.Count != 0)
@@ -916,7 +912,7 @@ namespace CoreLib
                 }
                 else
                 {
-                    // outcome == Outcome.Correct
+                    // outcome == VcOutcome.Correct
                     Decision topDecision = null;
                     SiState topState = SiState.SaveState(this, openCallSites);
                     var doneBT = false;
@@ -973,18 +969,19 @@ namespace CoreLib
             }
             reporter.reportTraceIfNothingToExpand = false;
 
-            if (outcome == Outcome.Correct && reachedBound) return Outcome.ReachedBound;
+            if (outcome == VcOutcome.Correct && reachedBound) return VcOutcome.Correct;
             return outcome;
-            */
 
             return VcOutcome.Correct;
         }
 
+        System.Threading.CancellationToken token = System.Threading.CancellationToken.None;
+
+
         // Does not make under-approx queries; doesn't do push/pop
         public VcOutcome FwdNoUnder(HashSet<StratifiedCallSite> openCallSites, StratifiedInliningErrorReporter reporter)
         {
-            /* TODO
-            Outcome outcome = Outcome.Inconclusive;
+            VcOutcome outcome = VcOutcome.Inconclusive;
             reporter.reportTraceIfNothingToExpand = true;
 
             // candidates that are pinned to false because they hit the recursion bound
@@ -999,7 +996,7 @@ namespace CoreLib
                 {
                     // Stop if we've reached the recursion bound or
                     // the stack-depth bound (if there is one)
-                    if (HasExceededRecursionDepth(cs, CommandLineOptions.Clo.RecursionBound) ||
+                    if (HasExceededRecursionDepth(cs, Clo.RecBound) ||
                         (StackDepthBound > 0 &&
                         StackDepth(cs) > StackDepthBound))
                     {
@@ -1015,15 +1012,15 @@ namespace CoreLib
                 outcome = CheckVC(reporter);
 
                 MacroSI.PRINT_DEBUG("    - checked: " + outcome);
-                if (outcome != Outcome.Errors)
+                if (outcome != VcOutcome.Errors)
                 {
-                    if (boundAsserted.Count > 0 && outcome == Outcome.Correct)
-                        outcome = Outcome.ReachedBound;
+                    if (boundAsserted.Count > 0 && outcome == VcOutcome.Correct)
+                        outcome = VcOutcome.Correct;
 
                     break; // done
                 }
                 if (reporter.callSitesToExpand.Count == 0)
-                    return Outcome.Errors;
+                    return VcOutcome.Errors;
 
                 foreach (var scs in reporter.callSitesToExpand)
                 {
@@ -1031,21 +1028,17 @@ namespace CoreLib
                     openCallSites.Remove(scs);
                     var svc = Expand(scs);
                     if(svc != null) openCallSites.UnionWith(svc.CallSites);
-                    Debug.Assert(!cba.Util.BoogieVerify.options.useFwdBck);
+                    Debug.Assert(!cba.Util.BoogieVerify.Options.useFwdBck);
                 }
             }
             reporter.reportTraceIfNothingToExpand = false;
             return outcome;
-        */
-            
-            return VcOutcome.Correct;
         }
 
         // Duality style depth-first search with backtracking
         public VcOutcome DepthFirstStyle(Implementation main, VerifierCallback callback)
         {
-            /* TODO
-            Outcome outcome = Outcome.Inconclusive;
+            VcOutcome outcome = VcOutcome.Inconclusive;
 
             var boundHit = false;
             var decisions = new Stack<HashSet<StratifiedCallSite>>();
@@ -1076,7 +1069,7 @@ namespace CoreLib
                 {
                     // Stop if we've reached the recursion bound or
                     // the stack-depth bound (if there is one)
-                    if (RecursionDepth(cs) > CommandLineOptions.Clo.RecursionBound ||
+                    if (RecursionDepth(cs) > Clo.RecBound ||
                         (StackDepthBound > 0 &&
                         StackDepth(cs) > StackDepthBound))
                     {
@@ -1108,7 +1101,7 @@ namespace CoreLib
                 outcome = CheckVC(reporter);
                 Pop();
                 MacroSI.PRINT_DETAIL("    - checked: " + outcome);
-                if (outcome != Outcome.Correct) break;
+                if (outcome != VcOutcome.Correct) break;
 
 #endif
                 MacroSI.PRINT_DEBUG("  - overapprox");
@@ -1121,17 +1114,17 @@ namespace CoreLib
                 MacroSI.PRINT_DEBUG("    - checked: " + outcome);
 
                 // timeout?
-                if (outcome != Outcome.Errors && outcome != Outcome.Correct)
+                if (outcome != VcOutcome.Errors && outcome != VcOutcome.Correct)
                 {
                     Pop();
                     break;
                 }
 
-                if (outcome == Outcome.Correct)
+                if (outcome == VcOutcome.Correct)
                 {
                     if (decisions.Count == 0)
                     {
-                        if (boundHit) outcome = Outcome.ReachedBound;
+                        if (boundHit) outcome = VcOutcome.Correct;
                         Pop();
                         break;
                     }
@@ -1148,7 +1141,7 @@ namespace CoreLib
 
                 Pop();
 
-                Debug.Assert(outcome == Outcome.Errors);
+                Debug.Assert(outcome == VcOutcome.Errors);
                 Debug.Assert(reporter.callSitesToExpand.Count > 0);
 
                 var block = new HashSet<StratifiedCallSite>(openCallSites);
@@ -1166,7 +1159,7 @@ namespace CoreLib
                     vc2name.Add(svc, name);
                     openCallSites.UnionWith(svc.CallSites);
                     newvcs.Add(svc);
-                    Debug.Assert(!cba.Util.BoogieVerify.options.useFwdBck);
+                    Debug.Assert(!cba.Util.BoogieVerify.Options.useFwdBck);
                 }
                 pushed.Push(newvcs);
             }
@@ -1174,12 +1167,9 @@ namespace CoreLib
             Pop();
 
             return outcome;
-            */
-
-            return VcOutcome.Correct;
         }
         
-        public async Task<VcOutcome> Fwd(HashSet<StratifiedCallSite> openCallSites, StratifiedInliningErrorReporter reporter, bool main, int recBound, System.Threading.CancellationToken cancellationToken)
+        public VcOutcome Fwd(HashSet<StratifiedCallSite> openCallSites, StratifiedInliningErrorReporter reporter, bool main, int recBound)
         {
             VcOutcome outcome = VcOutcome.Inconclusive;
 
@@ -1188,10 +1178,6 @@ namespace CoreLib
             var boundHit = false;
             while (true)
             {
-                // Check cancellation
-                if (cancellationToken.IsCancellationRequested)
-                    return VcOutcome.TimedOut;
-
                 // Check timeout
                 if (Clo.clo.TimeLimit != 0)
                 {
@@ -1221,7 +1207,7 @@ namespace CoreLib
 
                 MacroSI.PRINT_DEBUG("    - check");
                 reporter.reportTrace = main;
-                outcome = await CheckVC(reporter, cancellationToken);
+                outcome = CheckVC(reporter);
                 Pop();
                 MacroSI.PRINT_DEBUG("    - checked: " + outcome);
                 if (outcome != VcOutcome.Correct) break;
@@ -1248,8 +1234,8 @@ namespace CoreLib
                 reporter.reportTrace = false;
                 reporter.callSitesToExpand = new List<StratifiedCallSite>();
                 outcome = BoogieVerify.Options.NonUniformUnfolding ? 
-                    await CheckVC(softAssumptions, reporter, cancellationToken) :
-                    await CheckVC(reporter, cancellationToken);
+                    CheckVC(softAssumptions, reporter) :
+                    CheckVC(reporter);
                 Pop();
                 MacroSI.PRINT_DEBUG("    - checked: " + outcome);
                 if (outcome != VcOutcome.Errors)
@@ -1320,11 +1306,11 @@ namespace CoreLib
             if (!attachedVCInv.ContainsKey(svc))
                 return ret;
 
-            var iter = attachedVCInv[svc]; 
-            while (parent.ContainsKey(iter))
+            var ForEach = attachedVCInv[svc]; 
+            while (parent.ContainsKey(ForEach))
             {
-                var vc = attachedVC[parent[iter]];
-                var callblock = vc.callSites.First(tup => tup.Value.Contains(iter)).Key;
+                var vc = attachedVC[parent[ForEach]];
+                var callblock = vc.callSites.First(tup => tup.Value.Contains(ForEach)).Key;
                 
                 var key = Tuple.Create(vc, callblock);
                 if (prevAsserted != null && !prevAsserted.Contains(key))
@@ -1332,26 +1318,25 @@ namespace CoreLib
                     svc.info.vcgen.prover.Assert(vc.MustReach(callblock, new ControlFlowIdMap<Absy>()), true);
                     ret.Add(key);
                 }
-                iter = parent[iter];
+                ForEach = parent[ForEach];
             }
-            svc.info.vcgen.prover.Assert(svc.MustReach(svc.callSites.First(tup => tup.Value.Contains(iter)).Key, new ControlFlowIdMap<Absy>()), true);
+            svc.info.vcgen.prover.Assert(svc.MustReach(svc.callSites.First(tup => tup.Value.Contains(ForEach)).Key, new ControlFlowIdMap<Absy>()), true);
             return ret;
         }
         public VcOutcome Bck(StratifiedVC svc, HashSet<StratifiedCallSite> openCallSites,
             StratifiedInliningErrorReporter reporter, Dictionary<string, int> backboneRecDepth)
         {
 
-            /* TODO
-            var outcome = Fwd(openCallSites, reporter, svc.info.impl.Name == mainProc.Name, Clo.RecBound);
+            var outcome = Fwd(openCallSites, reporter, svc.info.Implementation.Name == mainProc.Name, Clo.RecBound);
             if (outcome != VcOutcome.Errors)
                 return outcome;
-            if (svc.info.impl.Name == mainProc.Name)
+            if (svc.info.Implementation.Name == mainProc.Name)
                 return outcome;
 
-            outcome = Outcome.Correct;
+            outcome = VcOutcome.Correct;
             var boundHit = false;
 
-            foreach (var caller in callGraph.callers[svc.info.impl.Proc])
+            foreach (var caller in callGraph.callers[svc.info.Implementation.Proc])
             {
                 if (backboneRecDepth[caller.Name] == Clo.RecBound)
                 {
@@ -1370,7 +1355,7 @@ namespace CoreLib
                 callerOpenCallSites.UnionWith(callerVC.CallSites);
                 //Console.WriteLine("Adding call-sites: {0}", callerVC.CallSites.Select(s => s.callSiteExpr.ToString()).Concat(" "));
 
-                foreach (var cs in callerVC.CallSites.Where(s => s.callSite.calleeName == svc.info.impl.Name))
+                foreach (var cs in callerVC.CallSites.Where(s => s.callSite.calleeName == svc.info.Implementation.Name))
                 {
                     Push();
 
@@ -1395,15 +1380,15 @@ namespace CoreLib
                     foreach (var s in svc.CallSites)
                         parent.Remove(s);
 
-                    callerOpenCallSites.Iter(ocs => attachedVC.Remove(ocs));
+                    callerOpenCallSites.ForEach(ocs => attachedVC.Remove(ocs));
 
                     Pop();
 
                     if (outcome == VcOutcome.Errors)
                         break;
-                    if (outcome != VcOutcome.ReachedBound && outcome != VcOutcome.Correct)
+                    if (outcome != VcOutcome.Correct && outcome != VcOutcome.Correct)
                         break;
-                    if (outcome == VcOutcome.ReachedBound)
+                    if (outcome == VcOutcome.Correct)
                         boundHit = true;
                 }
 
@@ -1411,28 +1396,23 @@ namespace CoreLib
 
                 if (outcome == VcOutcome.Errors)
                     break;
-                if (outcome != VcOutcome.ReachedBound && outcome != Outcome.Correct)
+                if (outcome != VcOutcome.Correct && outcome != VcOutcome.Correct)
                     break;
             }
 
             if (boundHit && outcome == VcOutcome.Correct)
-                return Outcome.ReachedBound;
+                return VcOutcome.Correct;
 
             return outcome;
-
-*/
-
-            return VcOutcome.Correct;
         }
 
         public VcOutcome FwdBckVerify(Implementation impl, VerifierCallback callback)
         {
-            /* TODO
             MacroSI.PRINT_DETAIL("Starting forward/backward approach...");
-            Outcome outcome = Outcome.Correct;
+            VcOutcome outcome = VcOutcome.Correct;
             var backbonedepth = new Dictionary<string, int>();
             program.TopLevelDeclarations.OfType<Procedure>()
-                .Iter(proc => backbonedepth.Add(proc.Name, 0));
+                .ForEach(proc => backbonedepth.Add(proc.Name, 0));
             mainProc = impl.Proc;
 
             var boundHit = false;
@@ -1464,19 +1444,18 @@ namespace CoreLib
                     return outcome;
 
                 // something went wrong
-                if (outcome != VcOutcome.ReachedBound && outcome != VcOutcome.Correct)
+                if (outcome != VcOutcome.Correct && outcome != VcOutcome.Correct)
                     return outcome;
 
-                if (outcome == VcOutcome.ReachedBound)
+                if (outcome == VcOutcome.Correct)
                     boundHit = true;
 
                 MacroSI.PRINT_DETAIL("No bug starting from " + assertMethod.Name + ". Selecting next method (if existing)...");
             }
 
             // none of the methods containing an assert reaches successfully the main -- the program is safe
-            return boundHit ? VcOutcome.ReachedBound : VcOutcome.Correct;
-            */
-            return VcOutcome.Correct;
+            // TODO ??
+            return boundHit ? VcOutcome.Correct : VcOutcome.Correct;
         }
 
         void MustFail(StratifiedVC svc)
@@ -1529,7 +1508,6 @@ namespace CoreLib
 
         public override async Task<VcOutcome> VerifyImplementation(ImplementationRun run, VerifierCallback callback, System.Threading.CancellationToken cancellationToken)
         {
-            /*
             startTime = DateTime.UtcNow;
 
             procsHitRecBound = new HashSet<string>();
@@ -1545,39 +1523,39 @@ namespace CoreLib
             // the forward/backward approach can only be applied for programs with asserts in calls
             // and single-threaded (multi-threaded programs contain a final assert in the main).
             // Otherwise, use forward approach 
-            if (cba.Util.BoogieVerify.options.useFwdBck && assertMethods.Count > 0)
+            if (cba.Util.BoogieVerify.Options.useFwdBck && assertMethods.Count > 0)
             {
-                return FwdBckVerify(impl, callback);
+                return FwdBckVerify(run.Implementation, callback);
             }
-            else if (cba.Util.BoogieVerify.options.newStratifiedInliningAlgo.ToLower() == "duality")
+            else if (cba.Util.BoogieVerify.Options.newStratifiedInliningAlgo.ToLower() == "duality")
             {
-                return DepthFirstStyle(impl, callback);
+                return DepthFirstStyle(run.Implementation, callback);
             }
 
             MacroSI.PRINT_DEBUG("Starting forward approach...");
 
-            di = new DI(this, BoogieVerify.options.useFwdBck || !BoogieVerify.options.useDI);
+            di = new DI(this, BoogieVerify.Options.useFwdBck || !BoogieVerify.Options.useDI);
 
             Push();
 
-            StratifiedVC svc = new StratifiedVC(implName2StratifiedInliningInfo[impl.Name], implementations);
+            StratifiedVC svc = new StratifiedVC(implName2StratifiedInliningInfo[run.Implementation.Name], implementations);
             mainVC = svc;
             di.RegisterMain(svc);
             HashSet<StratifiedCallSite> openCallSites = new HashSet<StratifiedCallSite>(svc.CallSites);
             prover.Assert(svc.vcexpr, true);
             
-            Outcome outcome;
+            VcOutcome outcome;
             var reporter = new StratifiedInliningErrorReporter(callback, this, svc);
 
             
             #region Eager inlining
             // Eager inlining 
-            for (int i = 1; i < cba.Util.BoogieVerify.options.StratifiedInlining && openCallSites.Count > 0; i++) 
+            for (int i = 1; i < cba.Util.BoogieVerify.Options.StratifiedInlining && openCallSites.Count > 0; i++) 
             {
                 var nextOpenCallSites = new HashSet<StratifiedCallSite>();
                 foreach (StratifiedCallSite scs in openCallSites)
                 {
-                    if (HasExceededRecursionDepth(scs, CommandLineOptions.Clo.RecursionBound)) continue;
+                    if (HasExceededRecursionDepth(scs, Clo.RecBound)) continue;
 
                     var ss = Expand(scs);
                     if(ss != null) nextOpenCallSites.UnionWith(ss.CallSites);
@@ -1587,7 +1565,7 @@ namespace CoreLib
             #endregion
 
             #region Repopulate Call Tree
-            if (cba.Util.BoogieVerify.options.CallTree != null && di.disabled)
+            if (cba.Util.BoogieVerify.Options.CallTree != null && di.disabled)
             {
                 while(true)
                 {
@@ -1595,7 +1573,7 @@ namespace CoreLib
                     var toRemove = new HashSet<StratifiedCallSite>();
                     foreach (StratifiedCallSite scs in openCallSites)
                     {
-                        if(!cba.Util.BoogieVerify.options.CallTree.Contains(GetPersistentID(scs))) continue;
+                        if(!cba.Util.BoogieVerify.Options.CallTree.Contains(GetPersistentID(scs))) continue;
                         toRemove.Add(scs);
                         var ss = Expand(scs);
                         if (ss != null) toAdd.UnionWith(ss.CallSites);
@@ -1608,7 +1586,7 @@ namespace CoreLib
             }
 
             // Repopulate the dag
-            if (!di.disabled && prevDag != null && prevMain != null && prevMain == impl.Name)
+            if (!di.disabled && prevDag != null && prevMain != null && prevMain == run.Implementation.Name)
             {
                 var vcNodeMap = new BijectiveDictionary<StratifiedVC, DagOracle.DagNode>();
                 vcNodeMap.Add(svc, prevDag.GetRoot());
@@ -1660,21 +1638,21 @@ namespace CoreLib
             #endregion
             
             // Stratified Search
-            if (cba.Util.BoogieVerify.options.newStratifiedInliningAlgo.ToLower() == "nounder")
+            if (cba.Util.BoogieVerify.Options.newStratifiedInliningAlgo.ToLower() == "nounder")
             {
                 outcome = FwdNoUnder(openCallSites, reporter);
             }
-            else if (cba.Util.BoogieVerify.options.newStratifiedInliningAlgo.ToLower() == "mustreach")
+            else if (cba.Util.BoogieVerify.Options.newStratifiedInliningAlgo.ToLower() == "mustreach")
             {
                 outcome = MustReachStyle(openCallSites, reporter);
             }
-            else if (cba.Util.BoogieVerify.options.newStratifiedInliningAlgo.ToLower() == "split" && !di.disabled)
+            else if (cba.Util.BoogieVerify.Options.newStratifiedInliningAlgo.ToLower() == "split" && !di.disabled)
             {
                 outcome = MustReachSplitStyle(openCallSites, reporter);
             }
             else
             {
-                int currRecursionBound = (BoogieVerify.options.extraFlags.Contains("MaxRec") || BoogieVerify.options.NonUniformUnfolding) ? CommandLineOptions.Clo.RecursionBound :
+                int currRecursionBound = (BoogieVerify.Options.extraFlags.Contains("MaxRec") || BoogieVerify.Options.NonUniformUnfolding) ? Clo.RecBound :
                     1;
                 while (true)
                 {
@@ -1683,11 +1661,11 @@ namespace CoreLib
                     outcome = Fwd(openCallSites, reporter, true, currRecursionBound);
 
                     // timeout?
-                    if (outcome == Outcome.Inconclusive || outcome == Outcome.OutOfMemory || outcome == Outcome.TimedOut)
+                    if (outcome == VcOutcome.Inconclusive || outcome == VcOutcome.OutOfMemory || outcome == VcOutcome.TimedOut)
                         break;
 
                     // reached bound?
-                    if (outcome == Outcome.ReachedBound && currRecursionBound < CommandLineOptions.Clo.RecursionBound)
+                    if (outcome == VcOutcome.Correct && currRecursionBound < Clo.RecBound)
                     {
                         if(StratifiedInliningVerbose > 0)
                             Console.WriteLine("SI: Exhausted recursion bound of {0}", currRecursionBound);
@@ -1705,37 +1683,35 @@ namespace CoreLib
 
             Pop();
 
-            if(BoogieVerify.options.extraFlags.Contains("DiCheckSanity"))
+            if(BoogieVerify.Options.extraFlags.Contains("DiCheckSanity"))
                 di.CheckSanity();
 
             if(!di.disabled)
                 Console.WriteLine("Time spent inside DI: {0} sec", di.timeTaken.TotalSeconds.ToString("F2"));
 
             if (StratifiedInliningVerbose > 0 || 
-                BoogieVerify.options.extraFlags.Contains("DumpDag"))
+                BoogieVerify.Options.extraFlags.Contains("DumpDag"))
                 di.Dump("ct" + (dumpCnt++) + ".dot");
 
             if (StratifiedInliningVerbose > 1)
                 stats.print();
 
             #region Stash call tree
-            if (cba.Util.BoogieVerify.options.CallTree != null)
+            if (cba.Util.BoogieVerify.Options.CallTree != null)
             {
                 CallTree = new HashSet<string>();
                 var callsites = new HashSet<StratifiedCallSite>();
                 callsites.UnionWith(parent.Keys);
                 callsites.UnionWith(parent.Values);
                 callsites.ExceptWith(openCallSites);
-                callsites.Iter(scs => CallTree.Add(GetPersistentID(scs)));
+                callsites.ForEach(scs => CallTree.Add(GetPersistentID(scs)));
 
-                prevMain = impl.Name;
+                prevMain = run.Implementation.Name;
                 prevDag = di.GetDag();
             }
             #endregion
             
             return outcome;
-            */
-            return VcOutcome.Correct;
         }
 
         static int dumpCnt = 0;
@@ -1824,7 +1800,7 @@ namespace CoreLib
         {
             if (controlBoolean.ContainsKey(vc))
                 return controlBoolean[vc];
-            var lit = svc.info.vcgen.prover.VCExprGen.Variable("extraControlBoolSIDI" + controlBoolean.Count,
+            var lit = mainVC.info.vcgen.prover.VCExprGen.Variable("extraControlBoolSIDI" + controlBoolean.Count,
                 Microsoft.Boogie.Type.Bool);
             controlBoolean.Add(vc, lit);
             return lit;
@@ -1883,32 +1859,29 @@ namespace CoreLib
         }
         private VcOutcome CheckVC(ProverInterface.ErrorHandler reporter)
         {
-            /* TODO
+
             stats.calls++;
             var stopwatch = Stopwatch.StartNew();
-            prover.Check();
+
+            // TODO
+            SolverOutcome outcome = prover.CheckOutcome(reporter, token).Result;
             stats.time += stopwatch.ElapsedTicks;
-            ProverInterface.Outcome outcome = prover.CheckOutcomeCore(reporter);
+
             return ConditionGeneration.ProverInterfaceOutcomeToConditionGenerationOutcome(outcome);
-            */
-            return VcOutcome.Correct;
         }
 
         private VcOutcome CheckVC(List<VCExpr> softAssumptions, ProverInterface.ErrorHandler reporter)
         {
-
-            /* TODO
-            List<int> unsatCore;
-
             stats.calls++;
             var stopwatch = Stopwatch.StartNew();
-            ProverInterface.Outcome outcome = 
-                prover.CheckAssumptions(new List<VCExpr>(), softAssumptions, out unsatCore, reporter);
-            stats.time += stopwatch.ElapsedTicks;
-            return ConditionGeneration.ProverInterfaceOutcomeToConditionGenerationOutcome(outcome);
 
-             TODO*/
-            return VcOutcome.Correct;
+            List<int> unsatCore;
+            SolverOutcome outcome;
+            (outcome, unsatCore) = prover.CheckAssumptions(new List<VCExpr>(), softAssumptions, reporter, token).Result;
+
+            stats.time += stopwatch.ElapsedTicks;
+
+            return ConditionGeneration.ProverInterfaceOutcomeToConditionGenerationOutcome(outcome);
         }
 
         public override VcOutcome FindLeastToVerify(Implementation impl, ref HashSet<string> allBoolVars)
@@ -1975,7 +1948,6 @@ namespace CoreLib
  
         private HashSet<VCExprVar> refinementLoop(ProverInterface.ErrorHandler reporter, HashSet<VCExprVar> trackedVars, HashSet<VCExprVar> trackedVarsUpperBound, HashSet<VCExprVar> allVars)
         {
-            /* TODO
             Debug.Assert(trackedVars.IsSubsetOf(trackedVarsUpperBound));
 
             // If we already know the fate of all vars, then we're done.
@@ -2011,17 +1983,13 @@ namespace CoreLib
 
             // Second half
             return refinementLoop(reporter, a, c, allVars);
-            */
-
-            return new HashSet<VCExprVar>();
         }
 
         private bool refinementLoopCheckPath(ProverInterface.ErrorHandler reporter, HashSet<VCExprVar> varsToSet, HashSet<VCExprVar> allVars)
         {
-            /* TODO
             var assumptions = new List<VCExpr>();
             var query = new HashSet<string>();
-            varsToSet.Iter(v => query.Add(v.Name));
+            varsToSet.ForEach(v => query.Add(v.Name));
 
             prover.LogComment("FindLeast: Query Begin");
 
@@ -2043,13 +2011,10 @@ namespace CoreLib
             prover.LogComment("FindLeast: Query End");
 
             return (o == VcOutcome.Correct);
-            */
-            return true;
         }
 
         private VcOutcome CheckAssumptions(ProverInterface.ErrorHandler reporter, List<VCExpr> assumptions)
         {
-            /* TODO
             if (assumptions.Count == 0)
             {
                 return CheckVC(reporter);
@@ -2060,11 +2025,9 @@ namespace CoreLib
             {
                 prover.Assert(a, true);
             }
-            Outcome ret = CheckVC(reporter);
+            VcOutcome ret = CheckVC(reporter);
             Pop();
             return ret;
-            */
-            return VcOutcome.Correct;
         }
 
         private static void Partition<T>(HashSet<T> values, out HashSet<T> part1, out HashSet<T> part2)
@@ -3115,8 +3078,8 @@ namespace CoreLib
         bool HasExceededRecBound(string impl, int bound)
         {
             if (!extraRecBound.ContainsKey(impl))
-                return (bound > Clo.RecBound /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */);
-            return bound > Clo.RecBound /* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */ + extraRecBound[impl];
+                return (bound > Clo.RecBound);
+            return bound > Clo.RecBound + extraRecBound[impl];
         }
 
         // Returns the size of the fully expanded tree
@@ -3838,7 +3801,7 @@ namespace CoreLib
             // Node to its mincolor mapping
             var nodeToMinColorAvailable = new Dictionary<DagNode, Dictionary<string, int>>();
 
-            // iterate over the colors in ascending order
+            // ForEachate over the colors in ascending order
             for (int i = 0; i <= maxcolor; i++)
             {
                 foreach (var n in colorToNodes[i])
@@ -4122,7 +4085,7 @@ namespace CoreLib
     {
         StratifiedInlining si;
         public VerifierCallback callback;
-        StratifiedVC svc;
+        StratifiedVC mainVC;
         public static TimeSpan ttime = TimeSpan.Zero;
 
         public bool reportTrace;
@@ -4135,21 +4098,21 @@ namespace CoreLib
         {
             this.callback = callback;
             this.si = si;
-            this.svc = svc;
+            this.mainVC = svc;
             this.reportTrace = false;
             this.reportTraceIfNothingToExpand = false;
         }
 
         public override int StartingProcId()
         {
-            return svc.id;
+            return mainVC.id;
         }
 
-        /* TODO
+        /*
         private Absy Label2Absy(string procName, string label)
         {
             int id = int.Parse(label);
-            var l2a = si.info.vcgen.implName2StratifiedInliningInfo[procName].label2absy;
+            var l2a = si.implName2StratifiedInliningInfo[procName].label2absy;
             return (Absy)l2a[id];
         }
         */
@@ -4173,11 +4136,11 @@ namespace CoreLib
 
             System.Threading.Tasks.Task.WaitAll(t1, t2);
         }
+
         public override void OnModel(IList<string> labels, Model model, SolverOutcome proverOutcome)
         {
-            /* TODO
             // Timeout?
-            if (proverOutcome != ProverInterface.Outcome.Invalid)
+            if (proverOutcome != SolverOutcome.TimeOut)
                 return;
 
             var start = DateTime.Now;
@@ -4197,7 +4160,6 @@ namespace CoreLib
                 //this.PrintModel(model);
             }
             ttime += (DateTime.Now - start);
-            */
         }
 
         // returns a list of blocks followed by a fake assert
@@ -4214,15 +4176,13 @@ namespace CoreLib
             if (labels == null)
             {
                 // TODOOO
-                //labels = si.info.vcgen.prover.CalculatePath(svc.id, System.Threading.CancellationToken.None);
+                //labels = si.prover.CalculatePath(svc.id, System.Threading.CancellationToken.None);
             }
             var ret = new List<Absy>();
-            /* TODOOOO
             foreach (var label in labels)
             {
-                ret.Add(Label2Absy(svc.info.Implementation.Name, label));
+                //ret.Add(Label2Absy(svc.info.Implementation.Name, label));
             }
-            */
             return ret;
         }
 

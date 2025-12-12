@@ -169,6 +169,7 @@ public abstract class ProverInterface
   }
 
   public abstract Task<SolverOutcome> Check(string descriptiveName, VCExpr vc, ErrorHandler handler, int errorLimit, CancellationToken cancellationToken);
+  public abstract Task<SolverOutcome> CheckOutcome(ErrorHandler handler, CancellationToken cancellationToken);
 
   public virtual void LogComment(string comment)
   {

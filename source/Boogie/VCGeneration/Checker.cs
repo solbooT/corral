@@ -392,6 +392,10 @@ namespace Microsoft.Boogie
       throw new NotImplementedException();
     }
 
+    public override Task<SolverOutcome> CheckOutcome(ErrorHandler handler, CancellationToken cancellationToken) {
+      throw new NotImplementedException();
+    }
+
     public override Task Reset(VCExpressionGenerator gen)
     {
       throw new NotImplementedException();

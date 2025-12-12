@@ -191,7 +191,7 @@ namespace cba
                 Console.WriteLine("LB: Loop {0} requires minimum {1} iterations", loopName, bound);
             }
 
-            ///* TODO: CommandLineOptions.RecursionBound removed in Boogie 3.5.5 */  = oldBound;
+            //  = oldBound;
             BoogieVerify.PrintImplsBeingVerified = false;
             timeTaken = (DateTime.Now - start);
 
@@ -228,10 +228,10 @@ namespace cba
                 {
                     Cmd c = b.Cmds[numInstr];
                     var loc = new TraceLocation(numBlock, numInstr);
-                    if (trace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */.ContainsKey(loc))
+                    if (trace.CalleeCounterexamples .ContainsKey(loc))
                     {
                         ret +=
-                            RecBound(recFunc, trace.CalleeCounterexamples /* TODO: API changed from CalleeCounterexamples */[loc].Counterexample,
+                            RecBound(recFunc, trace.CalleeCounterexamples [loc].Counterexample,
                             (c as CallCmd).Proc.Name);
                     }
                 }

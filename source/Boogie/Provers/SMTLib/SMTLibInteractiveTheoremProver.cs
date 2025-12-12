@@ -63,6 +63,20 @@ namespace Microsoft.Boogie.SMTLib
     }
 
     private bool hasReset = true;
+
+    public override async Task<SolverOutcome> CheckOutcome(ErrorHandler handler, CancellationToken cancellationToken)
+    {
+
+      currentErrorHandler = handler;
+      try
+      {
+        return CheckSat(cancellationToken, 0).Result;
+      }
+      finally
+      {
+        currentErrorHandler = null;
+      }
+    }
     public override async Task<SolverOutcome> Check(string descriptiveName, VCExpr vc, ErrorHandler handler, int errorLimit, CancellationToken cancellationToken)
     {
       currentErrorHandler = handler;
