@@ -1862,13 +1862,12 @@ namespace CoreLib
             stats.calls++;
             var stopwatch = Stopwatch.StartNew();
 
-            // TODO
             SolverOutcome outcome = prover.CheckOutcome(reporter, token).Result;
-            Console.WriteLine($"checkVC ouctome1: {outcome}");
+            Console.WriteLine($"checkVC outcome1: {outcome}");
             stats.time += stopwatch.ElapsedTicks;
 
             var o = ConditionGeneration.ProverInterfaceOutcomeToConditionGenerationOutcome(outcome);
-            Console.WriteLine($"checkVC ouctome2: {o}");
+            Console.WriteLine($"checkVC outcome2: {o}");
             return o;
         }
 
@@ -4148,7 +4147,6 @@ namespace CoreLib
             List<Absy> absyList = GetAbsyTrace(mainVC, labels);
             orderedStateIds = new List<Tuple<int, int>>();
 
-            absyList.ForEach(x => Console.WriteLine(x));
             var cex = NewTrace(mainVC, absyList, model);
             if (StratifiedInlining.StratifiedInliningVerbose > 2)
                 cex.Print(6, Console.Out);
@@ -4179,7 +4177,6 @@ namespace CoreLib
             var ret = new List<Absy>();
             foreach (var label in labels)
             {
-                // todo
                 ret.Add(Label2Absy(svc.info.run.Implementation.Name, label));
             }
             return ret;

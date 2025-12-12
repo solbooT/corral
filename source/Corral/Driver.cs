@@ -410,8 +410,8 @@ namespace cba
                 var refinementState = new RefinementState(curr, config.trackedVars, config.useLocalVariableAbstraction);
 
                 ErrorTrace cexTrace = null;
-                curr.writeToFile("refined.bpl");
                 checkAndRefine(curr, refinementState, printTrace, out cexTrace);
+                curr.writeToFile("refined.bpl");
 
                 ////////////////////////////////////
                 // Output Phase

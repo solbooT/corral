@@ -334,19 +334,12 @@ namespace cba.Util
                     var start = DateTime.Now;
 
                     Console.WriteLine($"verifying {impl.Name}");
-                    /*
-                    impl.Blocks.ToList().ForEach(x => 
-                        x.Cmds.ForEach(y => Console.WriteLine($"cmd within block : {y}"))
-                    );
-                    */
-
-                    //Dump(Console.Out);
 
                     var s = new CancellationTokenSource(3000);
                     (outcome, errors, _) = vcgen.VerifyImplementationDirectly(new ImplementationRun(impl, System.Console.Out), s.Token).Result;
 
-                    Console.WriteLine($"outcome: {outcome}");
-                    errors.ForEach(x => Console.WriteLine($"counterexample: {x}"));
+                    Console.WriteLine($"outcome of VerifyImplemDirectly: {outcome}");
+                    //errors.ForEach(x => Console.WriteLine($"counterexample: {x}"));
 
                     var end = DateTime.Now;
 

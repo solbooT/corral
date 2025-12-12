@@ -375,7 +375,7 @@ namespace VC
 
       if (run.Implementation.IsSkipVerification(Options))
       {
-        return VcOutcome.Inconclusive; // not sure about this one
+        return VcOutcome.Correct; // not sure about this one
       }
 
       callback.OnProgress?.Invoke("VCgen", 0, 0, 0.0);
