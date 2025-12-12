@@ -8,6 +8,8 @@ using System.Diagnostics.Contracts;
 using System.IO;
 using VC;
 using cba.Util;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace cba.Util
 {
@@ -36,6 +38,148 @@ namespace cba.Util
         public static HashSet<string> procsHitRecBound = new HashSet<string>();
         public static bool PrintImplsBeingVerified = false;
 
+        public static void Dump(TextWriter writer)
+        {
+            var opts = Clo.clo;
+            writer.WriteLine("=== CommandLineOptions Dump ===");
+
+            writer.WriteLine($"RunningBoogieFromCommandLine: {opts.RunningBoogieFromCommandLine}");
+            writer.WriteLine($"VerifySnapshots: {opts.VerifySnapshots}");
+            writer.WriteLine($"VerifySeparately: {opts.VerifySeparately}");
+            writer.WriteLine($"PrintFile: {opts.PrintFile}");
+            writer.WriteLine($"PrintSplitFile: {opts.PrintSplitFile}");
+            writer.WriteLine($"PrintSplitDeclarations: {opts.PrintSplitDeclarations}");
+            writer.WriteLine($"EmitDebugInformation: {opts.EmitDebugInformation}");
+            writer.WriteLine($"PrintUnstructured: {opts.PrintUnstructured}");
+            writer.WriteLine($"UseBaseNameForFileName: {opts.UseBaseNameForFileName}");
+            writer.WriteLine($"PrintDesugarings: {opts.PrintDesugarings}");
+            writer.WriteLine($"PrintPassiveFile: {opts.PrintPassiveFile}");
+            writer.WriteLine($"PrintLambdaLifting: {opts.PrintLambdaLifting}");
+            writer.WriteLine($"FreeVarLambdaLifting: {opts.FreeVarLambdaLifting}");
+            writer.WriteLine($"ProverLogFilePath: {opts.ProverLogFilePath}");
+            writer.WriteLine($"ProverLogFileAppend: {opts.ProverLogFileAppend}");
+            writer.WriteLine($"PrintInstrumented: {opts.PrintInstrumented}");
+            writer.WriteLine($"InstrumentWithAsserts: {opts.InstrumentWithAsserts}");
+            writer.WriteLine($"ProverPreamble: {opts.ProverPreamble}");
+            writer.WriteLine($"WarnNotEliminatedVars: {opts.WarnNotEliminatedVars}");
+            writer.WriteLine($"Prune: {opts.Prune}");
+            writer.WriteLine($"InstrumentInfer: {opts.InstrumentInfer}");
+            writer.WriteLine($"RandomSeed: {opts.RandomSeed}");
+            writer.WriteLine($"RandomizeVcIterations: {opts.RandomizeVcIterations}");
+            writer.WriteLine($"PrintWithUniqueASTIds: {opts.PrintWithUniqueASTIds}");
+            writer.WriteLine($"Wait: {opts.Wait}");
+            writer.WriteLine($"Trace: {opts.Trace}");
+            writer.WriteLine($"Verbosity: {opts.Verbosity}");
+            writer.WriteLine($"NormalizeNames: {opts.NormalizeNames}");
+            writer.WriteLine($"NormalizeDeclarationOrder: {opts.NormalizeDeclarationOrder}");
+            writer.WriteLine($"ImmediatelyAcceptCommands: {opts.ImmediatelyAcceptCommands}");
+            writer.WriteLine($"ProduceUnsatCores: {opts.ProduceUnsatCores}");
+            writer.WriteLine($"BatchModeSolver: {opts.BatchModeSolver}");
+            writer.WriteLine($"TraceTimes: {opts.TraceTimes}");
+            writer.WriteLine($"TraceProofObligations: {opts.TraceProofObligations}");
+            writer.WriteLine($"NoResolve: {opts.NoResolve}");
+            writer.WriteLine($"NoTypecheck: {opts.NoTypecheck}");
+            writer.WriteLine($"OverlookBoogieTypeErrors: {opts.OverlookBoogieTypeErrors}");
+            writer.WriteLine($"Verify: {opts.Verify}");
+            writer.WriteLine($"TraceVerify: {opts.TraceVerify}");
+            writer.WriteLine($"ErrorTrace: {opts.ErrorTrace}");
+            writer.WriteLine($"IntraproceduralInfer: {opts.IntraproceduralInfer}");
+            writer.WriteLine($"ContractInfer: {opts.ContractInfer}");
+            writer.WriteLine($"ExplainHoudini: {opts.ExplainHoudini}");
+            writer.WriteLine($"ReverseHoudiniWorklist: {opts.ReverseHoudiniWorklist}");
+            writer.WriteLine($"ConcurrentHoudini: {opts.ConcurrentHoudini}");
+            writer.WriteLine($"ModifyTopologicalSorting: {opts.ModifyTopologicalSorting}");
+            writer.WriteLine($"DebugConcurrentHoudini: {opts.DebugConcurrentHoudini}");
+            writer.WriteLine($"HoudiniUseCrossDependencies: {opts.HoudiniUseCrossDependencies}");
+            writer.WriteLine($"StagedHoudini: {opts.StagedHoudini}");
+            writer.WriteLine($"DebugStagedHoudini: {opts.DebugStagedHoudini}");
+            writer.WriteLine($"StagedHoudiniReachabilityAnalysis: {opts.StagedHoudiniReachabilityAnalysis}");
+            writer.WriteLine($"StagedHoudiniMergeIgnoredAnnotations: {opts.StagedHoudiniMergeIgnoredAnnotations}");
+            writer.WriteLine($"StagedHoudiniThreads: {opts.StagedHoudiniThreads}");
+            writer.WriteLine($"VariableDependenceIgnore: {opts.VariableDependenceIgnore}");
+            writer.WriteLine($"UseUnsatCoreForContractInfer: {opts.UseUnsatCoreForContractInfer}");
+            writer.WriteLine($"PrintAssignment: {opts.PrintAssignment}");
+            writer.WriteLine($"TrackVerificationCoverage: {opts.TrackVerificationCoverage}");
+            writer.WriteLine($"WarnVacuousProofs: {opts.WarnVacuousProofs}");
+            writer.WriteLine($"InlineDepth: {opts.InlineDepth}");
+            writer.WriteLine($"UseProverEvaluate: {opts.UseProverEvaluate}");
+            writer.WriteLine($"SoundnessSmokeTest: {opts.SoundnessSmokeTest}");
+            writer.WriteLine($"KInductionDepth: {opts.KInductionDepth}");
+            writer.WriteLine($"EnableUnSatCoreExtract: {opts.EnableUnSatCoreExtract}");
+            writer.WriteLine($"LogPrefix: {opts.LogPrefix}");
+            writer.WriteLine($"PrettyPrint: {opts.PrettyPrint}");
+            writer.WriteLine($"PrintProverWarnings: {opts.PrintProverWarnings}");
+            writer.WriteLine($"UseSubsumption: {opts.UseSubsumption}");
+            writer.WriteLine($"AlwaysAssumeFreeLoopInvariants: {opts.AlwaysAssumeFreeLoopInvariants}");
+            writer.WriteLine($"ShowEnv: {opts.ShowEnv}");
+            writer.WriteLine($"ShowVerifiedProcedureCount: {opts.ShowVerifiedProcedureCount}");
+            writer.WriteLine($"LoopUnrollCount: {opts.LoopUnrollCount}");
+            writer.WriteLine($"SoundLoopUnrolling: {opts.SoundLoopUnrolling}");
+            writer.WriteLine($"PrintErrorModel: {opts.PrintErrorModel}");
+            writer.WriteLine($"ModelViewFile: {opts.ModelViewFile}");
+            writer.WriteLine($"EnhancedErrorMessages: {opts.EnhancedErrorMessages}");
+            writer.WriteLine($"PrintCFGPrefix: {opts.PrintCFGPrefix}");
+            writer.WriteLine($"ForceBplErrors: {opts.ForceBplErrors}");
+            writer.WriteLine($"UseArrayTheory: {opts.UseArrayTheory}");
+            writer.WriteLine($"RelaxFocus: {opts.RelaxFocus}");
+            writer.WriteLine($"RunDiagnosticsOnTimeout: {opts.RunDiagnosticsOnTimeout}");
+            writer.WriteLine($"TraceDiagnosticsOnTimeout: {opts.TraceDiagnosticsOnTimeout}");
+            writer.WriteLine($"TimeLimitPerAssertionInPercent: {opts.TimeLimitPerAssertionInPercent}");
+            writer.WriteLine($"SIBoolControlVC: {opts.SIBoolControlVC}");
+            writer.WriteLine($"ExpandLambdas: {opts.ExpandLambdas}");
+            writer.WriteLine($"InferModifies: {opts.InferModifies}");
+            writer.WriteLine($"UseAbstractInterpretation: {opts.UseAbstractInterpretation}");
+            writer.WriteLine($"CivlDesugaredFile: {opts.CivlDesugaredFile}");
+            writer.WriteLine($"TrustMoverTypes: {opts.TrustMoverTypes}");
+            writer.WriteLine($"TrustNoninterference: {opts.TrustNoninterference}");
+            writer.WriteLine($"TrustRefinement: {opts.TrustRefinement}");
+            writer.WriteLine($"TrustLayersUpto: {opts.TrustLayersUpto}");
+            writer.WriteLine($"TrustLayersDownto: {opts.TrustLayersDownto}");
+            writer.WriteLine($"TrustSequentialization: {opts.TrustSequentialization}");
+            writer.WriteLine($"RemoveEmptyBlocks: {opts.RemoveEmptyBlocks}");
+            writer.WriteLine($"CoalesceBlocks: {opts.CoalesceBlocks}");
+            writer.WriteLine($"PruneInfeasibleEdges: {opts.PruneInfeasibleEdges}");
+            writer.WriteLine($"ProverDllName: {opts.ProverDllName}");
+            writer.WriteLine($"ProverHelpRequested: {opts.ProverHelpRequested}");
+            writer.WriteLine($"ProverOptions: [{string.Join(", ", opts.ProverOptions)}]");
+            writer.WriteLine($"BracketIdsInVC: {opts.BracketIdsInVC}");
+            writer.WriteLine($"ProcessTimeLimit: {opts.ProcessTimeLimit}");
+            writer.WriteLine($"TimeLimit: {opts.TimeLimit}");
+            writer.WriteLine($"ResourceLimit: {opts.ResourceLimit}");
+            writer.WriteLine($"SmokeTimeout: {opts.SmokeTimeout}");
+            writer.WriteLine($"ErrorLimit: {opts.ErrorLimit}");
+            writer.WriteLine($"RestartProverPerVC: {opts.RestartProverPerVC}");
+            writer.WriteLine($"VcsMaxCost: {opts.VcsMaxCost}");
+            writer.WriteLine($"VcsPathJoinMult: {opts.VcsPathJoinMult}");
+            writer.WriteLine($"VcsPathCostMult: {opts.VcsPathCostMult}");
+            writer.WriteLine($"VcsAssumeMult: {opts.VcsAssumeMult}");
+            writer.WriteLine($"VcsPathSplitMult: {opts.VcsPathSplitMult}");
+            writer.WriteLine($"VcsMaxSplits: {opts.VcsMaxSplits}");
+            writer.WriteLine($"VcsMaxKeepGoingSplits: {opts.VcsMaxKeepGoingSplits}");
+            writer.WriteLine($"VcsSplitOnEveryAssert: {opts.VcsSplitOnEveryAssert}");
+            writer.WriteLine($"VcsFinalAssertTimeout: {opts.VcsFinalAssertTimeout}");
+            writer.WriteLine($"VcsKeepGoingTimeout: {opts.VcsKeepGoingTimeout}");
+            writer.WriteLine($"VcsCores: {opts.VcsCores}");
+            writer.WriteLine($"VcsDumpSplits: {opts.VcsDumpSplits}");
+            writer.WriteLine($"DebugRefuted: {opts.DebugRefuted}");
+            writer.WriteLine($"ProcedureInlining: {opts.ProcedureInlining}");
+            writer.WriteLine($"PrintInlined: {opts.PrintInlined}");
+            writer.WriteLine($"ExtractLoops: {opts.ExtractLoops}");
+            writer.WriteLine($"DeterministicExtractLoops: {opts.DeterministicExtractLoops}");
+            writer.WriteLine($"StratifiedInlining: {opts.StratifiedInlining}");
+            writer.WriteLine($"StratifiedInliningWithoutModels: {opts.StratifiedInliningWithoutModels}");
+            writer.WriteLine($"TypeEncodingMethod: {opts.TypeEncodingMethod}");
+            writer.WriteLine($"ReflectAdd: {opts.ReflectAdd}");
+            writer.WriteLine($"LiveVariableAnalysis: {opts.LiveVariableAnalysis}");
+            writer.WriteLine($"KeepQuantifier: {opts.KeepQuantifier}");
+            writer.WriteLine($"Libraries: [{string.Join(", ", opts.Libraries)}]");
+            writer.WriteLine($"ProcsToCheck: [{string.Join(", ", opts.ProcsToCheck)}]");
+            writer.WriteLine($"ProcsToIgnore: [{string.Join(", ", opts.ProcsToIgnore)}]");
+            writer.WriteLine($"ExpectingModel: {opts.ExpectingModel}");
+            writer.WriteLine($"ProduceModel: {opts.ProduceModel}");
+
+            writer.WriteLine("=== End Dump ===");
+        }
         // TODO: move this elsewhere
         public static HashSet<string> ignoreAssertMethods;
 
@@ -158,11 +302,11 @@ namespace cba.Util
                 .Where(impl => QKeyValueExtensions.FindBoolAttribute(impl.Attributes, "entrypoint")));
 
 
-            StratifiedVerificationConditionGeneratorBase vcgen = null;
+            VerificationConditionGenerator vcgen = null;
             try
             {
-                Debug.Assert(Options.StratifiedInlining > 0);
-                vcgen = new CoreLib.StratifiedInlining(program, Clo.clo.ProverLogFilePath, Clo.clo.ProverLogFileAppend, delegate(Implementation m) { });
+                Debug.Assert(Clo.clo.StratifiedInlining > 0);
+                vcgen = new CoreLib.StratifiedInlining(program, Clo.clo.ProverLogFilePath, Clo.clo.ProverLogFileAppend, null);
             }
             catch (ProverException e)
             {
@@ -190,7 +334,19 @@ namespace cba.Util
                     var start = DateTime.Now;
 
                     Console.WriteLine($"verifying {impl.Name}");
-                    (outcome, errors, _) = vcgen.VerifyImplementationDirectly(new ImplementationRun(impl, System.Console.Out), System.Threading.CancellationToken.None).Result;
+                    /*
+                    impl.Blocks.ToList().ForEach(x => 
+                        x.Cmds.ForEach(y => Console.WriteLine($"cmd within block : {y}"))
+                    );
+                    */
+
+                    //Dump(Console.Out);
+
+                    var s = new CancellationTokenSource(3000);
+                    (outcome, errors, _) = vcgen.VerifyImplementationDirectly(new ImplementationRun(impl, System.Console.Out), s.Token).Result;
+
+                    Console.WriteLine($"outcome: {outcome}");
+                    errors.ForEach(x => Console.WriteLine($"counterexample: {x}"));
 
                     var end = DateTime.Now;
 
@@ -233,33 +389,33 @@ namespace cba.Util
                 }
 
 
-            Log.WriteLine(Log.Debug, (errors == null ? 0 : errors.Count) + " counterexamples.");
-            if (errors.Count != 0) ret = ReturnStatus.NOK;
+                Log.WriteLine(Log.Debug, (errors == null ? 0 : errors.Count) + " counterexamples.");
+                if (errors.Count != 0) ret = ReturnStatus.NOK;
 
 
-            // Print model
-            if (errors != null && errors.Count > 0 && errors[0].Model != null && Clo.clo.ModelViewFile != null)
-            {
-                var model = errors[0].Model;
-                var cnt = 0;
-                model.States.ForEach(st =>
-                                    {
-                                        if (st.Name.StartsWith("corral"))
+                // Print model
+                if (errors != null && errors.Count > 0 && errors[0].Model != null && Clo.clo.ModelViewFile != null)
+                {
+                    var model = errors[0].Model;
+                    var cnt = 0;
+                    model.States.ForEach(st =>
                                         {
-                                            st.ChangeName(st.Name + "_" + cnt.ToString()); cnt++;
-                                        }
-                                    });
+                                            if (st.Name.StartsWith("corral"))
+                                            {
+                                                st.ChangeName(st.Name + "_" + cnt.ToString()); cnt++;
+                                            }
+                                        });
 
-                using (var wr = new StreamWriter(Clo.clo.ModelViewFile, false))
-                {
-                    model.Write(wr);
+                    using (var wr = new StreamWriter(Clo.clo.ModelViewFile, false))
+                    {
+                        model.Write(wr);
+                    }
                 }
-            }
 
-            if (errors != null && needErrorTraces)
-            {
-                for (int i = 0; i < errors.Count; i++)
+                if (errors != null && needErrorTraces)
                 {
+                    for (int i = 0; i < errors.Count; i++)
+                    {
                         //errors[i].Print(1, Console.Out);
                         // Map the trace across loop extraction
                         if (vcgen is VC.VerificationConditionGenerator)
@@ -268,24 +424,22 @@ namespace cba.Util
                         }
 
                         if (errors[i] is AssertCounterexample)
-                    {
-                        // Special treatment for assert counterexamples for CBA: Reconstruct
-                        // trace in the input program.
-                        ReconstructImperativeTrace(errors[i], impl.Name, origProg);
-                        allErrors.Add(new BoogieAssertErrorTrace(errors[i] as AssertCounterexample, origProg[impl.Name], program));
-                    }
-                    else
-                    {
-                        allErrors.Add(new BoogieErrorTrace(errors[i], origProg[impl.Name], program));
+                        {
+                            // Special treatment for assert counterexamples for CBA: Reconstruct
+                            // trace in the input program.
+                            ReconstructImperativeTrace(errors[i], impl.Name, origProg);
+                            allErrors.Add(new BoogieAssertErrorTrace(errors[i] as AssertCounterexample, origProg[impl.Name], program));
+                        }
+                        else
+                        {
+                            allErrors.Add(new BoogieErrorTrace(errors[i], origProg[impl.Name], program));
+                        }
                     }
                 }
-            }
             }
 
             // TODOOOOO
             // procsHitRecBound = (vcgen as VC.StratifiedInliningInfo).procsHitRecBound;
-
-            
 
             vcgen.Close();
             Clo.clo.TheProverFactory.Close();

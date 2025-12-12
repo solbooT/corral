@@ -153,12 +153,12 @@ namespace cba
 
             // Initialize Boogie
             Clo.clo.PrintInstrumented = true;
-            Clo.clo.ProverLogFileAppend = true;
             Clo.clo.ProverLogFilePath = "prover.smt2";
             Clo.clo.ProcedureInlining = CoreOptions.Inlining.Assume;
             Clo.clo.TypeEncodingMethod = CoreOptions.TypeEncoding.Monomorphic;
-            //Clo.clo.StratifiedInlining = 1; // Required for ImmediatelyAcceptCommands (opens log file early)
-            //Clo.RecBound = 500; // default
+            Clo.clo.StratifiedInlining = 1; 
+            Clo.clo.StratifiedInliningWithoutModels = true; 
+            Clo.RecBound = 1; 
             
             // /noRemoveEmptyBlocks is needed for field refinement. It ensures that
             // we get an actual path in the program (so that we can concretize it)
@@ -203,7 +203,7 @@ namespace cba
 
             if (InitializeBoogie(boogieOptions))
             {
-                throw new InternalError("Cannot initialize Boogie");
+                throw new System.Exception("cannot initialize boogie");
             }
 
             if (Clo.clo.UseProverEvaluate)
@@ -211,6 +211,7 @@ namespace cba
 
             GlobalConfig.corralStartTime = DateTime.Now;
         }
+        
         public static bool InitializeBoogie(string clo)
         {
             Clo.clo.RunningBoogieFromCommandLine = true;
@@ -225,7 +226,8 @@ namespace cba
                     args.Add(quotes[i]);
             }
 
-            Clo.clo.Parse(args.ToArray());
+            if (!Clo.clo.Parse(args.ToArray()))
+                return true;
 
             return false;
         }
@@ -758,11 +760,13 @@ namespace cba
 
             // Now we can typecheck
             Clo.clo.InferModifies = true;
+            Clo.DoModSetAnalysis = true;
             if (BoogieUtil.TypecheckProgram(init, config.inputFile))
             {
                 BoogieUtil.PrintProgram(init, "error.bpl");
                 throw new InvalidProg("Cannot typecheck " + config.inputFile);
             }
+            Clo.DoModSetAnalysis = false;
 
             //BoogieUtil.PrintProgram(init, "temp.bpl");
 
@@ -834,7 +838,9 @@ namespace cba
 
             new public static void ProcessImplementation(Program program, Implementation impl)
             {
+                var ce = new CodeExprInliner(program);
                 ProcessImplementation(Clo.clo, program, impl);
+                ce.RestoreAnnotations();
             }
 
             public override Expr VisitCodeExpr(CodeExpr node)
