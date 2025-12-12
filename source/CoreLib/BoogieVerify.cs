@@ -663,15 +663,10 @@ namespace cba.Util
             catch (VC.VCGenException e)
             {
                 throw new InternalError("VCGenException: " + e.Message);
-                //errors = null;
-                //outcome = VcOutcome.Inconclusive;
             }
             catch (UnexpectedProverOutputException upo)
             {
-
                 throw new InternalError("Unexpected prover output: " + upo.Message);
-                //errors = null;
-                //outcome = VcOutcome.Inconclusive;
             }
 
             switch (outcome)

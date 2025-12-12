@@ -355,6 +355,7 @@ namespace VC
     public List<VCExprVar> interfaceExprVars;
     public List<VCExprVar> privateExprVars;
     public ModelViewInfo mvInfo;
+    public ControlFlowIdMap<Absy> absyIds;
     public Dictionary<Block, List<CallSite>> callSites;
     public Dictionary<Block, List<CallSite>> recordProcCallSites;
 
@@ -651,7 +652,7 @@ namespace VC
         PassiveImplInstrumentation(Implementation);
       }
 
-      var absyIds = new ControlFlowIdMap<Absy>();
+      absyIds = new ControlFlowIdMap<Absy>();
       
       VerificationConditionGenerator.CodeExprConversionClosure cc = new VerificationConditionGenerator.CodeExprConversionClosure(run.OutputWriter, options, absyIds, proverInterface.Context);
       translator.SetCodeExprConverter(cc.CodeExprToVerificationCondition);

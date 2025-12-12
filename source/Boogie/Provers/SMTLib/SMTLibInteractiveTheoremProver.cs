@@ -70,7 +70,7 @@ namespace Microsoft.Boogie.SMTLib
       currentErrorHandler = handler;
       try
       {
-        return CheckSat(cancellationToken, 0).Result;
+        return CheckSat(cancellationToken, libOptions.ErrorLimit).Result;
       }
       finally
       {
@@ -458,7 +458,7 @@ namespace Microsoft.Boogie.SMTLib
       return CheckSatAndGetResponse(cancellationToken);
     }
 
-    private async Task<string[]> CalculatePath(int controlFlowConstant, CancellationToken cancellationToken)
+    public override async Task<string[]> CalculatePath(int controlFlowConstant, CancellationToken cancellationToken)
     {
       var path = new List<string>();
       string v = "0";

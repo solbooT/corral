@@ -122,6 +122,7 @@ public abstract class ProverInterface
     {
       return 0;
     }
+    
 
     public virtual void OnModel(IList<string> labels, Model model, SolverOutcome proverOutcome)
     {
@@ -168,6 +169,7 @@ public abstract class ProverInterface
     }
   }
 
+  public abstract Task<string[]> CalculatePath(int controlFlowConstant, CancellationToken cancellationToken);
   public abstract Task<SolverOutcome> Check(string descriptiveName, VCExpr vc, ErrorHandler handler, int errorLimit, CancellationToken cancellationToken);
   public abstract Task<SolverOutcome> CheckOutcome(ErrorHandler handler, CancellationToken cancellationToken);
 

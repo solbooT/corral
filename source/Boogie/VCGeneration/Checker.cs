@@ -387,6 +387,11 @@ namespace Microsoft.Boogie
       throw new NotImplementedException();
     }
 
+    public override async Task<string[]> CalculatePath(int controlFlowConstant, CancellationToken token)
+    {
+      throw new NotImplementedException();
+    }
+
     public override Task<SolverOutcome> Check(string descriptiveName, VCExpr vc, ErrorHandler handler, int errorLimit,
       CancellationToken cancellationToken) {
       throw new NotImplementedException();

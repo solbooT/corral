@@ -1859,15 +1859,17 @@ namespace CoreLib
         }
         private VcOutcome CheckVC(ProverInterface.ErrorHandler reporter)
         {
-
             stats.calls++;
             var stopwatch = Stopwatch.StartNew();
 
             // TODO
             SolverOutcome outcome = prover.CheckOutcome(reporter, token).Result;
+            Console.WriteLine($"checkVC ouctome1: {outcome}");
             stats.time += stopwatch.ElapsedTicks;
 
-            return ConditionGeneration.ProverInterfaceOutcomeToConditionGenerationOutcome(outcome);
+            var o = ConditionGeneration.ProverInterfaceOutcomeToConditionGenerationOutcome(outcome);
+            Console.WriteLine($"checkVC ouctome2: {o}");
+            return o;
         }
 
         private VcOutcome CheckVC(List<VCExpr> softAssumptions, ProverInterface.ErrorHandler reporter)
@@ -4108,14 +4110,13 @@ namespace CoreLib
             return mainVC.id;
         }
 
-        /*
         private Absy Label2Absy(string procName, string label)
         {
             int id = int.Parse(label);
-            var l2a = si.implName2StratifiedInliningInfo[procName].label2absy;
-            return (Absy)l2a[id];
+            var cfim = si.implName2StratifiedInliningInfo[procName].absyIds;
+
+            return cce.NonNull((Absy) cfim.GetValue(id));
         }
-        */
 
         public override void OnProverError(string message)
         {
@@ -4140,16 +4141,15 @@ namespace CoreLib
         public override void OnModel(IList<string> labels, Model model, SolverOutcome proverOutcome)
         {
             // Timeout?
-            if (proverOutcome != SolverOutcome.TimeOut)
+            if (proverOutcome != SolverOutcome.Invalid)
                 return;
 
             var start = DateTime.Now;
             List<Absy> absyList = GetAbsyTrace(mainVC, labels);
             orderedStateIds = new List<Tuple<int, int>>();
 
+            absyList.ForEach(x => Console.WriteLine(x));
             var cex = NewTrace(mainVC, absyList, model);
-            //cex.PrintModel();
-
             if (StratifiedInlining.StratifiedInliningVerbose > 2)
                 cex.Print(6, Console.Out);
 
@@ -4157,7 +4157,6 @@ namespace CoreLib
                 (reportTraceIfNothingToExpand && callSitesToExpand.Count == 0)))
             {
                 callback.OnCounterexample(cex, null);
-                //this.PrintModel(model);
             }
             ttime += (DateTime.Now - start);
         }
@@ -4175,13 +4174,13 @@ namespace CoreLib
         {
             if (labels == null)
             {
-                // TODOOO
-                //labels = si.prover.CalculatePath(svc.id, System.Threading.CancellationToken.None);
+                labels = si.prover.CalculatePath(svc.id, System.Threading.CancellationToken.None).Result;
             }
             var ret = new List<Absy>();
             foreach (var label in labels)
             {
-                //ret.Add(Label2Absy(svc.info.Implementation.Name, label));
+                // todo
+                ret.Add(Label2Absy(svc.info.run.Implementation.Name, label));
             }
             return ret;
         }

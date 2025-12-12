@@ -227,7 +227,42 @@ namespace Microsoft.Boogie.SMTLib
         Close();
       }
     }
+    public override async Task<string[]> CalculatePath(int controlFlowConstant, CancellationToken token)
+    {
+      Model model = errorModel;
+      var path = new List<string>();
 
+      if (model is null) {
+        return path.ToArray();
+      }
+
+      var function = model.TryGetFunc(VCExpressionGenerator.ControlFlowName);
+      var controlFlowElement = model.TryMkElement(controlFlowConstant.ToString());
+      var zeroElement = model.TryMkElement("0");
+      var v = zeroElement;
+
+      while (true) {
+        var result = function?.TryEval(controlFlowElement, v) ?? function?.Else;
+        if (result is null) {
+          break;
+        }
+        var resultData = result as Model.DatatypeValue;
+
+        if (resultData is not null && resultData.Arguments.Length >= 1) {
+          path.Add(resultData.Arguments[0].ToString());
+          break;
+        } else if (result is Model.Integer) {
+          path.Add(result.ToString());
+        } else {
+          HandleProverError($"Invalid control flow model received from solver.");
+          break;
+        }
+
+        v = result;
+      }
+
+      return path.ToArray();
+    }
     // Note: This could probably be made to work with the result of
     // `(get-value ControlFlow)` rather than the full result of `(get-model)`.
     // At some point we should do experiments to see whether that's at all
